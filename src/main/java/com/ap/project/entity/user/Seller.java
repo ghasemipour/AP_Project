@@ -19,4 +19,10 @@ public class Seller extends User{
     private BankAccount bankAccount;
     @Column(columnDefinition = "text")
     private String discription;
+
+    public Seller(String name, String number, String password, String address, BankAccount bankAccount) {
+        super(name, number, password);
+        this.address = address;
+        this.bankAccount = bankAccount;
+    }
 }

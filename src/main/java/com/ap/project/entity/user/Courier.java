@@ -16,4 +16,9 @@ public class Courier extends User{
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(nullable = false)
     private BankAccount bankAccount;
+
+    public Courier(String name, String number, String password, BankAccount bankAccount) {
+        super(name, number, password);
+        this.bankAccount = bankAccount;
+    }
 }

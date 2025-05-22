@@ -15,10 +15,21 @@ public abstract class User {
 
     @Column(nullable = false)
     private String name;
-    @Column(nullable = false)
-    private String number;
+    @Column(nullable = false, unique = true)
+    private String phoneNumber;
     @Column(nullable = false)
     private String password;
 
     private String profilePicture;
+    private String email;
+
+    public User(String name, String number, String password) {
+        this.name = name;
+        this.phoneNumber = number;
+        this.password = password;
+    }
+
+    public User() {
+
+    }
 }
