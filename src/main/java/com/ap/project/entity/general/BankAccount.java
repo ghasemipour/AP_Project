@@ -10,4 +10,7 @@ public class BankAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
+
+    String bankName;
+    String accountNumber;
 }
