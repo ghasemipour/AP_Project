@@ -6,7 +6,7 @@
     <session-factory>
         <!-- Connect to MySQL Port 3306 -->
         <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/food_ordering</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/romeFood_database</property>
         <property name="hibernate.connection.username">root</property>
         <property name="hibernate.connection.password">1234</property>
 
@@ -19,6 +19,9 @@
 
         <!-- Entities -->
         <mapping class="com.ap.project.entity.user.User"/>
+        <mapping class="com.ap.project.entity.user.Courier"/>
+        <mapping class="com.ap.project.entity.user.Customer"/>
+        <mapping class="com.ap.project.entity.user.Seller"/>
         <mapping class="com.ap.project.entity.general.BankAccount"/>
 
     </session-factory>
