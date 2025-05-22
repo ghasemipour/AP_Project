@@ -1,7 +1,19 @@
 package com.ap.project.entity.user;
 
-import com.ap.project.general.BankAccount;
+import com.ap.project.entity.general.BankAccount;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import lombok.Getter;
+import lombok.Setter;
 
+@Entity
+@Getter
+@Setter
 public class Courier extends User{
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(nullable = false)
     private BankAccount bankAccount;
 }
