@@ -13,10 +13,13 @@
         <!-- Hibernate setting -->
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+        <property name="hibernate.highlight_sql">true</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
 
-        <!-- اینجا entityهای خودت رو اضافه کن -->
+        <!-- Entities -->
+        <mapping class="com.ap.project.entity.user.User"/>
+        <mapping class="com.ap.project.entity.general.BankAccount"/>
 
-        <!-- <mapping class="com.example.model.Order"/> -->
     </session-factory>
 </hibernate-configuration>
