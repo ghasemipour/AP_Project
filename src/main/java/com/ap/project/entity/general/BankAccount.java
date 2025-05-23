@@ -13,4 +13,9 @@ public class BankAccount {
 
     String bankName;
     String accountNumber;
+
+    public BankAccount(String bankName, String accountNumber) {
+        this.bankName = bankName;
+        this.accountNumber = accountNumber;
+    }
 }
