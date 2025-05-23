@@ -21,4 +21,8 @@ public class Courier extends User{
         super(name, number, password, email, profilePicture);
         this.bankAccount = bankAccount;
     }
+
+    public Courier() {
+
+    }
 }

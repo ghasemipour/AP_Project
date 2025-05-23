@@ -17,4 +17,8 @@ public class Customer extends User{
         super(name, number, password, email, profilePricture);
         this.address = address;
     }
+
+    public Customer() {
+
+    }
 }
