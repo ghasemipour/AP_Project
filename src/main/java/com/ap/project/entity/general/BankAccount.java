@@ -18,4 +18,8 @@ public class BankAccount {
         this.bankName = bankName;
         this.accountNumber = accountNumber;
     }
+
+    public BankAccount() {
+
+    }
 }
