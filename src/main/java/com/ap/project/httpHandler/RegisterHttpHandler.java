@@ -18,6 +18,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+import static com.ap.project.util.JwtUtil.generateToken;
+
 public class RegisterHttpHandler implements HttpHandler {
 
     @Override
@@ -31,26 +33,67 @@ public class RegisterHttpHandler implements HttpHandler {
         InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
         RegisterDto req = new Gson().fromJson(reader, RegisterDto.class);
 
-        if(req.getName() == null || req.getPassword() == null || req.getRole() == null || req.getPhoneNumber() == null) {
-            exchange.sendResponseHeaders(400, -1);
+        if(req.getFull_name() == null || req.getPassword() == null || req.getRole() == null || req.getPhone() == null) {
+            String response = "";
+            if(req.getFull_name() == null)
+                response += "Name required\n";
+            if(req.getPassword() == null)
+                response += "Password required\n";
+            if(req.getRole() == null)
+                response += "Role required\n";
+            if(req.getPhone() == null)
+                response += "PhoneNumber required\n";
+
+            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(400, responseBytes.length);
+            OutputStream os = exchange.getResponseBody();
+            os.write(responseBytes);
+            os.close();
             return;
         }
         if(req.getRole().equals(UserRole.CUSTOMER) && req.getAddress() == null) {
-            exchange.sendResponseHeaders(400, -1);
+            String response = "Address required\n";
+            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+
+            exchange.sendResponseHeaders(400, responseBytes.length);
+            OutputStream os = exchange.getResponseBody();
+            os.write(responseBytes);
+            os.close();
             return;
         }
-        if(req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBankAccount().getBankName() == null || req.getBankAccount().getAccountNumber() == null))){
-            exchange.sendResponseHeaders(400, -1);
+        if(req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBank_info().getBankName() == null || req.getBank_info().getAccountNumber() == null))){
+            String response = "";
+            if(req.getAddress() == null)
+                response += "Address required\n";
+            if(req.getBank_info().getBankName() == null)
+                response += "Bank account required\n";
+            if(req.getBank_info().getAccountNumber() == null)
+                response += "Account number required\n";
+            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+
+            exchange.sendResponseHeaders(400, responseBytes.length);
+            OutputStream os = exchange.getResponseBody();
+            os.write(responseBytes);
+            os.close();
             return;
         }
-        if(req.getRole().equals(UserRole.COURIER) && (req.getBankAccount().getBankName() == null || req.getBankAccount().getAccountNumber() == null)) {
-            exchange.sendResponseHeaders(400, -1);
+        if(req.getRole().equals(UserRole.COURIER) && (req.getBank_info().getBankName() == null || req.getBank_info().getAccountNumber() == null)) {
+            String response = "";
+            if(req.getBank_info().getBankName() == null)
+                response += "Bank account required\n";
+            if(req.getBank_info().getAccountNumber() == null)
+                response += "Account number required\n";
+            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(400, responseBytes.length);
+            OutputStream os = exchange.getResponseBody();
+            os.write(responseBytes);
+            os.close();
             return;
         }
 
         //Checking phoneNumber format
-        final String phoneNumberRegex = "^09[0-9]{11}$";
-        if(!req.getPhoneNumber().matches(phoneNumberRegex)) {
+        final String phoneNumberRegex = "^09[0-9]{9}$";
+        if(!req.getPhone().matches(phoneNumberRegex)) {
             String response = "Invalid phone number";
             byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(400, responseBytes.length);
@@ -72,7 +115,7 @@ public class RegisterHttpHandler implements HttpHandler {
             return;
         }
 
-        if(com.ap.project.dao.UserDao.IsPhoneNumberTaken(req.getPhoneNumber())){
+        if(com.ap.project.dao.UserDao.IsPhoneNumberTaken(req.getPhone())){
             String response = "Phone number already exists";
             byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(409, responseBytes.length);
@@ -94,20 +137,24 @@ public class RegisterHttpHandler implements HttpHandler {
 
         User user = switch (req.getRole()) {
             case CUSTOMER ->
-                    new Customer(req.getPhoneNumber(), req.getEmail(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress());
+                    new Customer(req.getFull_name(),req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress());
             case COURIER ->
-                    new Courier(req.getName(), req.getPhoneNumber(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), new BankAccount(req.getBankAccount().getBankName(), req.getBankAccount().getAccountNumber()));
+                    new Courier(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), new BankAccount(req.getBank_info().getBankName(), req.getBank_info().getAccountNumber()));
             case SELLER ->
-                    new Seller(req.getName(), req.getPhoneNumber(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress(), new BankAccount(req.getBankAccount().getBankName(), req.getBankAccount().getAccountNumber()));
+                    new Seller(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress(), new BankAccount(req.getBank_info().getBankName(), req.getBank_info().getAccountNumber()));
         };
 
         com.ap.project.dao.UserDao.saveUser(user);
+
+
+        String token = generateToken(user.getUserId());
+        System.out.println(token);
+
         RegisterResponseDto response = new RegisterResponseDto(
                 "User registered successfully",
                 user.getUserId(),
-                com.ap.project.util.JwtUtil.generateToken(user.getUserId())
+                token
         );
-
         Gson gson = new Gson();
         String jsonResponse = gson.toJson(response);
 
