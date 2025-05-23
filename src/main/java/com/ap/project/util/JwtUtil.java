@@ -8,18 +8,22 @@ import java.security.Key;
 import java.util.Date;
 
 public class JwtUtil {
-    // You MUST use a Base64-encoded key here
-    private static final String SECRET = "yXLmPEu/k0cqWG/NlOSkXEBoH83dZEVNlqo=";
+    private static final String SECRET = "Fk3LpQDFsXnZGr8R5gcC1N1FbNUjRYXyLdpQs5Q49kQ=";
     private static final Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
     private static final long EXPIRATION_MS = 3 * 60 * 60 * 1000 * 10; // 3 hours
 
     public static String generateToken(String userId) {
-        return Jwts.builder()
-                .setSubject(userId)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+        try {
+            return Jwts.builder()
+                    .setSubject(userId)
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
+                    .signWith(key, SignatureAlgorithm.HS256)
+                    .compact();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static String validateToken(String token) {
