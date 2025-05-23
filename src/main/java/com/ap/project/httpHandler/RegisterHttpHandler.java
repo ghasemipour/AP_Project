@@ -1,6 +1,7 @@
 package com.ap.project.httpHandler;
 
 import com.ap.project.Enums.UserRole;
+import com.ap.project.deserializer.UserRoleDeserializer;
 import com.ap.project.dto.RegisterDto;
 
 import com.ap.project.dto.RegisterResponseDto;
@@ -10,6 +11,8 @@ import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -31,18 +34,20 @@ public class RegisterHttpHandler implements HttpHandler {
         }
 
         InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
-        RegisterDto req = new Gson().fromJson(reader, RegisterDto.class);
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(UserRole.class, new UserRoleDeserializer()).create();
+        RegisterDto req = gson.fromJson(reader, RegisterDto.class);
 
         if(req.getFull_name() == null || req.getPassword() == null || req.getRole() == null || req.getPhone() == null) {
             String response = "";
             if(req.getFull_name() == null)
-                response += "Name required\n";
+                response += "{\"error\": \"Name required\"}\n";
             if(req.getPassword() == null)
-                response += "Password required\n";
+                response += "{\"error\": \"Password required\"}\n";
             if(req.getRole() == null)
-                response += "Role required\n";
+                response += "{\"error\": \"Role required\"}\n";
             if(req.getPhone() == null)
-                response += "PhoneNumber required\n";
+                response += "{\"error\": \"PhoneNumber required\"}\n";
 
             byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(400, responseBytes.length);
@@ -52,7 +57,7 @@ public class RegisterHttpHandler implements HttpHandler {
             return;
         }
         if(req.getRole().equals(UserRole.CUSTOMER) && req.getAddress() == null) {
-            String response = "Address required\n";
+            String response = "{\"error\": \"Address required\"}\n";
             byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
 
             exchange.sendResponseHeaders(400, responseBytes.length);
@@ -61,14 +66,14 @@ public class RegisterHttpHandler implements HttpHandler {
             os.close();
             return;
         }
-        if(req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBank_info().getBankName() == null || req.getBank_info().getAccountNumber() == null))){
+        if(req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null))){
             String response = "";
             if(req.getAddress() == null)
-                response += "Address required\n";
-            if(req.getBank_info().getBankName() == null)
-                response += "Bank account required\n";
-            if(req.getBank_info().getAccountNumber() == null)
-                response += "Account number required\n";
+                response += "{\"error\": \"Address required\"}\n";
+            if(req.getBank_info().getBank_name() == null)
+                response += "{\"error\": \"Bank name required\"}\n";
+            if(req.getBank_info().getAccount_number() == null)
+                response += "{\"error\": \"Account number required\"}\n";
             byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
 
             exchange.sendResponseHeaders(400, responseBytes.length);
@@ -77,12 +82,12 @@ public class RegisterHttpHandler implements HttpHandler {
             os.close();
             return;
         }
-        if(req.getRole().equals(UserRole.COURIER) && (req.getBank_info().getBankName() == null || req.getBank_info().getAccountNumber() == null)) {
+        if(req.getRole().equals(UserRole.COURIER) && (req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null)) {
             String response = "";
-            if(req.getBank_info().getBankName() == null)
-                response += "Bank account required\n";
-            if(req.getBank_info().getAccountNumber() == null)
-                response += "Account number required\n";
+            if(req.getBank_info().getBank_name() == null)
+                response += "{\"error\": \"Bank name required\"}\n";
+            if(req.getBank_info().getAccount_number() == null)
+                response += "{\"error\": \"Account number required\"}\n";
             byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(400, responseBytes.length);
             OutputStream os = exchange.getResponseBody();
@@ -94,7 +99,7 @@ public class RegisterHttpHandler implements HttpHandler {
         //Checking phoneNumber format
         final String phoneNumberRegex = "^09[0-9]{9}$";
         if(!req.getPhone().matches(phoneNumberRegex)) {
-            String response = "Invalid phone number";
+            String response = "{\"error\": \"Invalid phone number\"}";
             byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(400, responseBytes.length);
             OutputStream os = exchange.getResponseBody();
@@ -106,7 +111,7 @@ public class RegisterHttpHandler implements HttpHandler {
         //Checking Email format
         final String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9+_.-]+$";
         if(req.getEmail() != null && !req.getEmail().matches(emailRegex)) {
-            String response = "Invalid email";
+            String response = "{\"error\": \"Invalid email\"}";
             byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(400, responseBytes.length);
             OutputStream os = exchange.getResponseBody();
@@ -116,7 +121,7 @@ public class RegisterHttpHandler implements HttpHandler {
         }
 
         if(com.ap.project.dao.UserDao.IsPhoneNumberTaken(req.getPhone())){
-            String response = "Phone number already exists";
+            String response = "{\"error\": \"Phone number already exists\"}";
             byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(409, responseBytes.length);
             OutputStream os = exchange.getResponseBody();
@@ -126,7 +131,7 @@ public class RegisterHttpHandler implements HttpHandler {
         }
 
         if(req.getEmail() != null && com.ap.project.dao.UserDao.IsEmailTaken(req.getEmail())){
-            String response = "Email already exists";
+            String response = "{\"error\": \"Email already exists\"}";
             byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(409, responseBytes.length);
             OutputStream os = exchange.getResponseBody();
@@ -139,9 +144,9 @@ public class RegisterHttpHandler implements HttpHandler {
             case CUSTOMER ->
                     new Customer(req.getFull_name(),req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress());
             case COURIER ->
-                    new Courier(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), new BankAccount(req.getBank_info().getBankName(), req.getBank_info().getAccountNumber()));
+                    new Courier(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), new BankAccount(req.getBank_info().getBank_name(), req.getBank_info().getAccount_number()));
             case SELLER ->
-                    new Seller(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress(), new BankAccount(req.getBank_info().getBankName(), req.getBank_info().getAccountNumber()));
+                    new Seller(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress(), new BankAccount(req.getBank_info().getBank_name(), req.getBank_info().getAccount_number()));
         };
 
         com.ap.project.dao.UserDao.saveUser(user);
@@ -155,7 +160,7 @@ public class RegisterHttpHandler implements HttpHandler {
                 user.getUserId(),
                 token
         );
-        Gson gson = new Gson();
+
         String jsonResponse = gson.toJson(response);
 
         byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
