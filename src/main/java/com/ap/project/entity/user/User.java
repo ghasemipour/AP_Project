@@ -4,14 +4,15 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 public abstract class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long id;
+    protected String userId;
 
     @Column(nullable = false)
     private String name;
@@ -21,12 +22,16 @@ public abstract class User {
     private String password;
 
     private String profilePicture;
+    @Column(unique = true)
     private String email;
 
-    public User(String name, String number, String password) {
+    public User(String name, String number, String password, String email, String profilePicture) {
         this.name = name;
         this.phoneNumber = number;
         this.password = password;
+        this.profilePicture = profilePicture;
+        this.email = email;
+        this.userId = UUID.randomUUID().toString();
     }
 
     public User() {

@@ -17,8 +17,8 @@ public class Courier extends User{
     @JoinColumn(nullable = false)
     private BankAccount bankAccount;
 
-    public Courier(String name, String number, String password, BankAccount bankAccount) {
-        super(name, number, password);
+    public Courier(String name, String number, String password, String email, String profilePicture, BankAccount bankAccount) {
+        super(name, number, password, email, profilePicture);
         this.bankAccount = bankAccount;
     }
 }
