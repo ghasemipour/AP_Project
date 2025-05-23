@@ -3,27 +3,23 @@ package com.ap.project.dao;
 import com.ap.project.entity.user.User;
 import com.ap.project.util.HibernateUtil;
 import jakarta.transaction.SystemException;
-import jakarta.transaction.Transaction;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 public class UserDao {
 
     public static void saveUser(User user) {
         Transaction transaction = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
             session.save(user);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
-                try {
-                    transaction.rollback();
-                } catch (SystemException ex) {
-                    throw new RuntimeException(ex);
-                }
+                transaction.rollback();
             }
             e.printStackTrace();
         }
-
     }
     public static boolean IsPhoneNumberTaken(String phoneNumber) {
         boolean res = false;
@@ -35,6 +31,7 @@ public class UserDao {
                             "select count(u) from User u where u.phoneNumber = :phoneNumber", Long.class)
                     .setParameter("phoneNumber", phoneNumber)
                     .uniqueResult();
+
 
             res = count != null && count > 0;
             session.getTransaction().commit();
