@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BankAccountDto {
-    String bankName;
-    String accountNumber;
+    private String bankName;
+    private String accountNumber;
 
     public BankAccountDto() {}
 }

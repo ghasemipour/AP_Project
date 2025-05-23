@@ -7,13 +7,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RegisterDto {
-    String name;
-    String phoneNumber;
-    String password;
-    UserRole role;
-    String address;
-    String profileImageBase64;
-    BankAccountDto bankAccount;
+    private String name;
+    private String phoneNumber;
+    private String password;
+    private UserRole role;
+    private String address;
+    private String profileImageBase64;
+    private String email;
+    private BankAccountDto bankAccount;
 
     public RegisterDto() {}
 
