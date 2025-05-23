@@ -1,5 +1,6 @@
 package com.ap.project.entity.user;
 
+import com.ap.project.util.PasswordUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +29,7 @@ public abstract class User {
     public User(String name, String number, String password, String email, String profilePicture) {
         this.name = name;
         this.phoneNumber = number;
-        this.password = password;
+        this.password = PasswordUtil.hashPassword(password);
         this.profilePicture = profilePicture;
         this.email = email;
         this.userId = UUID.randomUUID().toString();
