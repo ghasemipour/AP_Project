@@ -1,6 +1,7 @@
 package com.ap.project.httpHandler;
 
 import com.ap.project.Enums.UserRole;
+import com.ap.project.dao.UserDao;
 import com.ap.project.deserializer.UserRoleDeserializer;
 import com.ap.project.dto.RegisterDto;
 
@@ -10,6 +11,7 @@ import com.ap.project.entity.user.Courier;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
+import com.ap.project.services.Validate;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
@@ -97,30 +99,17 @@ public class RegisterHttpHandler implements HttpHandler {
         }
 
         //Checking phoneNumber format
-        final String phoneNumberRegex = "^09[0-9]{9}$";
-        if(!req.getPhone().matches(phoneNumberRegex)) {
-            String response = "{\"error\": \"Invalid phone number\"}";
-            byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-            exchange.sendResponseHeaders(400, responseBytes.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBytes);
-            os.close();
+        if(!Validate.validatePhone(req.getPhone(), exchange)) {
             return;
         }
 
         //Checking Email format
-        final String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9+_.-]+$";
-        if(req.getEmail() != null && !req.getEmail().matches(emailRegex)) {
-            String response = "{\"error\": \"Invalid email\"}";
-            byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-            exchange.sendResponseHeaders(400, responseBytes.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBytes);
-            os.close();
+
+        if(!Validate.validateEmail(req.getEmail(), exchange)) {
             return;
         }
 
-        if(com.ap.project.dao.UserDao.IsPhoneNumberTaken(req.getPhone())){
+        if(UserDao.IsPhoneNumberTaken(req.getPhone())){
             String response = "{\"error\": \"Phone number already exists\"}";
             byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(409, responseBytes.length);
@@ -130,7 +119,7 @@ public class RegisterHttpHandler implements HttpHandler {
             return;
         }
 
-        if(req.getEmail() != null && com.ap.project.dao.UserDao.IsEmailTaken(req.getEmail())){
+        if(req.getEmail() != null && UserDao.IsEmailTaken(req.getEmail())){
             String response = "{\"error\": \"Email already exists\"}";
             byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(409, responseBytes.length);
