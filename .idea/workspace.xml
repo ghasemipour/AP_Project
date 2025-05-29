@@ -5,9 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3c17796f-4cc5-49d5-be3f-f3a0c693f9ac" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/general/BankAccount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/general/BankAccount.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/user/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/user/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/UserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/UserDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/ProfileHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/ProfileHttpHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RegisterHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RegisterHttpHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +90,9 @@
       <workItem from="1748007535219" duration="85000" />
       <workItem from="1748007657925" duration="1817000" />
       <workItem from="1748009699284" duration="1068000" />
-      <workItem from="1748021749770" duration="504000" />
+      <workItem from="1748021749770" duration="1947000" />
+      <workItem from="1748455301996" duration="5000" />
+      <workItem from="1748514431253" duration="11414000" />
     </task>
     <servers />
   </component>
