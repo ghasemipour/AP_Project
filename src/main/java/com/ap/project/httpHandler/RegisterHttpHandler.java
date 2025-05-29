@@ -29,135 +29,144 @@ public class RegisterHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        try {
+            if (!exchange.getRequestMethod().equals("POST")) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+            InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(UserRole.class, new UserRoleDeserializer()).create();
+            RegisterDto req = gson.fromJson(reader, RegisterDto.class);
 
-        if(!exchange.getRequestMethod().equals("POST")) {
-            exchange.sendResponseHeaders(405, -1);
-            return;
+            if (req.getFull_name() == null || req.getPassword() == null || req.getRole() == null || req.getPhone() == null) {
+                String response = "";
+                if (req.getFull_name() == null)
+                    response += "{\"error\": \"Name required\"}\n";
+                if (req.getPassword() == null)
+                    response += "{\"error\": \"Password required\"}\n";
+                if (req.getRole() == null)
+                    response += "{\"error\": \"Role required\"}\n";
+                if (req.getPhone() == null)
+                    response += "{\"error\": \"PhoneNumber required\"}\n";
+
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+            if (req.getRole().equals(UserRole.CUSTOMER) && req.getAddress() == null) {
+                String response = "{\"error\": \"Address required\"}\n";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+            if (req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null))) {
+                String response = "";
+                if (req.getAddress() == null)
+                    response += "{\"error\": \"Address required\"}\n";
+                if (req.getBank_info().getBank_name() == null)
+                    response += "{\"error\": \"Bank name required\"}\n";
+                if (req.getBank_info().getAccount_number() == null)
+                    response += "{\"error\": \"Account number required\"}\n";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+            if (req.getRole().equals(UserRole.COURIER) && (req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null)) {
+                String response = "";
+                if (req.getBank_info().getBank_name() == null)
+                    response += "{\"error\": \"Bank name required\"}\n";
+                if (req.getBank_info().getAccount_number() == null)
+                    response += "{\"error\": \"Account number required\"}\n";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+
+            //Checking phoneNumber format
+            if (!Validate.validatePhone(req.getPhone(), exchange)) {
+                return;
+            }
+
+            //Checking Email format
+
+            if (!Validate.validateEmail(req.getEmail(), exchange)) {
+                return;
+            }
+
+            if (UserDao.IsPhoneNumberTaken(req.getPhone())) {
+                String response = "{\"error\": \"Phone number already exists\"}";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(409, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+
+            if (req.getEmail() != null && UserDao.IsEmailTaken(req.getEmail())) {
+                String response = "{\"error\": \"Email already exists\"}";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(409, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+
+            User user = switch (req.getRole()) {
+                case CUSTOMER ->
+                        new Customer(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress());
+                case COURIER ->
+                        new Courier(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), new BankAccount(req.getBank_info().getBank_name(), req.getBank_info().getAccount_number()));
+                case SELLER ->
+                        new Seller(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress(), new BankAccount(req.getBank_info().getBank_name(), req.getBank_info().getAccount_number()));
+            };
+
+            com.ap.project.dao.UserDao.saveUser(user);
+
+
+            String token = generateToken(user.getUserId());
+            System.out.println(token);
+
+            RegisterResponseDto response = new RegisterResponseDto(
+                    "User registered successfully",
+                    user.getUserId(),
+                    token
+            );
+
+            String jsonResponse = gson.toJson(response);
+
+            byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, responseBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
+            }
+
         }
+        catch (Exception e) {
+            e.printStackTrace();
+            String errorResponse = "{\"error\": \"Internal server error\"}";
+            byte[] responseBytes = errorResponse.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(500, responseBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
+            }
 
-        InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(UserRole.class, new UserRoleDeserializer()).create();
-        RegisterDto req = gson.fromJson(reader, RegisterDto.class);
-
-        if(req.getFull_name() == null || req.getPassword() == null || req.getRole() == null || req.getPhone() == null) {
-            String response = "";
-            if(req.getFull_name() == null)
-                response += "{\"error\": \"Name required\"}\n";
-            if(req.getPassword() == null)
-                response += "{\"error\": \"Password required\"}\n";
-            if(req.getRole() == null)
-                response += "{\"error\": \"Role required\"}\n";
-            if(req.getPhone() == null)
-                response += "{\"error\": \"PhoneNumber required\"}\n";
-
-            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-            exchange.sendResponseHeaders(400, responseBytes.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBytes);
-            os.close();
-            return;
         }
-        if(req.getRole().equals(UserRole.CUSTOMER) && req.getAddress() == null) {
-            String response = "{\"error\": \"Address required\"}\n";
-            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-
-            exchange.sendResponseHeaders(400, responseBytes.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBytes);
-            os.close();
-            return;
-        }
-        if(req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null))){
-            String response = "";
-            if(req.getAddress() == null)
-                response += "{\"error\": \"Address required\"}\n";
-            if(req.getBank_info().getBank_name() == null)
-                response += "{\"error\": \"Bank name required\"}\n";
-            if(req.getBank_info().getAccount_number() == null)
-                response += "{\"error\": \"Account number required\"}\n";
-            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-
-            exchange.sendResponseHeaders(400, responseBytes.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBytes);
-            os.close();
-            return;
-        }
-        if(req.getRole().equals(UserRole.COURIER) && (req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null)) {
-            String response = "";
-            if(req.getBank_info().getBank_name() == null)
-                response += "{\"error\": \"Bank name required\"}\n";
-            if(req.getBank_info().getAccount_number() == null)
-                response += "{\"error\": \"Account number required\"}\n";
-            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-            exchange.sendResponseHeaders(400, responseBytes.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBytes);
-            os.close();
-            return;
-        }
-
-        //Checking phoneNumber format
-        if(!Validate.validatePhone(req.getPhone(), exchange)) {
-            return;
-        }
-
-        //Checking Email format
-
-        if(!Validate.validateEmail(req.getEmail(), exchange)) {
-            return;
-        }
-
-        if(UserDao.IsPhoneNumberTaken(req.getPhone())){
-            String response = "{\"error\": \"Phone number already exists\"}";
-            byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-            exchange.sendResponseHeaders(409, responseBytes.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBytes);
-            os.close();
-            return;
-        }
-
-        if(req.getEmail() != null && UserDao.IsEmailTaken(req.getEmail())){
-            String response = "{\"error\": \"Email already exists\"}";
-            byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-            exchange.sendResponseHeaders(409, responseBytes.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(responseBytes);
-            os.close();
-            return;
-        }
-
-        User user = switch (req.getRole()) {
-            case CUSTOMER ->
-                    new Customer(req.getFull_name(),req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress());
-            case COURIER ->
-                    new Courier(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), new BankAccount(req.getBank_info().getBank_name(), req.getBank_info().getAccount_number()));
-            case SELLER ->
-                    new Seller(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress(), new BankAccount(req.getBank_info().getBank_name(), req.getBank_info().getAccount_number()));
-        };
-
-        com.ap.project.dao.UserDao.saveUser(user);
-
-
-        String token = generateToken(user.getUserId());
-        System.out.println(token);
-
-        RegisterResponseDto response = new RegisterResponseDto(
-                "User registered successfully",
-                user.getUserId(),
-                token
-        );
-
-        String jsonResponse = gson.toJson(response);
-
-        byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
-        exchange.getResponseHeaders().add("Content-Type", "application/json");
-        exchange.sendResponseHeaders(200, responseBytes.length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(responseBytes);
-        os.close();
-
     }
 }

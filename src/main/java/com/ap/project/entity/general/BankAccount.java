@@ -13,7 +13,7 @@ import lombok.Setter;
 public class BankAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    protected String id;
 
     String bankName;
     String accountNumber;

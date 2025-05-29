@@ -155,4 +155,22 @@ public class UserDao {
 
         return res;
     }
+
+    public static User getUserByPhone(String phoneNumber) {
+        Transaction transaction = null;
+        User user = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            user = session.createQuery("from User where phoneNumber = :phoneNumber", User.class)
+                    .setParameter("phoneNumber", phoneNumber)
+                    .uniqueResult();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+            transaction.rollback();
+            }
+            e.printStackTrace();
+        }
+        return user;
+    }
 }

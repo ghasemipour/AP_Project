@@ -18,7 +18,7 @@ public class ProfileHttpHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        if(!exchange.getRequestMethod().equals("GET") || !exchange.getRequestMethod().equals("PuT")) {
+        if(!exchange.getRequestMethod().equals("GET") || !exchange.getRequestMethod().equals("PUT")) {
             exchange.sendResponseHeaders(405, -1);
             return;
         }
