@@ -1,5 +1,7 @@
 package com.ap.project.entity.user;
 
+import com.ap.project.Enums.UserRole;
+import com.ap.project.dto.ProfileDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -8,7 +10,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Customer extends User{
+public class Customer extends User implements HasAddress{
 
     @Column(nullable = false)
     private String address;
@@ -20,5 +22,12 @@ public class Customer extends User{
 
     public Customer() {
 
+    }
+
+    @Override
+    public ProfileDto getProfile()
+    {
+        ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), this.address, null, null, null, UserRole.CUSTOMER);
+        return profileDto;
     }
 }

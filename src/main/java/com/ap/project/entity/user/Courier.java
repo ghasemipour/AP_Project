@@ -1,5 +1,7 @@
 package com.ap.project.entity.user;
 
+import com.ap.project.Enums.UserRole;
+import com.ap.project.dto.ProfileDto;
 import com.ap.project.entity.general.BankAccount;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -11,7 +13,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Courier extends User{
+public class Courier extends User implements HasBankAccount {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(nullable = false)
@@ -24,5 +26,12 @@ public class Courier extends User{
 
     public Courier() {
 
+    }
+
+    @Override
+    public ProfileDto getProfile()
+    {
+        ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), null, this.bankAccount, null, null, UserRole.COURIER);
+        return profileDto;
     }
 }

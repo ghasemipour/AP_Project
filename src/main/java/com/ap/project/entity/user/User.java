@@ -1,5 +1,6 @@
 package com.ap.project.entity.user;
 
+import com.ap.project.dto.ProfileDto;
 import com.ap.project.util.PasswordUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -38,4 +39,6 @@ public abstract class User {
     public User() {
 
     }
+
+    public abstract ProfileDto getProfile();
 }
