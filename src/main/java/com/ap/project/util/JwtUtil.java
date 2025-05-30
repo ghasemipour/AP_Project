@@ -35,6 +35,7 @@ public class JwtUtil {
                     .getBody()
                     .getSubject();
         } catch (JwtException e) {
+            e.printStackTrace();
             return null;
         }
     }

@@ -16,9 +16,7 @@ public class Main {
         HttpServer httpServer = HttpServer.create(new InetSocketAddress(port), 0);
 
         httpServer.createContext("/auth/register", new RegisterHttpHandler());
-        /*TODO : Write Login endpoints */
         httpServer.createContext("/auth/profile", new ProfileHttpHandler());
-        /* TODO: Write Other endpoints */
         httpServer.createContext("/auth/login", new LoginHttpHandler());
         /* TODO: Write Other endpoints */
 

@@ -18,12 +18,16 @@ public class ProfileHttpHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        if(!exchange.getRequestMethod().equals("GET") || !exchange.getRequestMethod().equals("PUT")) {
+        if(!exchange.getRequestMethod().equals("GET") && !exchange.getRequestMethod().equals("PUT")) {
             exchange.sendResponseHeaders(405, -1);
             return;
         }
 
-        String token = exchange.getRequestHeaders().getFirst("Authorization");
+        String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            exchange.sendResponseHeaders(401, -1);
+        }
+        String token = authHeader.substring(7).trim();
         if(token == null) {
             exchange.sendResponseHeaders(401, -1);
             return;
@@ -58,7 +62,6 @@ public class ProfileHttpHandler implements HttpHandler {
             exchange.sendResponseHeaders(401, -1);
             return;
         }
-
         String response = new Gson().toJson(profileDto);
         byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");

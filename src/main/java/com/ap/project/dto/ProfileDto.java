@@ -26,7 +26,9 @@ public class ProfileDto {
         this.email = email;
         this.profileImageBase64 = profilePicture;
         this.address = address;
-        this.bank_info = new BankAccountDto(bankAccount.getBankName(), bankAccount.getAccountNumber());
+        if(bankAccount != null) {
+            this.bank_info = new BankAccountDto(bankAccount.getBankName(), bankAccount.getAccountNumber());
+        }
         this.discription = discription;
         this.brandInfo = brandInfo;
         this.role = role;
