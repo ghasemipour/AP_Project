@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-public class ProfileHttpHandler implements HttpHandler {
+public class ProfileHttpHandler extends SuperHttpHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
@@ -23,25 +23,8 @@ public class ProfileHttpHandler implements HttpHandler {
             return;
         }
 
-        String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            exchange.sendResponseHeaders(401, -1);
-        }
-        String token = authHeader.substring(7).trim();
-        if(token == null) {
-            exchange.sendResponseHeaders(401, -1);
-            return;
-        }
-
-        String userId = JwtUtil.validateToken(token);
-        if(userId == null) {
-            exchange.sendResponseHeaders(401, -1);
-            return;
-        }
-
-        User user = UserDao.getUserById(userId);
+        User user = getUserByExchange(exchange);
         if(user == null) {
-            exchange.sendResponseHeaders(404, -1);
             return;
         }
 
