@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandler {
     @Override
@@ -32,16 +34,22 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
         }
 
         String path =exchange.getRequestURI().getPath();
-        if(exchange.getRequestMethod().equals("POST")) {
-            if(path.equals("/restaurants")) {
-                handleAddNewRestaurant(exchange, user);
-            }
+        if(path.equals("/restaurants")) {
+            handleAddNewRestaurant(exchange, user);
+        }
+        else if(path.equals("/restaurants/mine")) {
+            handleGetSellersRestaurants(exchange, user);
         }
 
     }
 
     private void handleAddNewRestaurant(HttpExchange exchange, User user) throws IOException {
         try {
+            if(!exchange.getRequestMethod().equals("POST")) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+
             InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             RestaurantDto req = new Gson().fromJson(reader, RestaurantDto.class);
 
@@ -96,6 +104,33 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
         }
 
+
+    }
+
+    private void handleGetSellersRestaurants(HttpExchange exchange, User user) throws IOException {
+        try {
+            if (!exchange.getRequestMethod().equals("GET")) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+
+            List<RestaurantDto> restaurantsList = ((Seller) user).getDtoRestaurants();
+            Gson gson = new Gson();
+            String json = gson.toJson(restaurantsList);
+            byte[] responseBytes = json.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, responseBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            String errorResponse = "{\"error\": \"Internal server error\"}";
+            byte[] responseBytes = errorResponse.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(500, responseBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
+            }
+        }
 
     }
 }

@@ -1,7 +1,9 @@
 package com.ap.project.entity.user;
 
 import com.ap.project.Enums.UserRole;
+import com.ap.project.dao.RestaurantDao;
 import com.ap.project.dto.ProfileDto;
+import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.general.BankAccount;
 import com.ap.project.entity.restaurant.Restaurant;
 import jakarta.persistence.*;
@@ -50,5 +52,15 @@ public class Seller extends User implements HasAddress, HasBankAccount{
     public void addRestaurant(Restaurant restaurant) {
         restaurants.add(restaurant);
         restaurant.setOwner(this);
+    }
+
+    public List<RestaurantDto> getDtoRestaurants() {
+        restaurants = RestaurantDao.getRestaurantsBySellerId(this.userId);
+        System.out.println(restaurants);
+        List<RestaurantDto> restaurantDtos = new ArrayList<>();
+        for (Restaurant restaurant : restaurants) {
+            restaurantDtos.add(restaurant.GetDto());
+        }
+        return restaurantDtos;
     }
 }

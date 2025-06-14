@@ -17,7 +17,7 @@ public class Restaurant {
     @Id
     private String id;
 
-
+    private boolean IsConfirmed = true;
     private String name;
     private String address;
     private String phone;
@@ -47,5 +47,10 @@ public class Restaurant {
 
     public Restaurant() {
 
+    }
+
+    public RestaurantDto GetDto() {
+        RestaurantDto restaurantDto = new RestaurantDto(name, address, phone, logoBase64, tax_fee, additional_fee, working_hour);
+        return restaurantDto;
     }
 }

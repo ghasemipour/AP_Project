@@ -4,8 +4,11 @@ import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
 import com.ap.project.util.HibernateUtil;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
+import java.util.List;
 
 public class RestaurantDao {
 
@@ -53,4 +56,20 @@ public class RestaurantDao {
        return res;
     }
 
+    public static List<Restaurant> getRestaurantsBySellerId(String userId) {
+        List<Restaurant> restaurants = null;
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Seller seller = session.get(Seller.class, userId);
+            if (seller == null) {
+                throw new RuntimeException("No such seller");
+            }
+            Hibernate.initialize(seller.getRestaurants());
+            restaurants = seller.getRestaurants();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            return restaurants;
+        }
+    }
 }
