@@ -136,11 +136,10 @@ public class RegisterHttpHandler implements HttpHandler {
                         new Seller(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress(), new BankAccount(req.getBank_info().getBank_name(), req.getBank_info().getAccount_number()));
             };
 
-            com.ap.project.dao.UserDao.saveUser(user);
+            UserDao.saveUser(user);
 
 
             String token = generateToken(user.getUserId());
-            System.out.println(token);
 
             RegisterResponseDto response = new RegisterResponseDto(
                     "User registered successfully",

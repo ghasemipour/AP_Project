@@ -27,7 +27,7 @@ public class Seller extends User implements HasAddress, HasBankAccount{
 
     private String brandInfo;
 
-    @OneToMany
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Restaurant> restaurants = new ArrayList<>();
 
     public Seller(String name, String number, String password, String email, String profilePicture, String address, BankAccount bankAccount) {
@@ -48,5 +48,7 @@ public class Seller extends User implements HasAddress, HasBankAccount{
     }
 
     public void addRestaurant(Restaurant restaurant) {
+        restaurants.add(restaurant);
+        restaurant.setOwner(this);
     }
 }

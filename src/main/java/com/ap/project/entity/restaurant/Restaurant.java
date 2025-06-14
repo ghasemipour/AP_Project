@@ -1,6 +1,7 @@
 package com.ap.project.entity.restaurant;
 
 import com.ap.project.dto.RestaurantDto;
+import com.ap.project.dto.WorkingHourDto;
 import com.ap.project.entity.user.Seller;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,16 +17,35 @@ public class Restaurant {
     @Id
     private String id;
 
+
+    private String name;
+    private String address;
+    private String phone;
+    private String logoBase64;
+    private int tax_fee = 0;
+    private int additional_fee = 0;
     @Embedded
-    private RestaurantDto restaurantInfo;
+    private WorkingHourDto working_hour;
 
-    @ManyToOne
-    private Seller owener;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private Seller owner;
 
-    public Restaurant(RestaurantDto restaurantInfo, Seller owener) {
-        this.restaurantInfo = restaurantInfo;
-        this.owener = owener;
-        id = "R-" + UUID.randomUUID().toString();
+    public Restaurant(RestaurantDto restaurantInfo, Seller owner) {
+        this.name = restaurantInfo.getName();
+        this.address = restaurantInfo.getAddress();
+        this.phone = restaurantInfo.getPhone();
+        this.logoBase64 = restaurantInfo.getLogoBase64();
+        if(restaurantInfo.getTax_fee() != null)
+            this.tax_fee = restaurantInfo.getTax_fee();
+        if(restaurantInfo.getAdditional_fee() != null)
+            this.additional_fee = restaurantInfo.getAdditional_fee();
+        this.working_hour = restaurantInfo.getWorking_hour();
+        this.owner = owner;
+        id = "R-" + (UUID.randomUUID().toString());
     }
 
+    public Restaurant() {
+
+    }
 }

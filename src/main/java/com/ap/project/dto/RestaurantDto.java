@@ -8,7 +8,7 @@ public class RestaurantDto {
     private String address;
     private String phone;
     private String logoBase64;
-    private int tax_fee;
-    private int additional_fee;
+    private Integer tax_fee;
+    private Integer additional_fee;
     private WorkingHourDto working_hour;
 }

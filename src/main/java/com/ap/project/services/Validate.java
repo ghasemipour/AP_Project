@@ -24,6 +24,9 @@ public class Validate {
     }
 
     public static boolean validateEmail(String email, HttpExchange exchange) throws IOException {
+        if(email == null || email.isEmpty()){
+            return true;
+        }
         if(!email.matches(emailRegex)){
             String response = "{\"error\": \"Invalid email\"}";
             byte [] responseBytes = response.getBytes(StandardCharsets.UTF_8);

@@ -77,9 +77,14 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
 
             Restaurant restaurant = new Restaurant(req, (Seller) user);
-            RestaurantDao.saveRestaurant(restaurant, user);
-
-
+            RestaurantDao.saveRestaurant(restaurant, user.getUserId());
+            
+            String response = "Restaurant created successfully";
+            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, responseBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
