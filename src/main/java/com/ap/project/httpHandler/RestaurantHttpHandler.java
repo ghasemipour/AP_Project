@@ -36,9 +36,13 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
         String path =exchange.getRequestURI().getPath();
         if(path.equals("/restaurants")) {
             handleAddNewRestaurant(exchange, user);
-        }
-        else if(path.equals("/restaurants/mine")) {
+        } else if(path.equals("/restaurants/mine")) {
             handleGetSellersRestaurants(exchange, user);
+        } else{
+            String[] parts = path.split("/");
+            if(parts.length == 2){
+                handleUpdateRestaurant(exchange, user, parts[1]);
+            }
         }
 
     }
@@ -132,5 +136,52 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
         }
 
+    }
+
+    private void handleUpdateRestaurant(HttpExchange exchange, User user, String restaurantId) throws IOException {
+        try {
+            if (!exchange.getRequestMethod().equals("PUT")) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+            InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+            RestaurantDto req = new Gson().fromJson(reader, RestaurantDto.class);
+            Restaurant restaurant = RestaurantDao.getRestaurantById(restaurantId);
+            if(restaurant == null) {
+                exchange.sendResponseHeaders(404, -1);
+                return;
+            }
+
+            if(!RestaurantDao.getSellerId(restaurantId).equals(user.getUserId())) {
+                exchange.sendResponseHeaders(403, -1);
+                return;
+            }
+
+            if(req.getPhone() != null && !Validate.validatePhone(req.getPhone(), exchange)) {
+                return;
+            }
+
+            if(req.getPhone() != null && RestaurantDao.isPhoneNumberTaken(req.getPhone())) {
+                String response = "{\"error\": \"Phone number already exists\"}";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+            System.out.println("All Right");
+
+            RestaurantDao.updateRestaurant(restaurantId, req);
+            String response = "Restaurant updated";
+            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, responseBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }

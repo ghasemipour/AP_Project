@@ -50,7 +50,7 @@ public class Restaurant {
     }
 
     public RestaurantDto GetDto() {
-        RestaurantDto restaurantDto = new RestaurantDto(name, address, phone, logoBase64, tax_fee, additional_fee, working_hour);
+        RestaurantDto restaurantDto = new RestaurantDto(id, name, address, phone, logoBase64, tax_fee, additional_fee, working_hour);
         return restaurantDto;
     }
 }

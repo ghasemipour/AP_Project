@@ -11,8 +11,9 @@ public class RestaurantDto {
     private Integer tax_fee;
     private Integer additional_fee;
     private WorkingHourDto working_hour;
+    private String id;
 
-    public RestaurantDto(String name, String address, String phone, String logoBase64, Integer tax_fee, Integer additional_fee, WorkingHourDto working_hour ) {
+    public RestaurantDto(String id, String name, String address, String phone, String logoBase64, Integer tax_fee, Integer additional_fee, WorkingHourDto working_hour ) {
         this.name = name;
         this.address = address;
         this.phone = phone;
@@ -20,6 +21,7 @@ public class RestaurantDto {
         this.tax_fee = tax_fee;
         this.additional_fee = additional_fee;
         this.working_hour = working_hour;
+        this.id = id;
 
     }
 }

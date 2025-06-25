@@ -1,5 +1,6 @@
 package com.ap.project.dao;
 
+import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
@@ -70,6 +71,62 @@ public class RestaurantDao {
         }
         finally {
             return restaurants;
+        }
+    }
+
+    public static Restaurant getRestaurantById(String restaurantId) {
+        Transaction transaction = null;
+        Restaurant restaurant = null;
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            restaurant = (Restaurant) session.get(Restaurant.class, restaurantId);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive())
+                transaction.rollback();
+            e.printStackTrace();
+        }
+        return restaurant;
+    }
+
+    public static void updateRestaurant(String restaurantId, RestaurantDto req) {
+        Transaction transaction = null;
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Restaurant restaurant = session.get(Restaurant.class, restaurantId);
+            if(req.getName() != null) {
+                restaurant.setName(req.getName());
+            }
+            if(req.getPhone() != null) {
+                restaurant.setPhone(req.getPhone());
+            }
+            if(req.getAddress() != null) {
+                restaurant.setAddress(req.getAddress());
+            }
+            if(req.getTax_fee() != null) {
+                restaurant.setTax_fee(req.getTax_fee());
+            }
+            if(req.getAdditional_fee() != null) {
+                restaurant.setAdditional_fee(req.getAdditional_fee());
+            }
+            if(req.getLogoBase64() != null) {
+                restaurant.setLogoBase64(req.getLogoBase64());
+            }
+            if(req.getWorking_hour() != null) {
+                restaurant.setWorking_hour(req.getWorking_hour());
+            }
+            session.update(restaurant);
+            transaction.commit();
+        } catch (Exception e) {
+            if(transaction != null && transaction.isActive())
+                transaction.rollback();
+            e.printStackTrace();
+        }
+    }
+
+    public static String getSellerId(String restaurantId) {
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("SELECT r.owner.id FROM Restaurant r WHERE r.id = :id", String.class).setParameter("id", restaurantId).getSingleResult();
         }
     }
 }
