@@ -71,9 +71,9 @@ public class RegisterHttpHandler implements HttpHandler {
                 String response = "";
                 if (req.getAddress() == null)
                     response += "{\"error\": \"Address required\"}\n";
-                if (req.getBank_info().getBank_name() == null)
+                if (req.getBank_info() == null || req.getBank_info().getBank_name() == null)
                     response += "{\"error\": \"Bank name required\"}\n";
-                if (req.getBank_info().getAccount_number() == null)
+                if (req.getBank_info() == null || req.getBank_info().getAccount_number() == null)
                     response += "{\"error\": \"Account number required\"}\n";
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);

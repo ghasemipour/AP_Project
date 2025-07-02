@@ -79,6 +79,12 @@ public class RestaurantDao {
         Restaurant restaurant = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
+            Long count = session.createQuery("SELECT COUNT(r) FROM Restaurant r WHERE r.id = :id", Long.class)
+                    .setParameter("id", restaurantId)
+                    .getSingleResult();
+            if(count != null && count <= 0) {
+                return null;
+            }
             restaurant = (Restaurant) session.get(Restaurant.class, restaurantId);
             transaction.commit();
         } catch (Exception e) {

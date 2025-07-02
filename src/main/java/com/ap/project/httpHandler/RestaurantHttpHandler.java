@@ -40,8 +40,8 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             handleGetSellersRestaurants(exchange, user);
         } else{
             String[] parts = path.split("/");
-            if(parts.length == 2){
-                handleUpdateRestaurant(exchange, user, parts[1]);
+            if(parts.length == 3){
+                handleUpdateRestaurant(exchange, user, parts[2]);
             }
         }
 
@@ -151,7 +151,6 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 exchange.sendResponseHeaders(404, -1);
                 return;
             }
-
             if(!RestaurantDao.getSellerId(restaurantId).equals(user.getUserId())) {
                 exchange.sendResponseHeaders(403, -1);
                 return;
@@ -170,7 +169,6 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 }
                 return;
             }
-            System.out.println("All Right");
 
             RestaurantDao.updateRestaurant(restaurantId, req);
             String response = "Restaurant updated";
