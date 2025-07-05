@@ -25,7 +25,7 @@ public class UserDao {
         }
     }
 
-    public static void updateUser(String id, ProfileDto newProfile) {
+    public static void updateUser(int id, ProfileDto newProfile) {
         Transaction transaction = null;
         Session session = HibernateUtil.getSessionFactory().openSession();
         try
@@ -90,7 +90,7 @@ public class UserDao {
 
     }
 
-    public static User getUserById(String id) {
+    public static User getUserById(int id) {
         Transaction transaction = null;
         User user = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {

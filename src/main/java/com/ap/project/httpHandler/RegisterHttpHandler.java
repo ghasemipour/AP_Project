@@ -23,6 +23,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+import static com.ap.project.httpHandler.SuperHttpHandler.internalServerFailureError;
+import static com.ap.project.httpHandler.SuperHttpHandler.sendSuccessMessage;
 import static com.ap.project.util.JwtUtil.generateToken;
 
 public class RegisterHttpHandler implements HttpHandler {
@@ -147,25 +149,12 @@ public class RegisterHttpHandler implements HttpHandler {
                     token
             );
 
-            String jsonResponse = gson.toJson(response);
-
-            byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().add("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, responseBytes.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(responseBytes);
-            }
+            sendSuccessMessage(gson.toJson(response), exchange);
 
         }
         catch (Exception e) {
-            e.printStackTrace();
-            String errorResponse = "{\"error\": \"Internal server error\"}";
-            byte[] responseBytes = errorResponse.getBytes(StandardCharsets.UTF_8);
-            exchange.sendResponseHeaders(500, responseBytes.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(responseBytes);
-            }
-
+            internalServerFailureError(e,exchange);
         }
     }
 }

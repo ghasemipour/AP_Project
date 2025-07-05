@@ -1,9 +1,6 @@
 package com.ap.project;
 
-import com.ap.project.httpHandler.LoginHttpHandler;
-import com.ap.project.httpHandler.ProfileHttpHandler;
-import com.ap.project.httpHandler.RegisterHttpHandler;
-import com.ap.project.httpHandler.RestaurantHttpHandler;
+import com.ap.project.httpHandler.*;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
@@ -20,7 +17,8 @@ public class Main {
         httpServer.createContext("/auth/profile", new ProfileHttpHandler());
         httpServer.createContext("/auth/login", new LoginHttpHandler());
         httpServer.createContext("/restaurants", new RestaurantHttpHandler());
-        /* TODO: Write Other endpoints */
+        httpServer.createContext("/restaurants/{id}/item", new FoodHttpHandler());
+        httpServer.createContext("/auth/logout", new LogoutHttpHandler());
 
         httpServer.setExecutor(null);
         httpServer.start();

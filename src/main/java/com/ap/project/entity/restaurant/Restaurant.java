@@ -7,7 +7,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,7 +16,8 @@ import java.util.UUID;
 public class Restaurant {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
     private boolean IsConfirmed = true;
     private String name;
@@ -31,6 +33,9 @@ public class Restaurant {
     @JoinColumn(name = "owner_id", nullable = false)
     private Seller owner;
 
+    @OneToMany(mappedBy = "restaurant_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Food> foodItems = new ArrayList<>();
+
     public Restaurant(RestaurantDto restaurantInfo, Seller owner) {
         this.name = restaurantInfo.getName();
         this.address = restaurantInfo.getAddress();
@@ -42,15 +47,22 @@ public class Restaurant {
             this.additional_fee = restaurantInfo.getAdditional_fee();
         this.working_hour = restaurantInfo.getWorking_hour();
         this.owner = owner;
-        id = "R-" + (UUID.randomUUID().toString());
     }
 
-    public Restaurant() {
-
-    }
+    public Restaurant() {}
 
     public RestaurantDto GetDto() {
         RestaurantDto restaurantDto = new RestaurantDto(id, name, address, phone, logoBase64, tax_fee, additional_fee, working_hour);
         return restaurantDto;
+    }
+
+    public void addFood(Food food) {
+        foodItems.add(food);
+        food.setRestaurant(this);
+    }
+
+    public void removeFood(Food food) {
+        foodItems.remove(food);
+        food.setRestaurant(null);
     }
 }

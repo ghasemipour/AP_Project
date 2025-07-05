@@ -14,7 +14,8 @@ import java.util.UUID;
 @Setter
 public abstract class User {
     @Id
-    protected String userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected int userId;
 
     @Column(nullable = false)
     private String name;
@@ -33,7 +34,6 @@ public abstract class User {
         this.password = PasswordUtil.hashPassword(password);
         this.profilePicture = profilePicture;
         this.email = email;
-        this.userId = UUID.randomUUID().toString();
     }
 
     public User() {

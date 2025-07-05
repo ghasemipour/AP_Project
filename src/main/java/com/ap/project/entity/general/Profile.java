@@ -10,6 +10,6 @@ import jakarta.persistence.Id;
 public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected String id;
+    protected int id;
 
 }
