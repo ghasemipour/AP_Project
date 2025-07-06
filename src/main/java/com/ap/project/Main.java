@@ -16,9 +16,9 @@ public class Main {
         httpServer.createContext("/auth/register", new RegisterHttpHandler());
         httpServer.createContext("/auth/profile", new ProfileHttpHandler());
         httpServer.createContext("/auth/login", new LoginHttpHandler());
-        httpServer.createContext("/restaurants", new RestaurantHttpHandler());
-        httpServer.createContext("/restaurants/{id}/item", new FoodHttpHandler());
         httpServer.createContext("/auth/logout", new LogoutHttpHandler());
+        httpServer.createContext("/restaurants", new RestaurantHttpHandler());
+
 
         httpServer.setExecutor(null);
         httpServer.start();

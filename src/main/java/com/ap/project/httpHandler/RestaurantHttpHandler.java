@@ -38,6 +38,11 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             String[] parts = path.split("/");
             if (parts.length == 3) {
                 handleUpdateRestaurant(exchange, user, Integer.parseInt(parts[2]));
+            } else if(parts.length >= 4) {
+                if(parts[3].equals("item")) {
+                    FoodHttpHandler foodHandler = new FoodHttpHandler();
+                    foodHandler.handle(exchange);
+                }
             }
         }
 
