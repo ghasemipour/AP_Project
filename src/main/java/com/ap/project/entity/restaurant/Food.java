@@ -33,6 +33,9 @@ public class Food {
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
+    @ManyToMany(mappedBy = "foodItems")
+    private List<Menu> menus = new ArrayList<>();
+
     public Food (FoodDto foodDto, Restaurant restaurant) {
         name = foodDto.getName();
         imageBase64 = foodDto.getImageBase64();

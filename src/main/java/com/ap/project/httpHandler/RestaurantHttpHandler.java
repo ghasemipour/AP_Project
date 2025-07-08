@@ -42,6 +42,8 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 if(parts[3].equals("item")) {
                     FoodHttpHandler foodHandler = new FoodHttpHandler();
                     foodHandler.handle(exchange);
+                } else if(parts[3].equals("menu")) {
+
                 }
             }
         }
