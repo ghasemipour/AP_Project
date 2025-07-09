@@ -43,7 +43,8 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                     FoodHttpHandler foodHandler = new FoodHttpHandler();
                     foodHandler.handle(exchange);
                 } else if(parts[3].equals("menu")) {
-
+                    MenuHttpHandler menuHandler = new MenuHttpHandler();
+                    menuHandler.handle(exchange);
                 }
             }
         }

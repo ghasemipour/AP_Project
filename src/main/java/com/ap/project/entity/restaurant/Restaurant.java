@@ -33,8 +33,11 @@ public class Restaurant {
     @JoinColumn(name = "owner_id", nullable = false)
     private Seller owner;
 
-    @OneToMany(mappedBy = "restaurant_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Food> foodItems = new ArrayList<>();
+
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Menu> menus = new ArrayList<>();
 
     public Restaurant(RestaurantDto restaurantInfo, Seller owner) {
         this.name = restaurantInfo.getName();
@@ -64,5 +67,10 @@ public class Restaurant {
     public void removeFood(Food food) {
         foodItems.remove(food);
         food.setRestaurant(null);
+    }
+
+    public void addMenu(Menu menu) {
+        menus.add(menu);
+        menu.setRestaurant(this);
     }
 }

@@ -69,7 +69,7 @@ public class RegisterHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            if (req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null))) {
+            if (req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null))) {
                 String response = "";
                 if (req.getAddress() == null)
                     response += "{\"error\": \"Address required\"}\n";
@@ -84,7 +84,7 @@ public class RegisterHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            if (req.getRole().equals(UserRole.COURIER) && (req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null)) {
+            if (req.getRole().equals(UserRole.COURIER) && (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null)) {
                 String response = "";
                 if (req.getBank_info().getBank_name() == null)
                     response += "{\"error\": \"Bank name required\"}\n";
