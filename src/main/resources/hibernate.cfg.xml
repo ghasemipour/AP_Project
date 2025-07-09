@@ -15,7 +15,7 @@
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.highlight_sql">true</property>
-        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.hbm2ddl.auto"> update </property>
 
         <!-- Entities -->
         <mapping class="com.ap.project.entity.user.User"/>
@@ -23,6 +23,9 @@
         <mapping class="com.ap.project.entity.user.Customer"/>
         <mapping class="com.ap.project.entity.user.Seller"/>
         <mapping class="com.ap.project.entity.general.BankAccount"/>
+        <mapping class="com.ap.project.entity.restaurant.Restaurant"/>
+        <mapping class="com.ap.project.entity.restaurant.Food"/>
+        <mapping class="com.ap.project.entity.restaurant.Menu"/>
 
     </session-factory>
 </hibernate-configuration>
