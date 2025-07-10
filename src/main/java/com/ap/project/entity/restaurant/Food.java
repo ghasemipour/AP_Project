@@ -26,6 +26,7 @@ public class Food {
     private Integer price;
     @Column(nullable = false)
     private Integer supply;
+    @Column
     @ElementCollection
     private List<String> keywords = new ArrayList<>();
 

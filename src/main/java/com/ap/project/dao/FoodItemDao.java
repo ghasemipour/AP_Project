@@ -72,17 +72,21 @@ public class FoodItemDao {
         }
     }
 
-    public static void deleteFood(int foodId, Restaurant restaurant) {
+    public static void deleteFood(int foodId) {
         Transaction transaction = null;
         Food food;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()){
+
             transaction = session.beginTransaction();
             food = session.get(Food.class, foodId);
             if (food == null)
                 throw new NoSuchFoodItem(foodId + " not found");
 
+            Restaurant restaurant = food.getRestaurant();
             restaurant.removeFood(food);
+
             transaction.commit();
+
         } catch (Exception e) {
             transactionRollBack(transaction, e);
             throw e;
@@ -90,8 +94,8 @@ public class FoodItemDao {
     }
 
     private static void transactionRollBack(Transaction transaction, Exception e) {
-            if (transaction != null && transaction.isActive())
-                transaction.rollback();
-            e.printStackTrace();
+        if (transaction != null && transaction.isActive())
+            transaction.rollback();
+        e.printStackTrace();
     }
 }

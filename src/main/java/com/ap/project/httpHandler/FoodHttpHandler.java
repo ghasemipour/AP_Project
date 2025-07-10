@@ -39,11 +39,13 @@ public class FoodHttpHandler implements HttpHandler {
 
         if (restaurant == null) {
             exchange.sendResponseHeaders(404, -1);
+            System.out.println("Restaurant not found");
             return;
         }
 
-        if (!RestaurantDao.getRestaurantsBySellerId(user.getUserId()).contains(restaurant)) {
+        if (!(RestaurantDao.getSellerId(restaurant.getId()) == user.getUserId())) {
             exchange.sendResponseHeaders(404, -1);
+            System.out.println("Restaurant not owned by user");
             return;
         }
 
@@ -67,8 +69,10 @@ public class FoodHttpHandler implements HttpHandler {
                 default:
                     exchange.sendResponseHeaders(405, -1);
             }
-        } else
+        } else {
             exchange.sendResponseHeaders(404, -1);
+            System.out.println("invalid request");
+        }
 
 
     }
@@ -77,7 +81,7 @@ public class FoodHttpHandler implements HttpHandler {
         try {
             InputStreamReader input = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             FoodDto req = new Gson().fromJson(input, FoodDto.class);
-            if (req.getName() == null || req.getDescription() == null || req.getPrice() == null || req.getSupply() == null) {
+            if (req.getName() == null || req.getDescription() == null || req.getPrice() == null || req.getSupply() == null || req.getVendor_id() != restaurant.getId()) {
                 String response = "";
                 if (req.getName() == null)
                     response += "{\"error\": \"Name required\"}\n";
@@ -87,6 +91,8 @@ public class FoodHttpHandler implements HttpHandler {
                     response += "{\"error\": \"Price required\"}\n";
                 if (req.getSupply() == null)
                     response += "{\"error\": \"Supply required\"}\n";
+                if (req.getVendor_id() != restaurant.getId())
+                    response += "{\"error\": \"Vendor ID does not match\"}\n";
 
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
@@ -133,10 +139,11 @@ public class FoodHttpHandler implements HttpHandler {
                 exchange.sendResponseHeaders(404, -1);
                 return;
             }
-            FoodItemDao.deleteFood(foodId, restaurant);
+            FoodItemDao.deleteFood(foodId);
             sendSuccessMessage("Food successfully removed.", exchange);
 
         } catch (Exception e) {
+            e.printStackTrace();
             internalServerFailureError(e, exchange);
         }
     }
