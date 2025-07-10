@@ -93,7 +93,7 @@ public class FoodItemDao {
         }
     }
 
-    private static void transactionRollBack(Transaction transaction, Exception e) {
+    protected static void transactionRollBack(Transaction transaction, Exception e) {
         if (transaction != null && transaction.isActive())
             transaction.rollback();
         e.printStackTrace();

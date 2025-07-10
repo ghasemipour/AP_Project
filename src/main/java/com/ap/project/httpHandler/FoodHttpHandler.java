@@ -43,8 +43,8 @@ public class FoodHttpHandler implements HttpHandler {
             return;
         }
 
-        if (!(RestaurantDao.getSellerId(restaurant.getId()) == user.getUserId())) {
-            exchange.sendResponseHeaders(404, -1);
+        if (RestaurantDao.getSellerId(restaurant.getId()) != user.getUserId()) {
+            exchange.sendResponseHeaders(403, -1);
             System.out.println("Restaurant not owned by user");
             return;
         }

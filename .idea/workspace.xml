@@ -6,12 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="3c17796f-4cc5-49d5-be3f-f3a0c693f9ac" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/FoodItemDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/FoodItemDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/RestaurantDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/RestaurantDao.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Food.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Food.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Restaurant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Restaurant.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/FoodHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/FoodHttpHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RegisterHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RegisterHttpHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RestaurantHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RestaurantHttpHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,8 +23,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
+        <option value="Enum" />
         <option value="Exception" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -41,10 +44,10 @@
     &quot;accountId&quot;: &quot;bcf306f9-cd32-4209-b786-f214e550557c&quot;
   }
 }</component>
-  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
-  <component name="KubernetesApiProvider"><![CDATA[{
-  "isMigrated": true
-}]]></component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
 }</component>
@@ -111,7 +114,8 @@
       <workItem from="1751634333883" duration="13063000" />
       <workItem from="1751733691498" duration="14393000" />
       <workItem from="1751981163004" duration="207000" />
-      <workItem from="1752141595018" duration="9515000" />
+      <workItem from="1752141595018" duration="9707000" />
+      <workItem from="1752152709334" duration="14679000" />
     </task>
     <servers />
   </component>

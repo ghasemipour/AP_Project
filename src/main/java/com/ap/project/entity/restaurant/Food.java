@@ -27,6 +27,7 @@ public class Food {
     @Column(nullable = false)
     private Integer supply;
     @Column
+    @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "food_id"))
     @ElementCollection
     private List<String> keywords = new ArrayList<>();
 
