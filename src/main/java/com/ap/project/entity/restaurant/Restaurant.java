@@ -73,4 +73,9 @@ public class Restaurant {
         menus.add(menu);
         menu.setRestaurant(this);
     }
+
+    public void removeMenu(Menu menu) {
+        menus.remove(menu);
+        menu.setRestaurant(null);
+    }
 }
