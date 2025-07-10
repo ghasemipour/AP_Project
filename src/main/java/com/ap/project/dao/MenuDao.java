@@ -64,6 +64,8 @@ public class MenuDao {
                 throw new NoSuchSeller(id + " not found");
             }
             restaurant.removeMenu(menu);
+            session.merge(restaurant);
+            transaction.commit();
         } catch (Exception e){
             transactionRollBack(transaction, e);
             throw e;
