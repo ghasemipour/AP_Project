@@ -24,6 +24,7 @@ public class MenuHttpHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String[] parts = path.split("/");
         Restaurant restaurant = RestaurantDao.getRestaurantById(Integer.parseInt(parts[2]));
+        String method = exchange.getRequestMethod();
         User user = SuperHttpHandler.getUserByExchange(exchange);
 
         if (user == null) {
@@ -46,16 +47,27 @@ public class MenuHttpHandler implements HttpHandler {
         }
 
         if(parts.length == 4) {
-            handleAddMenu(exchange, restaurant);
-        }
-    }
-
-    private void handleAddMenu(HttpExchange exchange, Restaurant restaurant) throws IOException {
-        try {
-            if (!exchange.getRequestMethod().equals("POST")) {
+            if (!method.equals("POST")) {
                 exchange.sendResponseHeaders(405, -1);
                 return;
             }
+            handleAddMenu(exchange, restaurant);
+        } else if(parts.length == 5) {
+            if(method.equals("DELETE")) {
+                handleDeleteMenu(exchange, restaurant, parts[4]);
+            } else if(method.equals("PUT")){
+
+            } else{
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+        }
+    }
+
+
+
+    private void handleAddMenu(HttpExchange exchange, Restaurant restaurant) throws IOException {
+        try {
             InputStreamReader reader = new InputStreamReader(exchange.getRequestBody());
             MenuDto menuDto = new Gson().fromJson(reader, MenuDto.class);
             
@@ -78,5 +90,21 @@ public class MenuHttpHandler implements HttpHandler {
             
         }
         
+    }
+
+    private void handleDeleteMenu(HttpExchange exchange, Restaurant restaurant, String menuTitle) throws IOException{
+        try {
+            Menu menu = MenuDao.getMenuByTitle(restaurant.getId(), menuTitle);
+            if(menu == null) {
+                exchange.sendResponseHeaders(404, -1);
+                return;
+            }
+            MenuDao.deleteMenu(restaurant.getId(), menu.getId());
+            sendSuccessMessage("Food menu removed from restaurant successfully", exchange);
+        } catch (IOException e) {
+            e.printStackTrace();
+            internalServerFailureError(e, exchange);
+        }
+
     }
 }
