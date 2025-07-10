@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="3c17796f-4cc5-49d5-be3f-f3a0c693f9ac" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/FoodItemDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/FoodItemDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/MenuDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/MenuDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Restaurant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Restaurant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/MenuHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/MenuHttpHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/OrderDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/OrderDao.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +56,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "Merging main",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -110,7 +108,7 @@
       <workItem from="1751733691498" duration="14393000" />
       <workItem from="1751981163004" duration="207000" />
       <workItem from="1752141595018" duration="9707000" />
-      <workItem from="1752152709334" duration="15109000" />
+      <workItem from="1752152709334" duration="15424000" />
     </task>
     <servers />
   </component>
