@@ -3,7 +3,6 @@ package com.ap.project.dao;
 import com.ap.project.Exceptions.NoSuchFoodItem;
 import com.ap.project.Exceptions.NoSuchMenu;
 import com.ap.project.Exceptions.NoSuchRestaurant;
-import com.ap.project.Exceptions.NoSuchSeller;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Menu;
 import com.ap.project.entity.restaurant.Restaurant;
