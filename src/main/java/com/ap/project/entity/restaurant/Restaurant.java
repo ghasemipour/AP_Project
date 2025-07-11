@@ -39,6 +39,9 @@ public class Restaurant {
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu> menus = new ArrayList<>();
 
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Order> orders = new ArrayList<>();
+
     public Restaurant(RestaurantDto restaurantInfo, Seller owner) {
         this.name = restaurantInfo.getName();
         this.address = restaurantInfo.getAddress();
@@ -57,6 +60,16 @@ public class Restaurant {
     public RestaurantDto GetDto() {
         RestaurantDto restaurantDto = new RestaurantDto(id, name, address, phone, logoBase64, tax_fee, additional_fee, working_hour);
         return restaurantDto;
+    }
+
+    public void addOrder(Order order) {
+        orders.add(order);
+        order.setRestaurant(this);
+    }
+
+    public void removeOrder(Order order) {
+        orders.remove(order);
+        order.setRestaurant(null);
     }
 
     public void addFood(Food food) {
