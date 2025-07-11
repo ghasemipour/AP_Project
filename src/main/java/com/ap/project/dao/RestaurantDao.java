@@ -2,6 +2,7 @@ package com.ap.project.dao;
 
 import com.ap.project.Exceptions.NoSuchSeller;
 import com.ap.project.dto.RestaurantDto;
+import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
@@ -10,8 +11,12 @@ import com.sun.net.httpserver.HttpExchange;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.ap.project.dao.FoodItemDao.transactionRollBack;
 
 public class RestaurantDao {
 
@@ -139,5 +144,50 @@ public class RestaurantDao {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("SELECT r.owner.id FROM Restaurant r WHERE r.id = :id", Integer.class).setParameter("id", restaurantId).getSingleResult();
         }
+    }
+
+    public static List<Order> getRestaurantOrdersByRestaurantId(int restaurantId, String status, String search, String user, String courier) {
+        Transaction transaction = null;
+        List<Order> orders = new ArrayList<>();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            String hql = "FROM Order o WHERE o.vendor_id = :restaurantId";
+
+            if (status != null && !status.isEmpty()) {
+                hql += " AND o.status = :status";
+            }
+            if (search != null && !search.isEmpty()) {
+                hql += " AND o.itemName LIKE :search";
+            }
+            if (user != null && !user.isEmpty()) {
+                hql += " AND o.user.userId= :user";
+            }
+            if (courier != null && !courier.isEmpty()) {
+                hql += " AND o.courier.userId = :courier";
+            }
+
+            Query<Order> query = session.createQuery(hql, Order.class);
+            query.setParameter("restaurantId", restaurantId);
+
+            if (status != null && !status.isEmpty()) {
+                query.setParameter("status", status);
+            }
+            if (search != null && !search.isEmpty()) {
+                query.setParameter("search", "%" + search + "%");
+            }
+            if (user != null && !user.isEmpty()) {
+                query.setParameter("user", user);
+            }
+            if (courier != null && !courier.isEmpty()) {
+                query.setParameter("courier", courier);
+            }
+
+            orders = query.list();
+            transaction.commit();
+
+        } catch (Exception e) {
+            transactionRollBack(transaction, e);
+        }
+        return orders;
     }
 }
