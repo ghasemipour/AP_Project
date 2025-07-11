@@ -54,4 +54,12 @@ public class Food {
     public FoodDto getFoodDto() {
         return new FoodDto(name, description, price, supply, keywords, restaurant.getId(), imageBase64, foodId);
     }
+
+    public void addMenu(Menu menu) {
+        menus.add(menu);
+    }
+
+    public void removeMenu(Menu menu) {
+        menus.remove(menu);
+    }
 }

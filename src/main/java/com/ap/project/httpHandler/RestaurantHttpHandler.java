@@ -103,7 +103,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
 
             Restaurant restaurant = new Restaurant(req, (Seller) user);
-            RestaurantDao.saveRestaurant(restaurant, user.getUserId());
+            RestaurantDao.saveRestaurant(restaurant, user.getUserId(), exchange);
             sendSuccessMessage("Restaurant created successfully", exchange);
 
         } catch (Exception e) {
@@ -120,7 +120,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 return;
             }
 
-            List<RestaurantDto> restaurantsList = ((Seller) user).getDtoRestaurants();
+            List<RestaurantDto> restaurantsList = ((Seller) user).getDtoRestaurants(exchange);
             sendSuccessMessage(new Gson().toJson(restaurantsList), exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);

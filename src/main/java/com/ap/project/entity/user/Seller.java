@@ -6,11 +6,11 @@ import com.ap.project.dto.ProfileDto;
 import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.general.BankAccount;
 import com.ap.project.entity.restaurant.Restaurant;
+import com.sun.net.httpserver.HttpExchange;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +54,8 @@ public class Seller extends User implements HasAddress, HasBankAccount{
         restaurant.setOwner(this);
     }
 
-    public List<RestaurantDto> getDtoRestaurants() {
-        restaurants = RestaurantDao.getRestaurantsBySellerId(this.userId);
+    public List<RestaurantDto> getDtoRestaurants(HttpExchange exchange) {
+        restaurants = RestaurantDao.getRestaurantsBySellerId(this.userId, exchange);
         System.out.println(restaurants);
         List<RestaurantDto> restaurantDtos = new ArrayList<>();
         for (Restaurant restaurant : restaurants) {
