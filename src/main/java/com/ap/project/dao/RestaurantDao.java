@@ -6,6 +6,7 @@ import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
 import com.ap.project.util.HibernateUtil;
+import com.sun.net.httpserver.HttpExchange;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -14,12 +15,13 @@ import java.util.List;
 
 public class RestaurantDao {
 
-    public static void saveRestaurant(Restaurant restaurant, int sellerId) {
+    public static void saveRestaurant(Restaurant restaurant, int sellerId, HttpExchange exchange) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             Seller seller = session.get(Seller.class, sellerId);
             if (seller == null) {
+                exchange.sendResponseHeaders(404, -1);
                 throw new NoSuchSeller(sellerId + " not found");
             }
             seller.addRestaurant(restaurant);
@@ -58,12 +60,13 @@ public class RestaurantDao {
         return res;
     }
 
-    public static List<Restaurant> getRestaurantsBySellerId(int userId) {
+    public static List<Restaurant> getRestaurantsBySellerId(int userId, HttpExchange exchange) {
         List<Restaurant> restaurants = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Seller seller = session.get(Seller.class, userId);
             if (seller == null) {
-                throw new RuntimeException("No such seller");
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchSeller(userId + " not found");
             }
             Hibernate.initialize(seller.getRestaurants());
             restaurants = seller.getRestaurants();
