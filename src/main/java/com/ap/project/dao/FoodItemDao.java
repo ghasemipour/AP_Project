@@ -6,17 +6,19 @@ import com.ap.project.dto.FoodDto;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.util.HibernateUtil;
+import com.sun.net.httpserver.HttpExchange;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 public class FoodItemDao {
 
-    public static void saveFood(Food food, int vendor_id) {
+    public static void saveFood(Food food, int vendor_id, HttpExchange exchange) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             Restaurant restaurant = session.get(Restaurant.class, vendor_id);
             if (restaurant == null) {
+                exchange.sendResponseHeaders(404, -1);
                 throw new NoSuchRestaurant(vendor_id + " not found");
             }
             restaurant.addFood(food);
@@ -24,7 +26,6 @@ public class FoodItemDao {
             transaction.commit();
         } catch (Exception e) {
             transactionRollBack(transaction, e);
-            throw e;
         }
     }
 
@@ -37,18 +38,19 @@ public class FoodItemDao {
             transaction.commit();
         } catch (Exception e) {
             transactionRollBack(transaction, e);
-            throw e;
+
         }
         return food;
     }
 
-    public static void updateFood(FoodDto req, int foodID) {
+    public static void updateFood(FoodDto req, int foodID, HttpExchange exchange) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
 
             Food food = session.get(Food.class, foodID);
             if (food == null) {
+                exchange.sendResponseHeaders(404, -1);
                 throw new NoSuchFoodItem(foodID + " not found");
             }
 
@@ -68,19 +70,21 @@ public class FoodItemDao {
             transaction.commit();
         } catch (Exception e) {
             transactionRollBack(transaction, e);
-            throw e;
+
         }
     }
 
-    public static void deleteFood(int foodId) {
+    public static void deleteFood(int foodId, HttpExchange exchange) {
         Transaction transaction = null;
         Food food;
         try (Session session = HibernateUtil.getSessionFactory().openSession()){
 
             transaction = session.beginTransaction();
             food = session.get(Food.class, foodId);
-            if (food == null)
+            if (food == null) {
+                exchange.sendResponseHeaders(404, -1);
                 throw new NoSuchFoodItem(foodId + " not found");
+            }
 
             Restaurant restaurant = food.getRestaurant();
             restaurant.removeFood(food);
@@ -89,7 +93,7 @@ public class FoodItemDao {
 
         } catch (Exception e) {
             transactionRollBack(transaction, e);
-            throw e;
+
         }
     }
 

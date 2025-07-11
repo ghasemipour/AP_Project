@@ -103,7 +103,7 @@ public class FoodHttpHandler implements HttpHandler {
             }
 
             Food food = new Food(req, restaurant);
-            FoodItemDao.saveFood(food, restaurant.getId());
+            FoodItemDao.saveFood(food, restaurant.getId(), exchange);
             sendSuccessMessage("Food item created successfully.", exchange);
 
         } catch (Exception e) {
@@ -123,7 +123,7 @@ public class FoodHttpHandler implements HttpHandler {
                 return;
             }
 
-            FoodItemDao.updateFood(req, foodId);
+            FoodItemDao.updateFood(req, foodId, exchange);
             sendSuccessMessage("Food item updated successfully.", exchange);
         }
         catch (Exception e) {
@@ -139,7 +139,7 @@ public class FoodHttpHandler implements HttpHandler {
                 exchange.sendResponseHeaders(404, -1);
                 return;
             }
-            FoodItemDao.deleteFood(foodId);
+            FoodItemDao.deleteFood(foodId, exchange);
             sendSuccessMessage("Food successfully removed.", exchange);
 
         } catch (Exception e) {

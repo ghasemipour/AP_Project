@@ -48,4 +48,12 @@ public class Food {
     }
 
     public Food() {}
+
+    public void addMenu(Menu menu) {
+        menus.add(menu);
+    }
+
+    public void removeMenu(Menu menu) {
+        menus.remove(menu);
+    }
 }

@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class MenuDto {
     private String title;
+    private Integer item_id;
 }

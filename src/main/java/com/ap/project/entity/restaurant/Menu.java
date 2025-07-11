@@ -37,4 +37,12 @@ public class Menu{
     public Menu() {
 
     }
+
+    public void addFoodItem(Food food) {
+        foodItems.add(food);
+    }
+
+    public void removeFoodItem(Food food) {
+        foodItems.remove(food);
+    }
 }
