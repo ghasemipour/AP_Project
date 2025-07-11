@@ -157,7 +157,7 @@ public class RestaurantDao {
                 hql += " AND o.itemName LIKE :search";
             }
             if (user != null && !user.isEmpty()) {
-                hql += " AND o.user.userId = :user";
+                hql += " AND o.user.userId= :user";
             }
             if (courier != null && !courier.isEmpty()) {
                 hql += " AND o.courier.userId = :courier";

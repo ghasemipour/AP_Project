@@ -53,5 +53,6 @@ public class SuperHttpHandler {
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(responseBytes);
             }
+            e.printStackTrace();
     }
 }

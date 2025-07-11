@@ -5,6 +5,7 @@ import com.ap.project.dto.FoodDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
 import java.util.*;
 
@@ -49,4 +50,8 @@ public class Food {
     }
 
     public Food() {}
+
+    public FoodDto getFoodDto() {
+        return new FoodDto(name, description, price, supply, keywords, restaurant.getId(), imageBase64, foodId);
+    }
 }
