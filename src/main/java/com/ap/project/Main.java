@@ -19,6 +19,7 @@ public class Main {
         httpServer.createContext("/auth/logout", new LogoutHttpHandler());
         httpServer.createContext("/restaurants", new RestaurantHttpHandler());
         httpServer.createContext("/items", new FoodHttpHandler());
+        httpServer.createContext("/vendors", new RestaurantHttpHandler());
 
 
         httpServer.setExecutor(null);

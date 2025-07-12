@@ -91,4 +91,9 @@ public class Restaurant {
         menus.remove(menu);
         menu.setRestaurant(null);
     }
+
+    public RestaurantDto getRestaurantDto() {
+        RestaurantDto res = new RestaurantDto(id, name, address, phone, logoBase64, tax_fee, additional_fee, working_hour );
+        return res;
+    }
 }

@@ -5,7 +5,6 @@ import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.entity.user.Seller;
-import com.ap.project.entity.user.User;
 import com.ap.project.util.HibernateUtil;
 import com.sun.net.httpserver.HttpExchange;
 import org.hibernate.Hibernate;
@@ -189,5 +188,44 @@ public class RestaurantDao {
             transactionRollBack(transaction, e);
         }
         return orders;
+    }
+
+    public static List<RestaurantDto> getRestaurantsByFilter(String search, List<String> keywords) {
+        Transaction transaction = null;
+        List<RestaurantDto> results = new ArrayList<>();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            StringBuilder hql = new StringBuilder("FROM Restaurant r WHERE 1=1");
+            if (search != null && !search.isEmpty()) {
+                hql.append(" AND (lower(r.name) LIKE :search");
+            }
+
+            /*if (keywords != null && !keywords.isEmpty()) {
+                hql.append(" AND exists (select k from r.keywords k where k in :keywords)");
+            }*/
+
+            Query<Restaurant> query = session.createQuery(hql.toString(), Restaurant.class);
+
+            if(search != null && !search.isEmpty()) {
+                query.setParameter("search", "%" + search.toLowerCase() + "%");
+            }
+
+            /*if (keywords != null && !keywords.isEmpty()) {
+                List<String> lowerKeywords = keywords.stream()
+                        .map(String::toLowerCase)
+                        .collect(Collectors.toList());
+
+                query.setParameter("keywords", lowerKeywords);
+            }*/
+
+            List<Restaurant> restaurants = query.list();
+            for (Restaurant restaurant : restaurants) {
+                results.add(restaurant.getRestaurantDto());
+            }
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        } finally {
+            return results;
+        }
     }
 }
