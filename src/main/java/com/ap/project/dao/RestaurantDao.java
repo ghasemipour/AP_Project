@@ -1,6 +1,6 @@
 package com.ap.project.dao;
 
-import com.ap.project.Exceptions.NoSuchSeller;
+import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.Restaurant;
@@ -26,7 +26,7 @@ public class RestaurantDao {
             Seller seller = session.get(Seller.class, sellerId);
             if (seller == null) {
                 exchange.sendResponseHeaders(404, -1);
-                throw new NoSuchSeller(sellerId + " not found");
+                throw new NoSuchUser(sellerId + " not found");
             }
             seller.addRestaurant(restaurant);
             session.persist(restaurant);
@@ -70,7 +70,7 @@ public class RestaurantDao {
             Seller seller = session.get(Seller.class, userId);
             if (seller == null) {
                 exchange.sendResponseHeaders(404, -1);
-                throw new NoSuchSeller(userId + " not found");
+                throw new NoSuchUser(userId + " not found");
             }
             Hibernate.initialize(seller.getRestaurants());
             restaurants = seller.getRestaurants();
@@ -150,13 +150,13 @@ public class RestaurantDao {
         List<Order> orders = new ArrayList<>();
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            String hql = "FROM Order o WHERE o.vendor_id = :restaurantId";
+            String hql = "FROM Order o WHERE o.restaurant.id = :restaurantId";
 
             if (status != null && !status.isEmpty()) {
                 hql += " AND o.status = :status";
             }
             if (search != null && !search.isEmpty()) {
-                hql += " AND o.itemName LIKE :search";
+                hql += " AND exists (select i from o.items i where lower(i.food.name) like :search)";
             }
             if (user != null && !user.isEmpty()) {
                 hql += " AND o.user.userId= :user";
