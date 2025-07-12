@@ -14,6 +14,7 @@ import org.hibernate.query.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ap.project.dao.FoodItemDao.transactionRollBack;
 
@@ -197,12 +198,12 @@ public class RestaurantDao {
             transaction = session.beginTransaction();
             StringBuilder hql = new StringBuilder("FROM Restaurant r WHERE 1=1");
             if (search != null && !search.isEmpty()) {
-                hql.append(" AND (lower(r.name) LIKE :search");
+                hql.append(" AND (lower(r.name) LIKE :search)");
             }
 
-            /*if (keywords != null && !keywords.isEmpty()) {
-                hql.append(" AND exists (select k from r.keywords k where k in :keywords)");
-            }*/
+            if (keywords != null && !keywords.isEmpty()) {
+                hql.append(" AND exists (SELECT DISTINCT f FROM Food f JOIN f.keywords k WHERE f.restaurant = r AND lower(k) IN (:keywords))");
+            }
 
             Query<Restaurant> query = session.createQuery(hql.toString(), Restaurant.class);
 
@@ -210,22 +211,23 @@ public class RestaurantDao {
                 query.setParameter("search", "%" + search.toLowerCase() + "%");
             }
 
-            /*if (keywords != null && !keywords.isEmpty()) {
+            if (keywords != null && !keywords.isEmpty()) {
                 List<String> lowerKeywords = keywords.stream()
                         .map(String::toLowerCase)
                         .collect(Collectors.toList());
 
                 query.setParameter("keywords", lowerKeywords);
-            }*/
+            }
 
             List<Restaurant> restaurants = query.list();
             for (Restaurant restaurant : restaurants) {
                 results.add(restaurant.getRestaurantDto());
             }
+
+            transaction.commit();
         } catch (Exception e){
             transactionRollBack(transaction, e);
-        } finally {
-            return results;
         }
+        return results;
     }
 }
