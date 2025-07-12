@@ -20,7 +20,7 @@ public class Main {
         httpServer.createContext("/restaurants", new RestaurantHttpHandler());
         httpServer.createContext("/items", new FoodHttpHandler());
         httpServer.createContext("/vendors", new RestaurantHttpHandler());
-
+        httpServer.createContext("/orders", new OrderHttpHandler());
 
         httpServer.setExecutor(null);
         httpServer.start();
