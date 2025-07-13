@@ -48,6 +48,8 @@ public class Order {
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private Rating rating;
 
     public Order(OrderDto orderDto, HttpExchange exchange, Customer user) throws IOException {
         delivery_address = orderDto.getDelivery_address();
@@ -65,5 +67,15 @@ public class Order {
 
     public OrderDto getOrderDto() {
         return new OrderDto(delivery_address, restaurant.getId(), coupon_id, items, status, id);
+    }
+
+    public void addRating(Rating rating) {
+        this.rating = rating;
+        rating.setOrder(this);
+    }
+
+    public void removeRating(Rating rating) {
+        this.rating = null;
+        rating.setOrder(null);
     }
 }

@@ -1,6 +1,7 @@
 package com.ap.project;
 
 import com.ap.project.httpHandler.*;
+import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class Main {
         httpServer.createContext("/restaurants", new RestaurantHttpHandler());
         httpServer.createContext("/items", new FoodHttpHandler());
         httpServer.createContext("/orders", new OrderHttpHandler());
+        httpServer.createContext("/ratings", new RatingHttpHandler());
 
 
         httpServer.setExecutor(null);

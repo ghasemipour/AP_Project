@@ -24,8 +24,8 @@ public class Restaurant {
     private String address;
     private String phone;
     private String logoBase64;
-    private int tax_fee = 0;
-    private int additional_fee = 0;
+    private Integer tax_fee = 0;
+    private Integer additional_fee = 0;
     @Embedded
     private WorkingHourDto working_hour;
 

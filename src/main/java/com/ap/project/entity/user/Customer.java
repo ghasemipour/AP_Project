@@ -3,6 +3,7 @@ package com.ap.project.entity.user;
 import com.ap.project.Enums.UserRole;
 import com.ap.project.dto.ProfileDto;
 import com.ap.project.entity.restaurant.Order;
+import com.ap.project.entity.restaurant.Rating;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,9 @@ public class Customer extends User implements HasAddress{
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Order> orders = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Rating> ratings = new ArrayList<>();
 
 
     public Customer(String name, String number, String password, String email, String profilePricture, String address) {
@@ -46,5 +50,15 @@ public class Customer extends User implements HasAddress{
     public void removeOrder(Order order) {
         orders.remove(order);
         order.setUser(null);
+    }
+
+    public void addRating(Rating rating) {
+        ratings.add(rating);
+        rating.setUser(this);
+    }
+
+    public void removeRating(Rating rating) {
+        ratings.remove(rating);
+        rating.setUser(null);
     }
 }
