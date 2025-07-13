@@ -24,12 +24,16 @@ import static com.ap.project.dao.FoodItemDao.transactionRollBack;
 
 public class OrderDao {
 
-    public static Order getOrderFromId(int orderId) {
+    public static Order getOrderFromId(int orderId, HttpExchange exchange) {
         Transaction transaction = null;
         Order order = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             order = session.get(Order.class, orderId);
+            if (order == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchOrder(orderId + " not found.");
+            }
             transaction.commit();
         } catch (Exception e) {
             transactionRollBack(transaction, e);
@@ -37,14 +41,15 @@ public class OrderDao {
         return order;
     }
 
-    public static void changeOrderStatus(int orderId, Status status) {
+    public static void changeOrderStatus(int orderId, Status status, HttpExchange exchange) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             Order order = session.get(Order.class, orderId);
 
             if (order == null) {
-                throw new NoSuchOrder(orderId + " not found");
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchOrder(orderId + " not found.");
             }
 
             order.setStatus(status);

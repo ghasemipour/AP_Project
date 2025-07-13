@@ -2,6 +2,7 @@ package com.ap.project.httpHandler;
 
 import com.ap.project.dao.RatingDao;
 import com.ap.project.dto.RatingDto;
+import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Rating;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.User;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static com.ap.project.httpHandler.SuperHttpHandler.*;
 
@@ -37,6 +39,23 @@ public class RatingHttpHandler implements HttpHandler {
         } else {
             if (parts.length == 4) {
                 handleGetRatings(exchange, Integer.parseInt(parts[3]));
+            }
+            else {
+                String method = exchange.getRequestMethod();
+                int ratingId = Integer.parseInt(parts[2]);
+                switch (method) {
+                    case "GET":
+                        handleGetSpecificRating(exchange, ratingId);
+                        return;
+                    case "DELETE":
+                        handleDeleteSpecificRating(exchange, ratingId);
+                        return;
+                    case "PUT":
+                        handleUpdateSpecificRating(exchange, ratingId);
+                        return;
+                    default:
+                        exchange.sendResponseHeaders(405, -1);
+                }
             }
         }
     }
@@ -68,7 +87,7 @@ public class RatingHttpHandler implements HttpHandler {
                 return;
             }
 
-            Rating rating = new Rating(req);
+            Rating rating = new Rating(req, exchange);
             RatingDao.submitRating(rating, exchange, req.getOrder_id(), req.getUserId());
             sendSuccessMessage("Rating submitted successfully.", exchange);
         } catch (Exception e) {
@@ -82,7 +101,49 @@ public class RatingHttpHandler implements HttpHandler {
                 exchange.sendResponseHeaders(405, -1);
                 return;
             }
+            List<RatingDto> result = RatingDao.getRatingsForItem(itemId);
+            if (result.isEmpty()) {
+                String response = "No ratings found.";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+            sendSuccessMessage(new Gson().toJson(result), exchange);
             
+        } catch (Exception e) {
+            internalServerFailureError(e, exchange);
+        }
+    }
+
+    public void handleGetSpecificRating(HttpExchange exchange, int ratingId) throws IOException {
+        try {
+            Rating rating = RatingDao.getRatingByID(ratingId, exchange);
+            RatingDto result = rating.getRatingDto();
+            sendSuccessMessage(new Gson().toJson(result), exchange);
+
+        } catch (Exception e) {
+            internalServerFailureError(e, exchange);
+        }
+    }
+
+    public void handleDeleteSpecificRating(HttpExchange exchange, int ratingId) throws IOException {
+        try {
+            RatingDao.deleteRating(ratingId, exchange);
+            sendSuccessMessage("Rating deleted successfully.", exchange);
+        } catch (Exception e) {
+            internalServerFailureError(e, exchange);
+        }
+    }
+
+    public void handleUpdateSpecificRating(HttpExchange exchange, int ratingId) throws IOException {
+        try {
+            InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+            RatingDto req = new Gson().fromJson(reader, RatingDto.class);
+            RatingDao.updateRating(ratingId, req, exchange);
+            sendSuccessMessage("Rating updated successfully.", exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }

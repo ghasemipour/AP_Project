@@ -105,6 +105,7 @@ public class FoodItemDao {
             Restaurant restaurant = food.getRestaurant();
             restaurant.removeFood(food);
 
+            session.remove(food);
             transaction.commit();
 
         } catch (Exception e) {

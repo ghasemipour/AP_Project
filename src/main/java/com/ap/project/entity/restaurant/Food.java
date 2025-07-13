@@ -29,7 +29,7 @@ public class Food {
     private Integer supply;
     @Column
     @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "food_id"))
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     private List<String> keywords = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

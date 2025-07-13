@@ -232,7 +232,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 return;
             }
 
-            Order order = OrderDao.getOrderFromId(orderId);
+            Order order = OrderDao.getOrderFromId(orderId, exchange);
 
             if (order == null) {
                 exchange.sendResponseHeaders(404, -1);
@@ -260,7 +260,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 return;
             }
 
-            OrderDao.changeOrderStatus(orderId, statusEnum);
+            OrderDao.changeOrderStatus(orderId, statusEnum, exchange);
             sendSuccessMessage("Status changed successfully.", exchange);
 
         } catch (Exception e) {

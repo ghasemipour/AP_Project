@@ -90,7 +90,7 @@ public class OrderHttpHandler implements HttpHandler {
                 return;
             }
 
-            Order order = OrderDao.getOrderFromId(orderId);
+            Order order = OrderDao.getOrderFromId(orderId, exchange);
             OrderDto orderDto = order.getOrderDto();
 
             sendSuccessMessage(new Gson().toJson(orderDto), exchange);
@@ -122,6 +122,15 @@ public class OrderHttpHandler implements HttpHandler {
             String vendor = queryParams.get("vendor");
 
             List<OrderDto> results = OrderDao.getOrderHistory(user.getUserId(), search, vendor);
+            if (results.isEmpty()) {
+                String response = "No order history found.";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
             sendSuccessMessage(new Gson().toJson(results), exchange);
 
         } catch (Exception e) {

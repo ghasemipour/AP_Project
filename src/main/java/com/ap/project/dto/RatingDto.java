@@ -21,4 +21,13 @@ public class RatingDto {
     private Integer userId;
     private Integer ratingId;
 
+    public RatingDto(int order_id, int rating, String comment, List<String> imageBase64, int userId, int ratingId) {
+        this.order_id = order_id;
+        this.rating = rating;
+        this.comment = comment;
+        this.imageBase64 = imageBase64;
+        this.userId = userId;
+        this.ratingId = ratingId;
+    }
+
 }

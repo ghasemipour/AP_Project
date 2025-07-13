@@ -5,6 +5,7 @@ import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.UserDao;
 import com.ap.project.dto.RatingDto;
 import com.ap.project.entity.user.Customer;
+import com.sun.net.httpserver.HttpExchange;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -13,6 +14,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -38,12 +40,20 @@ public class Rating {
     @ElementCollection
     private List<String> imageBase64 = new ArrayList<>();
 
-    public Rating(RatingDto req) {
+    public Rating(RatingDto req, HttpExchange exchange) {
         rating = req.getRating();
         comment = req.getComment();
-        order = OrderDao.getOrderFromId(req.getOrder_id());
+        order = OrderDao.getOrderFromId(req.getOrder_id(), exchange);
         imageBase64 = req.getImageBase64();
 //        this.user = (Customer) UserDao.getUserById(req.getUserId());
+    }
+
+    public Rating() {
+
+    }
+
+    public RatingDto getRatingDto() {
+        return new RatingDto(order.id, rating, comment, imageBase64, user.getUserId(), id);
     }
 
 }
