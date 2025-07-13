@@ -1,13 +1,19 @@
 package com.ap.project.dao;
 
+import com.ap.project.Exceptions.NoSuchRestaurant;
+import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.ProfileDto;
-import com.ap.project.entity.user.HasAddress;
-import com.ap.project.entity.user.HasBankAccount;
-import com.ap.project.entity.user.Seller;
-import com.ap.project.entity.user.User;
+import com.ap.project.entity.restaurant.Restaurant;
+import com.ap.project.entity.user.*;
 import com.ap.project.util.HibernateUtil;
+import com.sun.net.httpserver.HttpExchange;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
+import java.util.List;
+
+import static com.ap.project.dao.FoodItemDao.transactionRollBack;
 
 public class UserDao {
 
@@ -172,5 +178,74 @@ public class UserDao {
             e.printStackTrace();
         }
         return user;
+    }
+
+    public static void addRestaurantToFavorites(int userId, int restaurantId, HttpExchange exchange) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Customer user = session.get(Customer.class, userId);
+            if(user == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchUser(userId + "User not found");
+            }
+            Restaurant restaurant = session.get(Restaurant.class, restaurantId);
+            if(restaurant == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchRestaurant(restaurantId + "Restaurant not found");
+            }
+
+            user.addFavoriteRestaurant(restaurant);
+            restaurant.addLikedCustomer(user);
+            session.merge(restaurant);
+            transaction.commit();
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+    }
+
+    public static void deleteRestaurantFromFavorites(int userId, int restaurantId, HttpExchange exchange) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Customer user = session.get(Customer.class, userId);
+            if(user == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchUser(userId + "User not found");
+            }
+            Restaurant restaurant = session.get(Restaurant.class, restaurantId);
+            if(restaurant == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchRestaurant(restaurantId + "Restaurant not found");
+            }
+            if(!(user.getFavoriteRestaurants().contains(restaurant))) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchRestaurant(restaurantId + "Restaurant not found in Favorites");
+            }
+            user.removeRestaurantFromFavorites(restaurant);
+            restaurant.removeCustomerFromLiked(user);
+            session.merge(restaurant);
+            transaction.commit();
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+    }
+
+    public static List<Restaurant> getFavoriteRestaurants(int userId, HttpExchange exchange) {
+        List<Restaurant> favorites = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            session.beginTransaction();
+            Customer user = session.get(Customer.class, userId);
+            if(user == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchUser(userId + "User not found");
+            }
+            Hibernate.initialize(user.getFavoriteRestaurants());
+            favorites = user.getFavoriteRestaurants();
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return favorites;
     }
 }

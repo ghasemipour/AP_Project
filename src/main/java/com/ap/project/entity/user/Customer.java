@@ -4,6 +4,7 @@ import com.ap.project.Enums.UserRole;
 import com.ap.project.dto.ProfileDto;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.Rating;
+import com.ap.project.entity.restaurant.Restaurant;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,13 @@ public class Customer extends User implements HasAddress{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Rating> ratings = new ArrayList<>();
 
+    @ManyToMany(cascade = {CascadeType.MERGE})
+    @JoinTable(
+            name = "favorite_restaurants",
+            joinColumns = @JoinColumn(name = "customer_id"),
+            inverseJoinColumns = @JoinColumn(name = "restaurant_id")
+    )
+    private List<Restaurant> favoriteRestaurants = new ArrayList<>();
 
     public Customer(String name, String number, String password, String email, String profilePricture, String address) {
         super(name, number, password, email, profilePricture);
@@ -60,5 +68,15 @@ public class Customer extends User implements HasAddress{
     public void removeRating(Rating rating) {
         ratings.remove(rating);
         rating.setUser(null);
+    }
+
+    public void addFavoriteRestaurant(Restaurant restaurant) {
+        if(!favoriteRestaurants.contains(restaurant)) {
+            favoriteRestaurants.add(restaurant);
+        }
+    }
+
+    public void removeRestaurantFromFavorites(Restaurant restaurant) {
+        favoriteRestaurants.remove(restaurant);
     }
 }

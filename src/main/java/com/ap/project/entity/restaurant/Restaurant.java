@@ -2,6 +2,7 @@ package com.ap.project.entity.restaurant;
 
 import com.ap.project.dto.RestaurantDto;
 import com.ap.project.dto.WorkingHourDto;
+import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.Seller;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -41,6 +42,9 @@ public class Restaurant {
 
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "favoriteRestaurants", cascade = {CascadeType.MERGE})
+    private List<Customer> likedCustomers = new ArrayList<>();
 
     public Restaurant(RestaurantDto restaurantInfo, Seller owner) {
         this.name = restaurantInfo.getName();
@@ -95,5 +99,13 @@ public class Restaurant {
     public RestaurantDto getRestaurantDto() {
         RestaurantDto res = new RestaurantDto(id, name, address, phone, logoBase64, tax_fee, additional_fee, working_hour );
         return res;
+    }
+
+    public void addLikedCustomer(Customer customer) {
+        likedCustomers.add(customer);
+    }
+
+    public void removeCustomerFromLiked(Customer user) {
+        likedCustomers.remove(user);
     }
 }
