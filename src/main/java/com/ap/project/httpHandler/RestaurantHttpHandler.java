@@ -1,9 +1,15 @@
 package com.ap.project.httpHandler;
 
 import com.ap.project.Enums.Status;
+import com.ap.project.Exceptions.NoSuchRestaurant;
+import com.ap.project.dao.FoodItemDao;
+import com.ap.project.dao.MenuDao;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.RestaurantDao;
+import com.ap.project.dto.FoodDto;
 import com.ap.project.dto.RestaurantDto;
+import com.ap.project.entity.restaurant.Food;
+import com.ap.project.entity.restaurant.Menu;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.entity.user.Customer;
@@ -34,6 +40,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
         }
 
         String path = exchange.getRequestURI().getPath();
+        String[] parts = path.split("/");
         if(path.startsWith("/restaurants")){
             if (!(user instanceof Seller)) {
                 exchange.sendResponseHeaders(403, -1);
@@ -44,7 +51,6 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }else if (path.equals("/restaurants/mine")) {
                 handleGetSellersRestaurants(exchange, user);
             } else {
-                String[] parts = path.split("/");
                 if (parts.length == 3) {
                     handleUpdateRestaurant(exchange, user, Integer.parseInt(parts[2]));
                 } else if (parts.length >= 4) {
@@ -68,6 +74,10 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
             if(path.equals("/vendors")){
                 handleGetListOfRestaurants(exchange);
+            } else if(parts.length == 3) {
+                handleGetListOfMenus(exchange, Integer.parseInt(parts[2]));
+            } else {
+                exchange.sendResponseHeaders(404, -1);
             }
         }
 
@@ -289,5 +299,71 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
+    }
+
+    private void handleGetListOfMenus(HttpExchange exchange, int restaurantId) throws IOException {
+
+        try {
+            if(!exchange.getRequestMethod().equals("GET")) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+            Restaurant restaurant = RestaurantDao.getRestaurantById(restaurantId);
+            if (restaurant == null) {
+                exchange.sendResponseHeaders(404, -1);
+                return;
+            }
+
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            JsonObject responseJson = new JsonObject();
+            JsonArray menuTitles = new JsonArray();
+
+            List<Menu> menus = RestaurantDao.getRestaurantMenus(restaurantId, exchange);
+            if(menus == null ||menus.isEmpty()){
+                exchange.sendResponseHeaders(400, -1);
+                return;
+            }
+
+            for(Menu menu : menus) {
+                String title = menu.getTitle();
+                menuTitles.add(title);
+
+                JsonArray foodArray = new JsonArray();
+                List<Food> foodItems = MenuDao.getFoodItems(menu.getId(), exchange);
+                if(foodItems != null && !foodItems.isEmpty()){
+
+                    for(Food food : foodItems){
+                        System.out.println(food.getName());
+                        JsonObject foodJson = new JsonObject();
+                        foodJson.addProperty("name", food.getName());
+                        foodJson.addProperty("price", food.getPrice());
+                        foodJson.addProperty("description", food.getDescription());
+                        foodJson.addProperty("id", food.getFoodId());
+                        foodJson.addProperty("supply", food.getSupply());
+                        System.out.println(foodJson);
+                        JsonArray keywordsArray = new JsonArray();
+                        List<String> keywords = FoodItemDao.getKeywords(food.getFoodId());
+                        if(keywords != null && !keywords.isEmpty()){
+                            for (String keyword : keywords) {
+                                keywordsArray.add(keyword);
+                            }
+                        }
+                        foodJson.add("keywords", keywordsArray);
+
+                        foodArray.add(foodJson);
+
+                    }
+                }
+                responseJson.add(title, foodArray);
+
+            }
+
+            responseJson.add("menuTitles", menuTitles);
+            sendSuccessMessage(new Gson().toJson(responseJson), exchange);
+
+        } catch (IOException e) {
+            internalServerFailureError(e, exchange);
+        }
+
     }
 }

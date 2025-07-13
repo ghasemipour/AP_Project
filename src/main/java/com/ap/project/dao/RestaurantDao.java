@@ -1,7 +1,9 @@
 package com.ap.project.dao;
 
+import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.RestaurantDto;
+import com.ap.project.entity.restaurant.Menu;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.entity.user.Seller;
@@ -12,6 +14,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,9 +80,8 @@ public class RestaurantDao {
             restaurants = seller.getRestaurants();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            return restaurants;
         }
+        return restaurants;
     }
 
     public static Restaurant getRestaurantById(int restaurantId) {
@@ -229,5 +231,21 @@ public class RestaurantDao {
             transactionRollBack(transaction, e);
         }
         return results;
+    }
+
+    public static List<Menu> getRestaurantMenus(int restaurantId, HttpExchange exchange) {
+        List<Menu> menus = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Restaurant restaurant = session.get(Restaurant.class, restaurantId);
+            if (restaurant == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchRestaurant(restaurantId + " not found");
+            }
+            Hibernate.initialize(restaurant.getMenus());
+            menus = restaurant.getMenus();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return menus;
     }
 }

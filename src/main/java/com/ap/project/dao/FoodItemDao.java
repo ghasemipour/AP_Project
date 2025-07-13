@@ -181,4 +181,18 @@ public class FoodItemDao {
     }
 
 
+    public static List<String> getKeywords(int foodId) {
+        List<String> keywords = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Food food = session.get(Food.class, foodId);
+            if (food == null) {
+                throw new NoSuchFoodItem(foodId + " not found");
+            }
+            Hibernate.initialize(food.getKeywords());
+            keywords = food.getKeywords();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return keywords;
+    }
 }
