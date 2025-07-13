@@ -14,6 +14,7 @@ import org.hibernate.query.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ap.project.dao.FoodItemDao.transactionRollBack;
 
@@ -188,5 +189,45 @@ public class RestaurantDao {
             transactionRollBack(transaction, e);
         }
         return orders;
+    }
+
+    public static List<RestaurantDto> getRestaurantsByFilter(String search, List<String> keywords) {
+        Transaction transaction = null;
+        List<RestaurantDto> results = new ArrayList<>();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            StringBuilder hql = new StringBuilder("FROM Restaurant r WHERE 1=1");
+            if (search != null && !search.isEmpty()) {
+                hql.append(" AND (lower(r.name) LIKE :search)");
+            }
+
+            if (keywords != null && !keywords.isEmpty()) {
+                hql.append(" AND exists (SELECT DISTINCT f FROM Food f JOIN f.keywords k WHERE f.restaurant = r AND lower(k) IN (:keywords))");
+            }
+
+            Query<Restaurant> query = session.createQuery(hql.toString(), Restaurant.class);
+
+            if(search != null && !search.isEmpty()) {
+                query.setParameter("search", "%" + search.toLowerCase() + "%");
+            }
+
+            if (keywords != null && !keywords.isEmpty()) {
+                List<String> lowerKeywords = keywords.stream()
+                        .map(String::toLowerCase)
+                        .collect(Collectors.toList());
+
+                query.setParameter("keywords", lowerKeywords);
+            }
+
+            List<Restaurant> restaurants = query.list();
+            for (Restaurant restaurant : restaurants) {
+                results.add(restaurant.getRestaurantDto());
+            }
+
+            transaction.commit();
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+        return results;
     }
 }

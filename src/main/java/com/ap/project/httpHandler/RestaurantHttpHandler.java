@@ -6,19 +6,22 @@ import com.ap.project.dao.RestaurantDao;
 import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.Restaurant;
+import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
 import com.ap.project.services.Validate;
 import com.ap.project.wrappers.StatusWrapper;
-import com.google.gson.Gson;
+import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,32 +33,41 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             return;
         }
 
-        if (!(user instanceof Seller)) {
-            exchange.sendResponseHeaders(403, -1);
-            return;
-        }
-
         String path = exchange.getRequestURI().getPath();
-        if (path.equals("/restaurants")) {
-            handleAddNewRestaurant(exchange, user);
-        } else if (path.equals("/restaurants/mine")) {
-            handleGetSellersRestaurants(exchange, user);
-        } else {
-            String[] parts = path.split("/");
-            if (parts.length == 3) {
-                handleUpdateRestaurant(exchange, user, Integer.parseInt(parts[2]));
-            } else if (parts.length >= 4) {
-                if (parts[3].equals("item")) {
-                    FoodHttpHandler foodHandler = new FoodHttpHandler();
-                    foodHandler.handle(exchange);
-                } else if (parts[3].equals("menu")) {
-                    MenuHttpHandler menuHandler = new MenuHttpHandler();
-                    menuHandler.handle(exchange);
-                } else if (parts[3].startsWith("orders")) {
-                    handleGetRestaurantsOrders(exchange, Integer.parseInt(parts[2]), user);
-                } else if (parts[2].equals("orders")) {
-                    handleChangeOrderStatus(exchange, Integer.parseInt(parts[3]), user);
+        if(path.startsWith("/restaurants")){
+            if (!(user instanceof Seller)) {
+                exchange.sendResponseHeaders(403, -1);
+                return;
+            }
+            if (path.equals("/restaurants")) {
+                handleAddNewRestaurant(exchange, user);
+            }else if (path.equals("/restaurants/mine")) {
+                handleGetSellersRestaurants(exchange, user);
+            } else {
+                String[] parts = path.split("/");
+                if (parts.length == 3) {
+                    handleUpdateRestaurant(exchange, user, Integer.parseInt(parts[2]));
+                } else if (parts.length >= 4) {
+                    if (parts[3].equals("item")) {
+                        FoodHttpHandler foodHandler = new FoodHttpHandler();
+                        foodHandler.handle(exchange);
+                    } else if (parts[3].equals("menu")) {
+                        MenuHttpHandler menuHandler = new MenuHttpHandler();
+                        menuHandler.handle(exchange);
+                    } else if (parts[3].startsWith("orders")) {
+                        handleGetRestaurantsOrders(exchange, Integer.parseInt(parts[2]), user);
+                    } else if (parts[2].equals("orders")) {
+                        handleChangeOrderStatus(exchange, Integer.parseInt(parts[3]), user);
+                    }
                 }
+            }
+        } else if(path.startsWith("/vendors")){
+            if (!(user instanceof Customer)) {
+                exchange.sendResponseHeaders(403, -1);
+                return;
+            }
+            if(path.equals("/vendors")){
+                handleGetListOfRestaurants(exchange);
             }
         }
 
@@ -241,6 +253,39 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             OrderDao.changeOrderStatus(orderId, statusEnum);
             sendSuccessMessage("Status changed successfully.", exchange);
 
+        } catch (Exception e) {
+            internalServerFailureError(e, exchange);
+        }
+    }
+
+    private void handleGetListOfRestaurants(HttpExchange exchange) throws IOException {
+        try {
+            if(!exchange.getRequestMethod().equals("POST")) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody(), "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            String requestBody = sb.toString();
+            JsonObject json = JsonParser.parseString(requestBody).getAsJsonObject();
+
+            String search = (json.has("search") && !json.get("search").isJsonNull())
+                    ? json.get("search").getAsString()
+                    : null;
+
+            List<String> keywords = new ArrayList<>();
+            if(json.has("keywords") && !json.get("keywords").isJsonNull() && json.get("keywords").isJsonArray()) {
+                for(JsonElement jsonElement : json.get("keywords").getAsJsonArray()) {
+                    keywords.add(jsonElement.getAsString());
+                }
+            }
+
+            List<RestaurantDto> results = RestaurantDao.getRestaurantsByFilter(search, keywords);
+            sendSuccessMessage(new Gson().toJson(results), exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
