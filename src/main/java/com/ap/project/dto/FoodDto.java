@@ -36,4 +36,37 @@ public class FoodDto {
         this.vendor_id = vendor_id;
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("FoodDto [name=");
+        sb.append(name);
+        System.out.println(sb.toString());
+        sb.append(", description=");
+        sb.append(description);
+        System.out.println(sb.toString());
+        sb.append(", price=");
+        sb.append(price);
+        System.out.println(sb.toString());
+        sb.append(", supply=");
+        sb.append(supply);
+        System.out.println(sb.toString());
+        if(keywords != null) {
+            sb.append(", keywords=");
+            sb.append(keywords.toString());
+            System.out.println(sb.toString());
+        }
+        sb.append(", vendor_id=");
+        sb.append(vendor_id);
+        System.out.println(sb.toString());
+        sb.append(", imageBase64=");
+        sb.append(imageBase64);
+        System.out.println(sb.toString());
+        sb.append(", id=");
+        sb.append(id);
+        System.out.println(sb.toString());
+        sb.append("]");
+        return sb.toString();
+    }
 }
