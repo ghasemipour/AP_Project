@@ -21,6 +21,8 @@ public class Main {
         httpServer.createContext("/items", new FoodHttpHandler());
         httpServer.createContext("/vendors", new RestaurantHttpHandler());
         httpServer.createContext("/orders", new OrderHttpHandler());
+        httpServer.createContext("/favorites", new FavoriteHttpHandler());
+        // TODO : handle /coupons
 
         httpServer.setExecutor(null);
         httpServer.start();

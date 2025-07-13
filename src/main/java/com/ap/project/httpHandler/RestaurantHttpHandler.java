@@ -350,6 +350,10 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                         }
                         foodJson.add("keywords", keywordsArray);
 
+                        if(food.getImageBase64() != null) {
+                            foodJson.addProperty("image", food.getImageBase64());
+                        }
+
                         foodArray.add(foodJson);
 
                     }
