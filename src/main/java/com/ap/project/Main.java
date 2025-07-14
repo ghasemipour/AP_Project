@@ -23,6 +23,7 @@ public class Main {
         httpServer.createContext("/orders", new OrderHttpHandler());
         httpServer.createContext("/ratings", new RatingHttpHandler());
         httpServer.createContext("/favorites", new FavoriteHttpHandler());
+        httpServer.createContext("/transactions", new TransactionHttpHandler());
         // TODO : handle /coupons
 
         httpServer.setExecutor(null);

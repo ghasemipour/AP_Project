@@ -5,6 +5,7 @@ import com.ap.project.Enums.Status;
 import com.ap.project.dao.RestaurantDao;
 import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.OrderItemDto;
+import com.ap.project.entity.general.Transaction;
 import com.ap.project.entity.user.Courier;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.User;
@@ -50,6 +51,9 @@ public class Order {
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Rating rating;
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Transaction transaction;
 
     public Order(OrderDto orderDto, HttpExchange exchange, Customer user) throws IOException {
         delivery_address = orderDto.getDelivery_address();

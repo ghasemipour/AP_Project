@@ -104,11 +104,7 @@ public class RatingHttpHandler implements HttpHandler {
             List<RatingDto> result = RatingDao.getRatingsForItem(itemId);
             if (result.isEmpty()) {
                 String response = "No ratings found.";
-                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-                exchange.sendResponseHeaders(400, responseBytes.length);
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(responseBytes);
-                }
+                sendSuccessMessage(response, exchange);
                 return;
             }
             sendSuccessMessage(new Gson().toJson(result), exchange);

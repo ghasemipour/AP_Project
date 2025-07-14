@@ -124,11 +124,7 @@ public class OrderHttpHandler implements HttpHandler {
             List<OrderDto> results = OrderDao.getOrderHistory(user.getUserId(), search, vendor);
             if (results.isEmpty()) {
                 String response = "No order history found.";
-                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-                exchange.sendResponseHeaders(400, responseBytes.length);
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(responseBytes);
-                }
+                sendSuccessMessage(response, exchange);
                 return;
             }
             sendSuccessMessage(new Gson().toJson(results), exchange);

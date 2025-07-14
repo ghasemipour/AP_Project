@@ -2,6 +2,7 @@ package com.ap.project.entity.user;
 
 import com.ap.project.Enums.UserRole;
 import com.ap.project.dto.ProfileDto;
+import com.ap.project.entity.general.Transaction;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.Rating;
 import com.ap.project.entity.restaurant.Restaurant;
@@ -15,7 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class Customer extends User implements HasAddress{
+public class Customer extends User implements HasAddress {
 
     @Column(nullable = false)
     private String address;
@@ -34,6 +35,9 @@ public class Customer extends User implements HasAddress{
     )
     private List<Restaurant> favoriteRestaurants = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Transaction> transactions = new ArrayList<>();
+
     public Customer(String name, String number, String password, String email, String profilePricture, String address) {
         super(name, number, password, email, profilePricture);
         this.address = address;
@@ -44,8 +48,7 @@ public class Customer extends User implements HasAddress{
     }
 
     @Override
-    public ProfileDto getProfile()
-    {
+    public ProfileDto getProfile() {
         ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), this.address, null, null, null, UserRole.CUSTOMER);
         return profileDto;
     }
@@ -71,7 +74,7 @@ public class Customer extends User implements HasAddress{
     }
 
     public void addFavoriteRestaurant(Restaurant restaurant) {
-        if(!favoriteRestaurants.contains(restaurant)) {
+        if (!favoriteRestaurants.contains(restaurant)) {
             favoriteRestaurants.add(restaurant);
         }
     }
