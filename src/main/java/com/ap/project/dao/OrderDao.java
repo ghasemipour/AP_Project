@@ -133,4 +133,67 @@ public class OrderDao {
     }
 
 
+    public static List<Order> getOrderByStatus(HttpExchange exchange, Status status) {
+        List<Order> orders = new ArrayList<>();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Query<Order> query = session.createQuery("FROM Order o WHERE o.status = :status", Order.class);
+            query.setParameter("status", status);
+            orders = query.getResultList();
+            transaction.commit();
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+
+        return orders;
+    }
+
+    public static Customer getCustomer(int orderId, HttpExchange exchange) {
+        Customer customer = null;
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Order order = session.get(Order.class, orderId);
+            if (order == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchOrder(orderId + "Order not found.");
+            }
+            Hibernate.initialize(order.getUser());
+            customer = order.getUser();
+            if(customer == null){
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchUser(orderId + " Order customer not found.");
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return customer;
+    }
+
+    public static Restaurant getRestaurant(int orderId, HttpExchange exchange) {
+        Restaurant restaurant = null;
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Order order = session.get(Order.class, orderId);
+            if (order == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchOrder(orderId + "Order not found.");
+            }
+            Hibernate.initialize(order.getRestaurant());
+            restaurant = order.getRestaurant();
+            if(restaurant == null){
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchRestaurant(orderId + " Order restaurant not found.");
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return restaurant;
+    }
 }
