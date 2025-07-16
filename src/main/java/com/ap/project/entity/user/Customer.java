@@ -1,6 +1,7 @@
 package com.ap.project.entity.user;
 
 import com.ap.project.Enums.UserRole;
+import com.ap.project.dao.TransactionDao;
 import com.ap.project.dto.ProfileDto;
 import com.ap.project.entity.general.Transaction;
 import com.ap.project.entity.general.Wallet;
@@ -40,15 +41,20 @@ public class Customer extends User implements HasAddress {
     private List<Transaction> transactions = new ArrayList<>();
 
     @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
-    private Wallet wallet = new Wallet();
+    private Wallet wallet;
 
     public Customer(String name, String number, String password, String email, String profilePricture, String address) {
         super(name, number, password, email, profilePricture);
         this.address = address;
+        Wallet wallet = new Wallet();
+        TransactionDao.saveWallet(wallet, this.getUserId());
+        this.wallet = wallet;
     }
 
     public Customer() {
-
+        Wallet wallet = new Wallet();
+        TransactionDao.saveWallet(wallet, this.getUserId());
+        this.wallet = wallet;
     }
 
     @Override
@@ -85,5 +91,9 @@ public class Customer extends User implements HasAddress {
 
     public void removeRestaurantFromFavorites(Restaurant restaurant) {
         favoriteRestaurants.remove(restaurant);
+    }
+
+    public void addTransaction(Transaction newTransaction) {
+        transactions.add(newTransaction);
     }
 }

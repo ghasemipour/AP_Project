@@ -1,9 +1,12 @@
 package com.ap.project.entity.general;
 
+import com.ap.project.entity.general.Transaction;
 import com.ap.project.entity.user.Customer;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -19,6 +22,9 @@ public class Wallet {
     @JoinColumn(name = "user_id", nullable = false)
     private Customer customer;
 
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    List<Transaction> transaction;
+
     public void topUp(double amount){
         balance += amount;
     }
@@ -30,4 +36,7 @@ public class Wallet {
         balance -= amount;
     }
 
+    public void addTransaction(Transaction newTransaction) {
+        transaction.add(newTransaction);
+    }
 }

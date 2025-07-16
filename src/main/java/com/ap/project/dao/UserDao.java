@@ -3,6 +3,7 @@ package com.ap.project.dao;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.ProfileDto;
+import com.ap.project.entity.general.Wallet;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.entity.user.*;
 import com.ap.project.util.HibernateUtil;
@@ -248,5 +249,21 @@ public class UserDao {
             e.printStackTrace();
         }
         return favorites;
+    }
+
+    public static Wallet getWalletByUserId(int userId, HttpExchange exchange) {
+        Wallet wallet = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Customer user = session.get(Customer.class, userId);
+            if(user == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchUser(userId + "User not found");
+            }
+            Hibernate.initialize(user.getWallet());
+            wallet = user.getWallet();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return wallet;
     }
 }
