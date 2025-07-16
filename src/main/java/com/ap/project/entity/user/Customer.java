@@ -39,7 +39,7 @@ public class Customer extends User implements HasAddress {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Transaction> transactions = new ArrayList<>();
 
-    @OneToOne(mappedBy = "cutomer", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
     private Wallet wallet = new Wallet();
 
     public Customer(String name, String number, String password, String email, String profilePricture, String address) {

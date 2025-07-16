@@ -4,6 +4,7 @@ import com.ap.project.Exceptions.NoSuchFoodItem;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.dto.FoodDto;
 import com.ap.project.entity.restaurant.Food;
+import com.ap.project.entity.restaurant.OrderItem;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.util.HibernateUtil;
 import com.sun.net.httpserver.HttpExchange;
@@ -16,6 +17,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.ap.project.httpHandler.SuperHttpHandler.sendNotFoundMessage;
 
 public class FoodItemDao {
 
@@ -44,7 +47,8 @@ public class FoodItemDao {
             food = session.get(Food.class, foodID);
 
             if (food == null) {
-                exchange.sendResponseHeaders(404, -1);
+                String response = "{\"error\": \"Food Item not found\"}";
+                sendNotFoundMessage(response, exchange);
                 throw new NoSuchFoodItem(foodID + " not found");
             }
 

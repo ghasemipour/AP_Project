@@ -5,6 +5,7 @@ import com.ap.project.Exceptions.NoSuchOrder;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.OrderDto;
+import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.OrderItem;
 import com.ap.project.entity.restaurant.Restaurant;
@@ -18,11 +19,14 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.ap.project.dao.FoodItemDao.transactionRollBack;
+import static com.ap.project.httpHandler.SuperHttpHandler.sendNotFoundMessage;
 
 public class OrderDao {
 
@@ -33,8 +37,9 @@ public class OrderDao {
             transaction = session.beginTransaction();
             order = session.get(Order.class, orderId);
             if (order == null) {
-                exchange.sendResponseHeaders(404, -1);
-                throw new NoSuchOrder(orderId + " not found.");
+                String response = "{\"error\": \"Order not found\"}\n";
+                    sendNotFoundMessage(response, exchange);
+                    throw new NoSuchOrder(response);
             }
             transaction.commit();
         } catch (Exception e) {
@@ -72,14 +77,15 @@ public class OrderDao {
             Customer customer = session.get(Customer.class, userId);
 
             if (restaurant == null) {
-                exchange.sendResponseHeaders(404, -1);
+                String response = "{\"error\": \"Vendor not found\"}";
+                sendNotFoundMessage(response, exchange);
                 throw new NoSuchRestaurant(vendorId + " not found");
             }
             if (customer == null) {
-                exchange.sendResponseHeaders(404, -1);
+                String response = "{\"error\": \"User not found\"}";
+                sendNotFoundMessage(response, exchange);
                 throw new NoSuchUser(userId + " not found");
             }
-
             restaurant.addOrder(order);
             customer.addOrder(order);
 

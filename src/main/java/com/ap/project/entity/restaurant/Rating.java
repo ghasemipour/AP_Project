@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class Rating {
     @ElementCollection
     private List<String> imageBase64 = new ArrayList<>();
 
-    public Rating(RatingDto req, HttpExchange exchange) {
+    public Rating(RatingDto req, HttpExchange exchange) throws IOException {
         rating = req.getRating();
         comment = req.getComment();
         order = OrderDao.getOrderFromId(req.getOrder_id(), exchange);

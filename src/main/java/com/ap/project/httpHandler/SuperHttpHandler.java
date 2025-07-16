@@ -47,12 +47,23 @@ public class SuperHttpHandler {
     }
 
     protected static void internalServerFailureError(Exception e, HttpExchange exchange) throws IOException {
-            String errorResponse = "{\"error\": \"Internal server error\"}";
-            byte[] responseBytes = errorResponse.getBytes(StandardCharsets.UTF_8);
-            exchange.sendResponseHeaders(500, responseBytes.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(responseBytes);
-            }
-            e.printStackTrace();
+        String errorResponse = "{\"error\": \"Internal server error\"}";
+        byte[] responseBytes = errorResponse.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(500, responseBytes.length);
+        exchange.getResponseBody().write(responseBytes);
+        e.printStackTrace();
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(responseBytes);
+        }
+
+    }
+
+    public static void sendNotFoundMessage(String response, HttpExchange exchange) throws IOException {
+        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().add("Content-Type", "application/json");
+        exchange.sendResponseHeaders(404, bytes.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(bytes);
+        }
     }
 }

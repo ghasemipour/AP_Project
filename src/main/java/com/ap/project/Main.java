@@ -26,7 +26,7 @@ public class Main {
         httpServer.createContext("/deliveries", new DeliveryHttpHandler());
         httpServer.createContext("/transactions", new TransactionHttpHandler());
         httpServer.createContext("/wallet/top-up", new TransactionHttpHandler());
-        httpServer.createContext("/payment", new TransactionHttpHandler());
+        httpServer.createContext("/payment/online", new TransactionHttpHandler());
         // TODO : handle /coupons
 
         httpServer.setExecutor(null);

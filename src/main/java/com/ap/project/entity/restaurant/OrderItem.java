@@ -29,6 +29,10 @@ public class OrderItem {
         this.order = order;
     }
 
+    public OrderItem() {
+
+    }
+
     public OrderItemDto getDto() {
         OrderItemDto orderItemDto = new OrderItemDto();
 

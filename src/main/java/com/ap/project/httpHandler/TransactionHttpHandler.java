@@ -1,14 +1,14 @@
 package com.ap.project.httpHandler;
 
+import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.TransactionDao;
 import com.ap.project.dto.TransactionDto;
-import com.ap.project.entity.general.Transaction;
+import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -41,7 +41,7 @@ public class  TransactionHttpHandler implements HttpHandler {
             handleTopUpWallet(exchange, (Customer) user);
         }
         else if (path.equals("/payment/online")) {
-
+            handleOnlinePayment(exchange);
         }
 
     }
@@ -67,14 +67,52 @@ public class  TransactionHttpHandler implements HttpHandler {
         }
     }
 
-    private void handleOnlinePayment(HttpExchange exchange, int userId) throws IOException {
+    private void handleOnlinePayment(HttpExchange exchange) throws IOException {
         try {
             if (!exchange.getRequestMethod().equals("POST")) {
                 exchange.sendResponseHeaders(405, -1);
                 return;
             }
             InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
-            TransactionDto req = new Gson().fromJson(reader, TransactionDto.class);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            StringBuilder requestBody = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                requestBody.append(line);
+            }
+            JsonObject req = JsonParser.parseString(requestBody.toString()).getAsJsonObject();
+
+            String response = "";
+            if (!req.has("order_id")) {
+                response += "{\"error\": \"Order ID required\"}\n";
+            }
+
+            if (!req.has("method")) {
+                response += "{\"error\": \"Method of payment required\"}\n";
+            }
+            if (!response.isEmpty()) {
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+            int orderId = req.get("order_id").getAsInt();
+            String method = req.get("method").getAsString();
+
+            if (!method.equals("online") && !method.equals("wallet")) {
+                response = "{\"error\": \"Invalid payment method\"}\n";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+            Order order = OrderDao.getOrderFromId(orderId, exchange);
+            if (order == null) { return; }
+            sendSuccessMessage("Online payment success.", exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }

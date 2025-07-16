@@ -53,16 +53,16 @@ public class UserDao {
                         ((HasAddress)user).setAddress(newProfile.getAddress());
                     }
                 }
-                if(newProfile.getBank_info().getBank_name() != null) {
-                    if(user instanceof HasBankAccount)
-                    {
-                        ((HasBankAccount)user).getBankAccount().setBankName(newProfile.getBank_info().getBank_name());
+                if (newProfile.getBank_info() != null) {
+                    if (newProfile.getBank_info().getBank_name() != null) {
+                        if (user instanceof HasBankAccount) {
+                            ((HasBankAccount) user).getBankAccount().setBankName(newProfile.getBank_info().getBank_name());
+                        }
                     }
-                }
-                if(newProfile.getBank_info().getAccount_number() != null) {
-                    if(user instanceof HasBankAccount)
-                    {
-                        ((HasBankAccount)user).getBankAccount().setAccountNumber(newProfile.getBank_info().getAccount_number());
+                    if (newProfile.getBank_info().getAccount_number() != null) {
+                        if (user instanceof HasBankAccount) {
+                            ((HasBankAccount) user).getBankAccount().setAccountNumber(newProfile.getBank_info().getAccount_number());
+                        }
                     }
                 }
                 if(newProfile.getDiscription() != null) {
@@ -83,6 +83,7 @@ public class UserDao {
                     user.setProfilePicture(newProfile.getProfileImageBase64());
                 }
                 session.update(user);
+                transaction.commit();
             }
         } catch (Exception e) {
             if (transaction != null) {

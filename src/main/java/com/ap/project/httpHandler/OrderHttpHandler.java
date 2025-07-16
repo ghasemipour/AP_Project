@@ -2,6 +2,7 @@ package com.ap.project.httpHandler;
 
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dto.OrderDto;
+import com.ap.project.dto.OrderItemDto;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.User;
@@ -51,7 +52,7 @@ public class OrderHttpHandler implements HttpHandler {
     public void handleSubmitOrder(HttpExchange exchange, User user) throws IOException {
         try {
             if (!exchange.getRequestMethod().equals("POST")) {
-                exchange.sendResponseHeaders(405,-1);
+                exchange.sendResponseHeaders(405, -1);
                 return;
             }
 
@@ -73,7 +74,6 @@ public class OrderHttpHandler implements HttpHandler {
                 }
                 return;
             }
-
             Order order = new Order(orderDto, exchange, (Customer) user);
             OrderDao.submitOrder(order, orderDto.getVendor_id(), user.getUserId(), exchange);
             sendSuccessMessage("Order submitted successfully.", exchange);

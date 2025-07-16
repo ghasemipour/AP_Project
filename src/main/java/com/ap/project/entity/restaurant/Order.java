@@ -21,6 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Table(name = "Orders")
 public class Order {
 
     @Id
@@ -40,7 +41,7 @@ public class Order {
     @JoinColumn(name = "courier_id")
     private Courier courier;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderItem> items = new ArrayList<>();
 
     private Integer coupon_id;
@@ -54,6 +55,9 @@ public class Order {
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Transaction transaction;
+
+    private Integer courier_fee;
+    private Integer tax_fee;
 
     public Order(OrderDto orderDto, HttpExchange exchange, Customer user) throws IOException {
         delivery_address = orderDto.getDelivery_address();
