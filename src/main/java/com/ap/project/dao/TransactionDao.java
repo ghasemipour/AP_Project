@@ -1,8 +1,13 @@
 package com.ap.project.dao;
 
+import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.TransactionDto;
 import com.ap.project.entity.general.Transaction;
+import com.ap.project.entity.general.Wallet;
+import com.ap.project.entity.user.Customer;
 import com.ap.project.util.HibernateUtil;
+import com.sun.net.httpserver.HttpExchange;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
@@ -29,5 +34,23 @@ public class TransactionDao {
             transactionRollBack(tx, e);
         }
         return result;
+    }
+
+    public static void topUpWallet(int userId, double amount, HttpExchange exchange) {
+        org.hibernate.Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Customer customer = session.get(Customer.class, userId);
+            if(customer == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchUser(userId + "User not found");
+            }
+            Hibernate.initialize(customer.getWallet());
+            Wallet wallet = customer.getWallet();
+            wallet.topUp(amount);
+            transaction.commit();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
