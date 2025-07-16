@@ -119,9 +119,10 @@ public class FoodItemDao {
     }
 
     public static void transactionRollBack(Transaction transaction, Exception e) {
+        e.printStackTrace();
         if (transaction != null && transaction.isActive())
             transaction.rollback();
-        e.printStackTrace();
+
     }
 
     public static List<FoodDto> getItemsByFilters(String search, int price, List<String> keywords) {

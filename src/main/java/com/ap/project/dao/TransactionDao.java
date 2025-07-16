@@ -16,10 +16,13 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.ap.project.dao.FoodItemDao.transactionRollBack;
+import static com.ap.project.httpHandler.SuperHttpHandler.sendNotFoundMessage;
 
 public class TransactionDao {
     public static List<TransactionDto> getTransactionHistoryByUserID(int userId) {
@@ -31,7 +34,7 @@ public class TransactionDao {
             Query<Transaction> query = session.createQuery(hql, Transaction.class);
             query.setParameter("userId", userId);
             List<Transaction> transactions = query.list();
-            for (Transaction transaction: transactions) {
+            for (Transaction transaction : transactions) {
                 result.add(transaction.getDto());
             }
             tx.commit();
@@ -46,15 +49,15 @@ public class TransactionDao {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             Customer customer = session.get(Customer.class, userId);
-            if(customer == null) {
-                exchange.sendResponseHeaders(404, -1);
+            if (customer == null) {
+                sendNotFoundMessage("{\"error\": \"User not found\"}", exchange);
                 throw new NoSuchUser(userId + "User not found");
             }
             Hibernate.initialize(customer.getWallet());
             Wallet wallet = customer.getWallet();
             wallet.topUp(amount);
             transaction.commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -64,35 +67,44 @@ public class TransactionDao {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             Customer customer = session.get(Customer.class, userId);
-            if(customer == null) {
+            if (customer == null) {
                 exchange.sendResponseHeaders(404, -1);
                 throw new NoSuchUser(userId + "User not found");
             }
             Hibernate.initialize(customer.getWallet());
             Hibernate.initialize(customer.getOrders());
             Hibernate.initialize(customer.getTransactions());
-            if(orderId > 0){
+            if (orderId > 0) {
                 Order order = session.get(Order.class, orderId);
-                if(order == null) {
+                if (order == null) {
                     exchange.sendResponseHeaders(404, -1);
                     throw new NoSuchOrder(orderId + "Order not found");
                 }
+                if (customer.getUserId() != order.getUser().getUserId()) {
+                    String response = "Unauthorized user.";
+                    byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().add("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(403, bytes.length);
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(bytes);
+                    }
+                }
                 order.setTransaction(newTransaction);
             }
-            if(walletId > 0){
+            if (walletId > 0) {
                 Wallet wallet = session.get(Wallet.class, walletId);
-                if(wallet == null) {
+                if (wallet == null) {
                     exchange.sendResponseHeaders(404, -1);
                     throw new NoSuchWallet(walletId + "Wallet not found");
                 }
                 wallet.addTransaction(newTransaction);
             }
             customer.addTransaction(newTransaction);
-            session.persist(transaction);
+            session.persist(newTransaction);
             session.merge(customer);
             transaction.commit();
-        } catch (Exception e){
-            e.printStackTrace();
+        } catch (Exception e) {
+            transactionRollBack(transaction, e);
         }
     }
 
@@ -101,14 +113,14 @@ public class TransactionDao {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             Customer customer = session.get(Customer.class, userId);
-            if(customer == null) {
+            if (customer == null) {
                 throw new NoSuchUser(userId + "User not found");
             }
             wallet.setCustomer(customer);
             session.persist(wallet);
             session.merge(customer);
             transaction.commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             transactionRollBack(transaction, e);
         }
     }

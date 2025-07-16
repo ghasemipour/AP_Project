@@ -10,4 +10,14 @@ public enum TransactionMethod {
     TransactionMethod(String method) {
         this.method = method;
     }
+
+    public static TransactionMethod fromString(String method) {
+        if (method == null) return null;
+        for (TransactionMethod m : TransactionMethod.values()) {
+            if (m.method.equalsIgnoreCase(method)) {
+                return m;
+            }
+        }
+        return null;
+    }
 }

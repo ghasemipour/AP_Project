@@ -21,7 +21,6 @@ public class Admin extends User{
 
     @Override
     public ProfileDto getProfile() {
-        ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), null, null, null, null, UserRole.ADMIN);
-        return profileDto;
+        return new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), null, null, null, null, UserRole.ADMIN);
     }
 }

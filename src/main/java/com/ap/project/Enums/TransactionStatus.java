@@ -10,4 +10,14 @@ public enum TransactionStatus {
     TransactionStatus(String status) {
         this.status = status;
     }
+
+    public static TransactionStatus fromString(String status) {
+        if (status == null) return null;
+        for (TransactionStatus s : TransactionStatus.values()) {
+            if (s.status.equalsIgnoreCase(status)) {
+                return s;
+            }
+        }
+        return null;
+    }
 }

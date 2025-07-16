@@ -34,8 +34,8 @@ public class Transaction {
     @Column(nullable = false)
     private TransactionStatus status;
 
-    public Transaction(Order o, Wallet wallet, Customer customer, TransactionMethod transactionMethod, TransactionStatus transactionStatus) {
-     this.order = o;
+    public Transaction(Order order, Wallet wallet, Customer customer, TransactionMethod transactionMethod, TransactionStatus transactionStatus) {
+     this.order = order;
      this.wallet = wallet;
      this.user = customer;
      this.method = transactionMethod;

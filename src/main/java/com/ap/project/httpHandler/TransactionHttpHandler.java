@@ -46,7 +46,7 @@ public class  TransactionHttpHandler implements HttpHandler {
             handleTopUpWallet(exchange, (Customer) user);
         }
         else if (path.equals("/payment/online")) {
-            handleOnlinePayment(exchange);
+            handleOnlinePayment(exchange, (Customer) user);
         }
 
     }
@@ -72,7 +72,7 @@ public class  TransactionHttpHandler implements HttpHandler {
         }
     }
 
-    private void handleOnlinePayment(HttpExchange exchange) throws IOException {
+    private void handleOnlinePayment(HttpExchange exchange, Customer user) throws IOException {
         try {
             if (!exchange.getRequestMethod().equals("POST")) {
                 exchange.sendResponseHeaders(405, -1);
@@ -95,6 +95,7 @@ public class  TransactionHttpHandler implements HttpHandler {
             if (!req.has("method")) {
                 response += "{\"error\": \"Method of payment required\"}\n";
             }
+
             if (!response.isEmpty()) {
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
@@ -116,8 +117,9 @@ public class  TransactionHttpHandler implements HttpHandler {
                 return;
             }
             Order order = OrderDao.getOrderFromId(orderId, exchange);
-            if (order == null) { return; }
-            sendSuccessMessage("Online payment success.", exchange);
+            Transaction transaction = new Transaction(order, null, user, TransactionMethod.fromString(method), TransactionStatus.fromString("success"));
+            TransactionDao.saveTransaction(transaction, user.getUserId(), orderId, 0, exchange);
+            sendSuccessMessage("Online payment successful.", exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
@@ -138,7 +140,7 @@ public class  TransactionHttpHandler implements HttpHandler {
             String requestBody = sb.toString();
             JsonObject json = JsonParser.parseString(requestBody).getAsJsonObject();
             if(!json.has("amount") || json.get("amount").isJsonNull()){
-                String response = "amount required";
+                String response = "Amount required.";
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
                 try (OutputStream os = exchange.getResponseBody()) {
@@ -148,7 +150,7 @@ public class  TransactionHttpHandler implements HttpHandler {
             }
             double amount = json.get("amount").getAsDouble();
             if(amount <= 0){
-                String response = "amount most be greater than 0";
+                String response = "Amount must be greater than 0.";
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
                 try (OutputStream os = exchange.getResponseBody()) {
