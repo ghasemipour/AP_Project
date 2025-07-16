@@ -38,4 +38,8 @@ public class Courier extends User implements HasBankAccount {
         ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), null, this.bankAccount, null, null, UserRole.COURIER);
         return profileDto;
     }
+
+    public void addOrder(Order order) {
+        orders.add(order);
+    }
 }

@@ -124,6 +124,7 @@ public class DeliveryHttpHandler extends SuperHttpHandler implements HttpHandler
             }
             if(status.equals(Status.ACCEPTED)){
                 status = Status.Courier_Accepted;
+                OrderDao.setOrderCourier(orderId, courier.getUserId(), exchange);
             }
             OrderDao.changeOrderStatus(orderId, status, exchange);
             sendSuccessMessage("Changed status successfully", exchange);
