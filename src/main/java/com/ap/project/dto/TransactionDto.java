@@ -9,7 +9,6 @@ public class TransactionDto {
     private Integer id;
     private Integer order_id;
     private Integer userId;
-    private Integer user_Id;
     private TransactionMethod method;
     private TransactionStatus status;
 
