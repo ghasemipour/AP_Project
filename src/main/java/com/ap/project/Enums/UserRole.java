@@ -3,7 +3,8 @@ package com.ap.project.Enums;
 public enum UserRole {
     CUSTOMER("buyer"),
     SELLER("seller"),
-    COURIER("courier");
+    COURIER("courier"),
+    ADMIN("admin");
 
     private final String roleName;
     UserRole(String roleName) {

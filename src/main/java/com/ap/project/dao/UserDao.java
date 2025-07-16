@@ -11,7 +11,9 @@ import com.sun.net.httpserver.HttpExchange;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.ap.project.dao.FoodItemDao.transactionRollBack;
@@ -265,5 +267,26 @@ public class UserDao {
             e.printStackTrace();
         }
         return wallet;
+    }
+
+    public static List<ProfileDto> getListOfUsers(HttpExchange exchange) {
+        List<ProfileDto> result = new ArrayList<>();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            List<User> users = session.createQuery("FROM User u WHERE u.phoneNumber != :phone", User.class)
+                    .setParameter("phone", "09122593542")
+                    .list();
+
+            if(!users.isEmpty()) {
+                for(User user : users) {
+                    result.add(user.getProfile());
+                }
+            }
+            transaction.commit();
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+        return result;
     }
 }

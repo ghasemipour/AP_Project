@@ -136,7 +136,13 @@ public class RegisterHttpHandler implements HttpHandler {
                         new Courier(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), new BankAccount(req.getBank_info().getBank_name(), req.getBank_info().getAccount_number()));
                 case SELLER ->
                         new Seller(req.getFull_name(), req.getPhone(), req.getPassword(), req.getEmail(), req.getProfileImageBase64(), req.getAddress(), new BankAccount(req.getBank_info().getBank_name(), req.getBank_info().getAccount_number()));
+                case ADMIN -> null;
             };
+
+            if (user == null) {
+                exchange.sendResponseHeaders(403, -1);
+                return;
+            }
 
             UserDao.saveUser(user);
 
