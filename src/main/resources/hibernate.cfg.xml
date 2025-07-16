@@ -28,6 +28,9 @@
         <mapping class="com.ap.project.entity.restaurant.Menu"/>
         <mapping class="com.ap.project.entity.restaurant.Order"/>
         <mapping class="com.ap.project.entity.restaurant.OrderItem"/>
+        <mapping class="com.ap.project.entity.restaurant.Rating"/>
+        <mapping class="com.ap.project.entity.general.Transaction"/>
+        <mapping class="com.ap.project.entity.general.Wallet"/>
 
     </session-factory>
 </hibernate-configuration>
