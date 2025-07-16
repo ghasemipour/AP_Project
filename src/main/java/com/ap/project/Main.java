@@ -1,6 +1,7 @@
 package com.ap.project;
 
 import com.ap.project.httpHandler.*;
+import com.ap.project.services.AppInitializer;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
@@ -12,6 +13,8 @@ public class Main {
         String host = "localhost";
 
         HttpServer httpServer = HttpServer.create(new InetSocketAddress(port), 0);
+
+        AppInitializer.initializeAdmin();
 
         httpServer.createContext("/auth/register", new RegisterHttpHandler());
         httpServer.createContext("/auth/profile", new ProfileHttpHandler());
@@ -27,6 +30,7 @@ public class Main {
         httpServer.createContext("/transactions", new TransactionHttpHandler());
         httpServer.createContext("/wallet/top-up", new TransactionHttpHandler());
         httpServer.createContext("/payment/online", new TransactionHttpHandler());
+        httpServer.createContext("/admin", new AdminHttpHandler());
         // TODO : handle /coupons
 
         httpServer.setExecutor(null);

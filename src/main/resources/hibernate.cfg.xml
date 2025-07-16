@@ -22,15 +22,16 @@
         <mapping class="com.ap.project.entity.user.Courier"/>
         <mapping class="com.ap.project.entity.user.Customer"/>
         <mapping class="com.ap.project.entity.user.Seller"/>
+        <mapping class="com.ap.project.entity.user.Admin" />
         <mapping class="com.ap.project.entity.general.BankAccount"/>
+        <mapping class="com.ap.project.entity.general.Transaction"/>
+        <mapping class="com.ap.project.entity.general.Wallet"/>
         <mapping class="com.ap.project.entity.restaurant.Restaurant"/>
         <mapping class="com.ap.project.entity.restaurant.Food"/>
         <mapping class="com.ap.project.entity.restaurant.Menu"/>
         <mapping class="com.ap.project.entity.restaurant.Order"/>
         <mapping class="com.ap.project.entity.restaurant.OrderItem"/>
-        <mapping class="com.ap.project.entity.restaurant.Rating"/>
-        <mapping class="com.ap.project.entity.general.Transaction"/>
-        <mapping class="com.ap.project.entity.general.Wallet"/>
+        <mapping class="com.ap.project.entity.restaurant.Rating" />
 
     </session-factory>
 </hibernate-configuration>
