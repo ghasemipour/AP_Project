@@ -3,12 +3,13 @@ package com.ap.project.entity.user;
 import com.ap.project.Enums.UserRole;
 import com.ap.project.dto.ProfileDto;
 import com.ap.project.entity.general.BankAccount;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import com.ap.project.entity.restaurant.Order;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -18,6 +19,9 @@ public class Courier extends User implements HasBankAccount {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(nullable = false)
     private BankAccount bankAccount;
+
+    @OneToMany(mappedBy = "courier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Order> orders = new ArrayList<>();
 
     public Courier(String name, String number, String password, String email, String profilePicture, BankAccount bankAccount) {
         super(name, number, password, email, profilePicture);
