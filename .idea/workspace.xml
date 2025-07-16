@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="3c17796f-4cc5-49d5-be3f-f3a0c693f9ac" name="Changes" comment="merging">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/OrderDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/OrderDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Order.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/OrderHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/OrderHttpHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,7 +121,7 @@
       <workItem from="1752666667341" duration="1264000" />
       <workItem from="1752672012391" duration="87000" />
       <workItem from="1752672113537" duration="3169000" />
-      <workItem from="1752675581871" duration="11990000" />
+      <workItem from="1752675581871" duration="12818000" />
     </task>
     <task id="LOCAL-00001" summary="merging">
       <option name="closed" value="true" />
