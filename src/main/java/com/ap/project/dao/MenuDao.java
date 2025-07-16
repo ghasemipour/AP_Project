@@ -75,6 +75,13 @@ public class MenuDao {
                 exchange.sendResponseHeaders(404, -1);
                 throw new NoSuchRestaurant(restaurantId + "restaurant not found");
             }
+            Hibernate.initialize(menu.getFoodItems());
+            List<Food> foodItems = menu.getFoodItems();
+            if(foodItems != null) {
+                for (Food food : foodItems) {
+                    food.removeMenu(menu);
+                }
+            }
             restaurant.removeMenu(menu);
             session.merge(restaurant);
             transaction.commit();

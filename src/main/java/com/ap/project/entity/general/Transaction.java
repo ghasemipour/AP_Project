@@ -19,8 +19,11 @@ public class Transaction {
     private int id;
 
     @OneToOne
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id")
     private Order order;
+    @ManyToOne
+    @JoinColumn(name = "wallet_id")
+    private Wallet wallet;
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Customer user;
@@ -30,6 +33,17 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionStatus status;
+
+    public Transaction(Order o, Wallet wallet, Customer customer, TransactionMethod transactionMethod, TransactionStatus transactionStatus) {
+     this.order = o;
+     this.wallet = wallet;
+     this.user = customer;
+     this.method = transactionMethod;
+     this.status = transactionStatus;
+    }
+    public Transaction(){
+
+    }
 
     public TransactionDto getDto() {
         return new TransactionDto(id, order.getId(), user.getUserId(), method, status);

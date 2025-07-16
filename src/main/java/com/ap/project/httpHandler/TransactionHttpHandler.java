@@ -1,8 +1,13 @@
 package com.ap.project.httpHandler;
 
+import com.ap.project.Enums.TransactionMethod;
+import com.ap.project.Enums.TransactionStatus;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.TransactionDao;
+import com.ap.project.dao.UserDao;
 import com.ap.project.dto.TransactionDto;
+import com.ap.project.entity.general.Transaction;
+import com.ap.project.entity.general.Wallet;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.User;
@@ -153,6 +158,9 @@ public class  TransactionHttpHandler implements HttpHandler {
             }
 
             TransactionDao.topUpWallet(customer.getUserId(), amount, exchange);
+            Wallet wallet = UserDao.getWalletByUserId(customer.getUserId(), exchange);
+            Transaction transaction = new Transaction(null, wallet, customer, TransactionMethod.WALLET, TransactionStatus.SUCCESS);
+            TransactionDao.saveTransaction(transaction,customer.getUserId(), -1, wallet.getId(), exchange);
             sendSuccessMessage("Wallet topped up successfully", exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);

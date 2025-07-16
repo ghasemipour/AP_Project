@@ -241,4 +241,27 @@ public class OrderDao {
         return result;
 
     }
+
+    public static void setOrderCourier(int orderId, int userId, HttpExchange exchange) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Order order = session.get(Order.class, orderId);
+            if (order == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchOrder(orderId + "Order not found.");
+            }
+            Courier courier = session.get(Courier.class, userId);
+            if (courier == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchUser(orderId + " courier not found.");
+            }
+            order.setCourier(courier);
+            courier.addOrder(order);
+            session.merge(order);
+            transaction.commit();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }
