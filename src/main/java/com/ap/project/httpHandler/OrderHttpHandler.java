@@ -1,5 +1,6 @@
 package com.ap.project.httpHandler;
 
+import com.ap.project.Enums.Status;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.OrderItemDto;
@@ -74,9 +75,9 @@ public class OrderHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            Order order = new Order(orderDto, exchange, (Customer) user);
+            Order order = new Order(orderDto, exchange, (Customer) user, Status.fromString("submitted"));
             OrderDao.submitOrder(order, orderDto.getVendor_id(), user.getUserId(), exchange);
-            sendSuccessMessage("Order submitted successfully.", exchange);
+            sendSuccessMessage(String.format("Order submitted successfully.\nYour order ID is %d", order.getId()), exchange);
 
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
