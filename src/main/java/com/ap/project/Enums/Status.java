@@ -1,7 +1,17 @@
 package com.ap.project.Enums;
 
 public enum Status {
+    SUBMITTED("submitted"),
+    UNPAID_AND_CANCELLED("unpaid and cancelled"),
+    WAITING_VENDOR("waiting vendor"),
+    CANCELLED("cancelled"),
+    FINDING_COURIER("finding courier"),
+    ON_THE_WAY("on the way"),
+    COMPLETED("completed"),
     ACCEPTED("accepted"),
+    Courier_Accepted("courier accepted"),
+    DELIVERED("delivered"),
+    RECEIVED("received"),
     REJECTED("rejected"),
     SERVED("served");
 

@@ -23,7 +23,9 @@ public class Main {
         httpServer.createContext("/orders", new OrderHttpHandler());
         httpServer.createContext("/ratings", new RatingHttpHandler());
         httpServer.createContext("/favorites", new FavoriteHttpHandler());
+        httpServer.createContext("/deliveries", new DeliveryHttpHandler());
         httpServer.createContext("/transactions", new TransactionHttpHandler());
+        httpServer.createContext("/wallet/top-up", new TransactionHttpHandler());
         httpServer.createContext("/payment", new TransactionHttpHandler());
         // TODO : handle /coupons
 
