@@ -9,6 +9,9 @@ public enum Status {
     ON_THE_WAY("on the way"),
     COMPLETED("completed"),
     ACCEPTED("accepted"),
+    Courier_Accepted("courier accepted"),
+    DELIVERED("delivered"),
+    RECEIVED("received"),
     REJECTED("rejected"),
     SERVED("served");
 

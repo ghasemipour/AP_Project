@@ -8,6 +8,7 @@ import com.ap.project.dto.OrderDto;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.OrderItem;
 import com.ap.project.entity.restaurant.Restaurant;
+import com.ap.project.entity.user.Courier;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.util.HibernateUtil;
 import com.sun.net.httpserver.HttpExchange;
@@ -18,6 +19,7 @@ import org.hibernate.query.Query;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.ap.project.dao.FoodItemDao.transactionRollBack;
@@ -195,5 +197,42 @@ public class OrderDao {
         }
 
         return restaurant;
+    }
+
+    public static List<Order> getDeliveryHistory(Courier courier, String search, String vendorId, String userId) {
+        List<Order> result = new ArrayList<>();
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            StringBuilder hql = new StringBuilder("FROM Order o WHERE o.courier = :courier AND o.status IN (:statuses)");
+            if(vendorId != null && !vendorId.isEmpty()) {
+                hql.append(" AND o.restaurant.id = :vendorId");
+            }
+            if(userId != null && !userId.isEmpty()) {
+                hql.append(" AND o.user.id = :userId");
+            }
+            if(search != null && !search.isEmpty()) {
+                hql.append(" AND (lower(o.restaurant.name) LIKE :search OR lower(o.user.name) LIKE :search)");
+            }
+            Query<Order> query = session.createQuery(hql.toString(), Order.class);
+            query.setParameter("courier", courier);
+            query.setParameter("statuses", List.of(Status.DELIVERED, Status.RECEIVED));
+
+            if(vendorId != null && !vendorId.isEmpty()) {
+                query.setParameter("vendorId", Integer.parseInt(vendorId));
+            }
+            if(userId != null && !userId.isEmpty()) {
+                query.setParameter("userId", Integer.parseInt(userId));
+            }
+            if(search != null && !search.isEmpty()) {
+                query.setParameter("search", "%" + search.toLowerCase() + "%");
+            }
+
+            result = query.list();
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+
     }
 }
