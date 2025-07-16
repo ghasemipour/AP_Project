@@ -52,9 +52,9 @@ public class Customer extends User implements HasAddress {
     }
 
     public Customer() {
-        Wallet wallet = new Wallet();
-        TransactionDao.saveWallet(wallet, this.getUserId());
-        this.wallet = wallet;
+//        Wallet wallet = new Wallet();
+//        TransactionDao.saveWallet(wallet, this.getUserId());
+//        this.wallet = wallet;
     }
 
     @Override

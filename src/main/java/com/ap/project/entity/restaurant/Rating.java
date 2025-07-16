@@ -11,8 +11,12 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,12 +45,19 @@ public class Rating {
     @ElementCollection
     private List<String> imageBase64 = new ArrayList<>();
 
-    public Rating(RatingDto req, HttpExchange exchange) throws IOException {
+    @Column(updatable = false)
+    @CreationTimestamp
+    private LocalDateTime created_at;
+
+    @UpdateTimestamp
+    private LocalDateTime updated_at;
+
+    public Rating(RatingDto req, HttpExchange exchange) {
         rating = req.getRating();
         comment = req.getComment();
         order = OrderDao.getOrderFromId(req.getOrder_id(), exchange);
         imageBase64 = req.getImageBase64();
-//        this.user = (Customer) UserDao.getUserById(req.getUserId());
+        this.user = (Customer) UserDao.getUserById(req.getUserId());
     }
 
     public Rating() {
@@ -54,7 +65,7 @@ public class Rating {
     }
 
     public RatingDto getRatingDto() {
-        return new RatingDto(order.id, rating, comment, imageBase64, user.getUserId(), id);
+        return new RatingDto(order.id, rating, comment, imageBase64, user.getUserId(), id, created_at, updated_at);
     }
 
 }

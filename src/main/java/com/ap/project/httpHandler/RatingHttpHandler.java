@@ -1,14 +1,17 @@
 package com.ap.project.httpHandler;
 
 import com.ap.project.dao.RatingDao;
+import com.ap.project.dao.UserDao;
 import com.ap.project.dto.RatingDto;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Rating;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.User;
+import com.ap.project.util.HibernateUtil;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.hibernate.Session;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -35,7 +38,7 @@ public class RatingHttpHandler implements HttpHandler {
         String[] parts = path.split("/");
 
         if (path.equals("/ratings")) {
-            handleSubmitRating(exchange);
+            handleSubmitRating(exchange, (Customer) user);
         } else {
             if (parts.length == 4) {
                 handleGetRatings(exchange, Integer.parseInt(parts[3]));
@@ -48,10 +51,10 @@ public class RatingHttpHandler implements HttpHandler {
                         handleGetSpecificRating(exchange, ratingId);
                         return;
                     case "DELETE":
-                        handleDeleteSpecificRating(exchange, ratingId);
+                        handleDeleteSpecificRating(exchange, ratingId, (Customer) user);
                         return;
                     case "PUT":
-                        handleUpdateSpecificRating(exchange, ratingId);
+                        handleUpdateSpecificRating(exchange, ratingId, (Customer) user);
                         return;
                     default:
                         exchange.sendResponseHeaders(405, -1);
@@ -60,7 +63,7 @@ public class RatingHttpHandler implements HttpHandler {
         }
     }
 
-    public void handleSubmitRating(HttpExchange exchange) throws IOException {
+    public void handleSubmitRating(HttpExchange exchange, Customer user) throws IOException {
         try {
             if (!exchange.getRequestMethod().equals("POST")) {
                 exchange.sendResponseHeaders(405, -1);
@@ -73,11 +76,13 @@ public class RatingHttpHandler implements HttpHandler {
             StringBuilder response = new StringBuilder();
 
             if (req.getOrder_id() == null)
-                response.append("{\"error\": \"Order ID required\"}\n");
+                response.append("{\"error\": \"Order ID required.\"}\n");
             if (req.getRating() == null)
-                response.append("{\"error\": \"Rating number required\"}\n");
+                response.append("{\"error\": \"Rating number required.\"}\n");
             if (req.getComment() == null)
-                response.append("{\"error\": \"comment required\"}\n");
+                response.append("{\"error\": \"comment required.\"}\n");
+            if (req.getRating() < 1 || req.getRating() > 5)
+                response.append("{\"error\": \"Invalid rating.\"}\n");
             if (!response.isEmpty()) {
                 byte[] responseBytes = response.toString().getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
@@ -87,6 +92,7 @@ public class RatingHttpHandler implements HttpHandler {
                 return;
             }
 
+            req.setUserId(user.getUserId());
             Rating rating = new Rating(req, exchange);
             RatingDao.submitRating(rating, exchange, req.getOrder_id(), req.getUserId());
             sendSuccessMessage("Rating submitted successfully.", exchange);
@@ -125,20 +131,29 @@ public class RatingHttpHandler implements HttpHandler {
         }
     }
 
-    public void handleDeleteSpecificRating(HttpExchange exchange, int ratingId) throws IOException {
+    public void handleDeleteSpecificRating(HttpExchange exchange, int ratingId, Customer user) throws IOException {
         try {
-            RatingDao.deleteRating(ratingId, exchange);
+            RatingDao.deleteRating(ratingId, exchange, user);
             sendSuccessMessage("Rating deleted successfully.", exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
     }
 
-    public void handleUpdateSpecificRating(HttpExchange exchange, int ratingId) throws IOException {
+    public void handleUpdateSpecificRating(HttpExchange exchange, int ratingId, Customer user) throws IOException {
         try {
             InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             RatingDto req = new Gson().fromJson(reader, RatingDto.class);
-            RatingDao.updateRating(ratingId, req, exchange);
+            if (req.getRating() < 1 || req.getRating() > 5) {
+                String response = "Invalid Rating";
+                byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().add("Content-Type", "application/json");
+                exchange.sendResponseHeaders(400, bytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(bytes);
+                }
+            }
+            RatingDao.updateRating(ratingId, req, exchange, user);
             sendSuccessMessage("Rating updated successfully.", exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
