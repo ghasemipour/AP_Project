@@ -12,6 +12,7 @@ import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Menu;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.Restaurant;
+import com.ap.project.entity.user.Courier;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
@@ -42,7 +43,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
         String path = exchange.getRequestURI().getPath();
         String[] parts = path.split("/");
         if(path.startsWith("/restaurants")){
-            if (!(user instanceof Seller)) {
+            if (!(user instanceof Seller) || (!((Seller) user).getApprovalStatus().equals("APPROVED"))) {
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }
@@ -68,7 +69,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 }
             }
         } else if(path.startsWith("/vendors")){
-            if (!(user instanceof Customer)) {
+            if (!(user instanceof Customer)|| (!((Courier) user).getApprovalStatus().equals("APPROVED"))) {
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }

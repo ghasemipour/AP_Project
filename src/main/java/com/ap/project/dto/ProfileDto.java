@@ -1,5 +1,6 @@
 package com.ap.project.dto;
 
+import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Enums.UserRole;
 import com.ap.project.entity.general.BankAccount;
 import lombok.Getter;
@@ -18,9 +19,10 @@ public class ProfileDto {
     private BankAccountDto bank_info;
     private String brandInfo;
     private String discription;
+    private ApprovalStatus approvalStatus;
 
 
-    public ProfileDto(String name, String phoneNumber, String email, String profilePicture, String address, BankAccount bankAccount, String discription, String brandInfo, UserRole role) {
+    public ProfileDto(String name, String phoneNumber, String email, String profilePicture, String address, BankAccount bankAccount, String discription, String brandInfo, UserRole role, ApprovalStatus approvalStatus) {
         this.full_name = name;
         this.phone = phoneNumber;
         this.email = email;
@@ -32,6 +34,7 @@ public class ProfileDto {
         this.discription = discription;
         this.brandInfo = brandInfo;
         this.role = role;
+        this.approvalStatus = approvalStatus;
 
     }
 }

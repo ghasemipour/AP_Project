@@ -33,7 +33,7 @@ public class MenuHttpHandler implements HttpHandler {
             return;
         }
 
-        if (!(user instanceof Seller)) {
+        if (!(user instanceof Seller)|| (!((Seller) user).getApprovalStatus().equals("APPROVED"))) {
             exchange.sendResponseHeaders(403, -1);
             return;
         }

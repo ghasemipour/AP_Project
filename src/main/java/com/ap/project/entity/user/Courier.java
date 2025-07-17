@@ -1,5 +1,6 @@
 package com.ap.project.entity.user;
 
+import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Enums.UserRole;
 import com.ap.project.dto.ProfileDto;
 import com.ap.project.entity.general.BankAccount;
@@ -14,7 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class Courier extends User implements HasBankAccount {
+public class Courier extends User implements HasBankAccount, NeedApproval {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(nullable = false)
@@ -22,6 +23,8 @@ public class Courier extends User implements HasBankAccount {
 
     @OneToMany(mappedBy = "courier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Order> orders = new ArrayList<>();
+
+    ApprovalStatus approvalStatus = ApprovalStatus.WAITING;
 
     public Courier(String name, String number, String password, String email, String profilePicture, BankAccount bankAccount) {
         super(name, number, password, email, profilePicture);
@@ -35,11 +38,16 @@ public class Courier extends User implements HasBankAccount {
     @Override
     public ProfileDto getProfile()
     {
-        ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), null, this.bankAccount, null, null, UserRole.COURIER);
+        ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), null, this.bankAccount, null, null, UserRole.COURIER, approvalStatus);
         return profileDto;
     }
 
     public void addOrder(Order order) {
         orders.add(order);
+    }
+
+    @Override
+    public void changeStatus(ApprovalStatus status) {
+        approvalStatus = status;
     }
 }

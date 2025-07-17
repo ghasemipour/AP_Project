@@ -6,6 +6,7 @@ import com.ap.project.dto.FoodDto;
 import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Restaurant;
+import com.ap.project.entity.user.Courier;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
@@ -38,6 +39,10 @@ public class FoodHttpHandler implements HttpHandler {
         }
 
         if (path.startsWith("/restaurant")) {
+            if(!(user instanceof Seller) || (!((Seller) user).getApprovalStatus().equals("APPROVED"))){
+                exchange.sendResponseHeaders(403, -1);
+                return;
+            }
             Restaurant restaurant = RestaurantDao.getRestaurantById(Integer.parseInt(parts[2]));
             if (restaurant == null) {
                 exchange.sendResponseHeaders(404, -1);

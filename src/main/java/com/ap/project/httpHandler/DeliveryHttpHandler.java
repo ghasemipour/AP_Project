@@ -34,7 +34,7 @@ public class DeliveryHttpHandler extends SuperHttpHandler implements HttpHandler
         String method = exchange.getRequestMethod();
 
         if(path.startsWith("/deliveries")){
-            if(!(user instanceof Courier)) {
+            if(!(user instanceof Courier) || (!((Courier) user).getApprovalStatus().equals("APPROVED"))) {
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }

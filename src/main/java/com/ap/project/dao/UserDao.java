@@ -1,5 +1,6 @@
 package com.ap.project.dao;
 
+import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.ProfileDto;
@@ -288,5 +289,17 @@ public class UserDao {
             transactionRollBack(transaction, e);
         }
         return result;
+    }
+
+    public static void ChangeUserStatus(int userId, ApprovalStatus status) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            User user = session.get(User.class, userId);
+            ((NeedApproval) user).changeStatus(status);
+            transaction.commit();
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
     }
 }

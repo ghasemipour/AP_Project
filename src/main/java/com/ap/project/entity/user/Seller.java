@@ -1,5 +1,6 @@
 package com.ap.project.entity.user;
 
+import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Enums.UserRole;
 import com.ap.project.dao.RestaurantDao;
 import com.ap.project.dto.ProfileDto;
@@ -17,7 +18,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class Seller extends User implements HasAddress, HasBankAccount{
+public class Seller extends User implements HasAddress, HasBankAccount, NeedApproval{
 
     @Column(nullable = false)
     private String address;
@@ -32,6 +33,8 @@ public class Seller extends User implements HasAddress, HasBankAccount{
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Restaurant> restaurants = new ArrayList<>();
 
+    ApprovalStatus approvalStatus = ApprovalStatus.WAITING;
+
     public Seller(String name, String number, String password, String email, String profilePicture, String address, BankAccount bankAccount) {
         super(name, number, password, email, profilePicture);
         this.address = address;
@@ -45,7 +48,7 @@ public class Seller extends User implements HasAddress, HasBankAccount{
     @Override
     public ProfileDto getProfile()
     {
-        ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), this.address, this.bankAccount, this.discription, this.brandInfo, UserRole.SELLER);
+        ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), this.address, this.bankAccount, this.discription, this.brandInfo, UserRole.SELLER, approvalStatus);
         return profileDto;
     }
 
@@ -62,5 +65,10 @@ public class Seller extends User implements HasAddress, HasBankAccount{
             restaurantDtos.add(restaurant.GetDto());
         }
         return restaurantDtos;
+    }
+
+    @Override
+    public void changeStatus(ApprovalStatus status) {
+        approvalStatus = status;
     }
 }
