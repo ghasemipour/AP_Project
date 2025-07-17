@@ -3,8 +3,12 @@ package com.ap.project.httpHandler;
 import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Enums.Status;
 import com.ap.project.Exceptions.NoSuchUser;
+import com.ap.project.dao.OrderDao;
+import com.ap.project.dao.TransactionDao;
 import com.ap.project.dao.UserDao;
+import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.ProfileDto;
+import com.ap.project.dto.TransactionDto;
 import com.ap.project.entity.user.Admin;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.NeedApproval;
@@ -19,7 +23,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -42,7 +48,7 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
         String[] parts = path.split("/");
         String method = exchange.getRequestMethod();
 
-        if(parts.length == 3){
+        if(parts.length == 3) {
             if(parts[2].equals("users")){
                 if(!method.equals("GET")){
                     exchange.sendResponseHeaders(405, -1);
@@ -50,7 +56,20 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
                 }
                 handleGetListOfUsers(exchange);
             }
-        } else if(parts.length == 5){
+            else if (parts[2].equals("orders")) {
+                if (!method.equals("GET")){
+                    exchange.sendResponseHeaders(405, -1);
+                    return;
+                }
+                handleViewAllOrders(exchange);
+            } else if (parts[2].equals("transactions")) {
+                if (!method.equals("GET")) {
+                    exchange.sendResponseHeaders(405, -1);
+                    return;
+                }
+                handleViewAllTransactions(exchange);
+            }
+        } else if(parts.length == 5) {
             if(!method.equals("PATCH")){
                 exchange.sendResponseHeaders(405, -1);
                 return;
@@ -98,7 +117,7 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
                 return;
             }
             ApprovalStatus status = ApprovalStatus.fromString(json.get("status").getAsString());
-            if(status == null){
+            if (status == null){
                 String response = "wrong status";
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
@@ -113,5 +132,62 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
             internalServerFailureError(e, exchange);
         }
 
+    }
+
+    private void handleViewAllOrders(HttpExchange exchange) throws IOException {
+        try {
+            String query = exchange.getRequestURI().getQuery();
+            HashMap<String, String> queryParams = new HashMap<>();
+            if (query != null) {
+                for (String param : query.split("&")) {
+                    String[] pair = param.split("=");
+                    String key = URLDecoder.decode(pair[0], StandardCharsets.UTF_8);
+                    String value = pair.length > 1 ? URLDecoder.decode(pair[1], StandardCharsets.UTF_8) : "";
+                    queryParams.put(key, value);
+                }
+            }
+            String search = queryParams.get("search");
+            String vendor = queryParams.get("vendor");
+            String courier = queryParams.get("courier");
+            String customer = queryParams.get("customer");
+            String status = queryParams.get("status");
+            List<OrderDto> results = OrderDao.getAllOrders(search, vendor, courier, customer, status);
+            if (results.isEmpty()) {
+                String response = "No orders found.";
+                sendSuccessMessage(response, exchange);
+                return;
+            }
+            sendSuccessMessage(new Gson().toJson(results), exchange);
+        } catch (Exception e) {
+            internalServerFailureError(e, exchange);
+        }
+    }
+
+    private void handleViewAllTransactions(HttpExchange exchange) throws IOException {
+        try {
+            String query = exchange.getRequestURI().getQuery();
+            HashMap<String, String> queryParams = new HashMap<>();
+            if (query != null) {
+                for (String param : query.split("&")) {
+                    String[] pair = param.split("=");
+                    String key = URLDecoder.decode(pair[0], StandardCharsets.UTF_8);
+                    String value = pair.length > 1 ? URLDecoder.decode(pair[1], StandardCharsets.UTF_8) : "";
+                    queryParams.put(key, value);
+                }
+            }
+            String search = queryParams.get("search");
+            String user = queryParams.get("user");
+            String method = queryParams.get("method");
+            String status = queryParams.get("status");
+            List<TransactionDto> result = TransactionDao.getAllTransactions(search, user, method, status);
+            if (result.isEmpty()) {
+                String response = "No transactions found.";
+                sendSuccessMessage(response, exchange);
+            }
+            sendSuccessMessage(new Gson().toJson(result), exchange);
+
+        } catch (Exception e) {
+            internalServerFailureError(e, exchange);
+        }
     }
 }

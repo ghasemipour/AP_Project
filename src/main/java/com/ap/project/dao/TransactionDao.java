@@ -58,7 +58,7 @@ public class TransactionDao {
             wallet.topUp(amount);
             transaction.commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            transactionRollBack(transaction, e);
         }
     }
 
@@ -124,4 +124,95 @@ public class TransactionDao {
             transactionRollBack(transaction, e);
         }
     }
+
+    public static boolean onlinePayment(Transaction transaction) {
+        org.hibernate.Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+
+            Wallet wallet = session.get(Wallet.class, transaction.getWallet().getId());
+            Hibernate.initialize(transaction);
+
+            if (transaction.getMethod().equals(TransactionMethod.WALLET)) {
+                int payPrice = transaction.getOrder().getPay_price();
+                double balance = wallet.getBalance();
+
+                if (payPrice > balance) {
+                    transaction.setStatus(TransactionStatus.FAILED);
+                    return false;
+                } else {
+                    wallet.setBalance(balance - payPrice);
+                    session.merge(wallet);
+                    transaction.setStatus(TransactionStatus.SUCCESS);
+                }
+            }
+            session.merge(transaction);
+            tx.commit();
+            return true;
+
+        } catch (Exception e) {
+            transactionRollBack(tx, e);
+            return false;
+        }
+    }
+
+    public static List<TransactionDto> getAllTransactions(String search, String user, String method, String status) {
+        org.hibernate.Transaction tx = null;
+        List<TransactionDto> results = new ArrayList<>();
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            StringBuilder hql = new StringBuilder("SELECT DISTINCT t FROM Transaction t LEFT JOIN t.order o" +
+                    " LEFT JOIN o.orderItems oi LEFT JOIN" +
+                    " oi.food f WHERE 1=1");
+
+            if (search != null && !search.isEmpty()) {
+                hql.append(" AND f.name LIKE :search");
+            }
+            if (user != null && !user.isEmpty()) {
+                hql.append(" AND t.user.userId = :user");
+            }
+            if (method != null && !method.isEmpty()) {
+                hql.append(" AND t.method = :method");
+            }
+            if (status != null && !status.isEmpty()) {
+                hql.append(" AND t.status = :status");
+            }
+            Query<Transaction> query = session.createQuery(hql.toString(), Transaction.class);
+            if (search != null && !search.isEmpty()) {
+                query.setParameter("search", "%" + search + "%");
+            }
+            if (user != null && !user.isEmpty()) {
+                query.setParameter("user", user);
+            }
+            if (method != null && !method.isEmpty()) {
+                try {
+                    TransactionMethod enumMethod = TransactionMethod.valueOf(method.toUpperCase());
+                    query.setParameter("method", enumMethod);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid transaction method: " + method);
+                }
+            }
+            if (status != null && !status.isEmpty()) {
+                try {
+                    TransactionStatus enumStatus = TransactionStatus.valueOf(status.toUpperCase());
+                    query.setParameter("status", enumStatus);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid transaction status: " + status);
+                }
+            }
+            List<Transaction> transactions = query.list();
+            for (Transaction transaction : transactions) {
+                results.add(transaction.getDto());
+            }
+            tx.commit();
+        } catch (Exception e) {
+            transactionRollBack(tx, e);
+        }
+
+        return results;
+    }
+
+
+
 }

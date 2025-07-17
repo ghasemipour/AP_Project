@@ -261,7 +261,53 @@ public class OrderDao {
             session.merge(order);
             transaction.commit();
         } catch (Exception e){
-            e.printStackTrace();
+            transactionRollBack(transaction, e);
         }
+    }
+
+    public static List<OrderDto> getAllOrders(String search, String vendor, String courier, String customer, String status) {
+        Transaction transaction = null;
+        List<OrderDto> results = new ArrayList<>();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            String hql = "FROM Order o WHERE 1=1";
+
+            if (search != null && !search.isEmpty())
+                hql += " AND EXISTS (SELECT i FROM o.items i WHERE lower(i.food.name) LIKE :search)";
+            if (vendor != null && !vendor.isEmpty())
+                hql += " AND o.restaurant.id = :vendor";
+            if (courier != null && !courier.isEmpty())
+                hql += " AND o.courier.userId = :courier";
+            if (customer != null && !customer.isEmpty())
+                hql += " AND o.user.userId = :customer";
+            if (status != null && !status.isEmpty())
+                hql += " AND o.status = :status";
+
+            Query<Order> query = session.createQuery(hql, Order.class);
+            if (search != null && !search.isBlank())
+                query.setParameter("search", "%" + search + "%");
+            if (vendor != null && !vendor.isBlank())
+                query.setParameter("vendor", vendor);
+            if (courier != null && !courier.isBlank())
+                query.setParameter("courier", courier);
+            if (customer != null && !customer.isBlank())
+                query.setParameter("customer", customer);
+            if (status != null && !status.isBlank()) {
+                try {
+                    Status enumStatus = Status.valueOf(status.toUpperCase());
+                    query.setParameter("status", enumStatus);
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("Invalid order status: " + status);
+                }
+            }
+            List<Order> orders = query.list();
+            for (Order order: orders) {
+                results.add(order.getOrderDto());
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            transactionRollBack(transaction, e);
+        }
+        return results;
     }
 }

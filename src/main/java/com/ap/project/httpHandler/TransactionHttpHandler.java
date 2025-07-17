@@ -4,7 +4,6 @@ import com.ap.project.Enums.TransactionMethod;
 import com.ap.project.Enums.TransactionStatus;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.TransactionDao;
-import com.ap.project.dao.UserDao;
 import com.ap.project.dto.TransactionDto;
 import com.ap.project.entity.general.Transaction;
 import com.ap.project.entity.general.Wallet;
@@ -24,6 +23,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.ap.project.dao.UserDao.getWalletByUserId;
 import static com.ap.project.httpHandler.SuperHttpHandler.*;
 
 public class  TransactionHttpHandler implements HttpHandler {
@@ -117,8 +117,23 @@ public class  TransactionHttpHandler implements HttpHandler {
                 return;
             }
             Order order = OrderDao.getOrderFromId(orderId, exchange);
-            Transaction transaction = new Transaction(order, null, user, TransactionMethod.fromString(method), TransactionStatus.fromString("success"));
-            TransactionDao.saveTransaction(transaction, user.getUserId(), orderId, 0, exchange);
+            Wallet wallet = getWalletByUserId(user.getUserId(), exchange);
+            if(wallet == null){
+                user.setWallet(new Wallet());
+                wallet = getWalletByUserId(user.getUserId(), exchange);
+            }
+            Transaction transaction = new Transaction(order, wallet, user, TransactionMethod.fromString(method), TransactionStatus.fromString("success"));
+            boolean paymentStatus = TransactionDao.onlinePayment(transaction);
+            TransactionDao.saveTransaction(transaction, user.getUserId(), orderId, wallet.getId(), exchange);
+            if (!paymentStatus) {
+                String error = "{\"error\": \"Balance not enough.\"}";
+                byte[] responseBytes = error.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(403, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
             sendSuccessMessage("Online payment successful.", exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
@@ -159,10 +174,10 @@ public class  TransactionHttpHandler implements HttpHandler {
                 return;
             }
 
-            Wallet wallet = UserDao.getWalletByUserId(customer.getUserId(), exchange);
+            Wallet wallet = getWalletByUserId(customer.getUserId(), exchange);
             if(wallet == null){
                 customer.setWallet(new Wallet());
-                wallet = UserDao.getWalletByUserId(customer.getUserId(), exchange);
+                wallet = getWalletByUserId(customer.getUserId(), exchange);
             }
             TransactionDao.topUpWallet(customer.getUserId(), amount, exchange);
             Transaction transaction = new Transaction(null, wallet, customer, TransactionMethod.WALLET, TransactionStatus.SUCCESS);
