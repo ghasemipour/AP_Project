@@ -31,7 +31,7 @@ public class Main {
         httpServer.createContext("/wallet/top-up", new TransactionHttpHandler());
         httpServer.createContext("/payment/online", new TransactionHttpHandler());
         httpServer.createContext("/admin", new AdminHttpHandler());
-        // TODO : handle /coupons
+        httpServer.createContext("/coupons", new CouponHttpHandler());
 
         httpServer.setExecutor(null);
         httpServer.start();

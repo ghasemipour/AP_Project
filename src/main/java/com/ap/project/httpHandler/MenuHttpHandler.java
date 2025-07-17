@@ -20,6 +20,8 @@ import java.io.OutputStream;
 import static com.ap.project.httpHandler.SuperHttpHandler.internalServerFailureError;
 import static com.ap.project.httpHandler.SuperHttpHandler.sendSuccessMessage;
 
+//TODO : check whether menu name is unique or not
+
 public class MenuHttpHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {

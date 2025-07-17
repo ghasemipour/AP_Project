@@ -2,14 +2,15 @@ package com.ap.project.httpHandler;
 
 import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Enums.CouponType;
+import com.ap.project.Exceptions.NoSuchCoupon;
 import com.ap.project.Exceptions.NoSuchUser;
+import com.ap.project.dao.CouponDao;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.TransactionDao;
-import com.ap.project.dao.CouponDao;
 import com.ap.project.dao.UserDao;
-import com.ap.project.dto.OrderDto;
 import com.ap.project.deserializer.CouponTypeDeserializer;
 import com.ap.project.dto.CouponDto;
+import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.ProfileDto;
 import com.ap.project.dto.TransactionDto;
 import com.ap.project.entity.general.Coupon;
@@ -49,7 +50,7 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
         String[] parts = path.split("/");
         String method = exchange.getRequestMethod();
 
-        if(parts.length == 3) {
+        if(parts.length == 3){
             if(parts[2].equals("users")){
                 if(!method.equals("GET")){
                     exchange.sendResponseHeaders(405, -1);
@@ -61,13 +62,12 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
                     handleGetListOfCoupons(exchange);
 
                 } else if(method.equals("POST")){
-                    handleCreateCoupon(exchange);
+                    handleCreatCoupon(exchange);
                 } else {
                     exchange.sendResponseHeaders(405, -1);
                     return;
                 }
-            }
-            else if (parts[2].equals("orders")) {
+            } else if (parts[2].equals("orders")) {
                 if (!method.equals("GET")){
                     exchange.sendResponseHeaders(405, -1);
                     return;
@@ -80,14 +80,33 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
                 }
                 handleViewAllTransactions(exchange);
             }
-        } else if(parts.length == 5) {
+        } else if (parts.length == 4){
+            Coupon coupon = CouponDao.getCouponById(Integer.parseInt(parts[3]));
+            if(coupon == null){
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchCoupon(parts[3] + "Coupon not found");
+            }
+            if(method.equals("DELETE")){
+                handleDeleteCoupon(exchange, coupon);
+            } else if(method.equals("GET")){
+                handleGetCouponDetails(exchange, coupon);
+
+            } else if(method.equals("PUT")){
+                handleUpdateCoupon(exchange, coupon);
+            } else{
+                exchange.sendResponseHeaders(405, -1);
+            }
+        }else if(parts.length == 5){
             if(!method.equals("PATCH")){
                 exchange.sendResponseHeaders(405, -1);
                 return;
             }
             handleChangeUserStatus(exchange, Integer.parseInt(parts[3]));
+        } else {
+            exchange.sendResponseHeaders(405, -1);
         }
     }
+
 
     private void handleGetListOfUsers(HttpExchange exchange) throws IOException {
         try {
@@ -127,7 +146,7 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
                 return;
             }
             ApprovalStatus status = ApprovalStatus.fromString(json.get("status").getAsString());
-            if (status == null){
+            if(status == null){
                 String response = "wrong status";
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
@@ -173,6 +192,7 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
         }
     }
 
+
     private void handleViewAllTransactions(HttpExchange exchange) throws IOException {
         try {
             String query = exchange.getRequestURI().getQuery();
@@ -201,7 +221,8 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
         }
     }
 
-    private void handleCreateCoupon(HttpExchange exchange) throws IOException {
+
+    private void handleCreatCoupon(HttpExchange exchange) throws IOException {
         try {
             InputStreamReader sr = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             Gson gson = new GsonBuilder()
@@ -234,6 +255,15 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
             }
 
             Coupon coupon = new Coupon(req.getType(), req.getCouponCode(), req.getMinPrice(), req.getValue(), req.getUserCount(), req.getStartDate(), req.getEndDate());
+            if(CouponDao.isCouponCodeTaken(coupon.getCouponCode())) {
+                String response = "{\"error\": \"Coupon code already exists\"}";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(409, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
             CouponDao.saveCoupon(coupon);
 
         } catch (Exception e){
@@ -247,6 +277,48 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
             sendSuccessMessage(new Gson().toJson(coupons), exchange);
 
         }catch (Exception e){
+            internalServerFailureError(e, exchange);
+        }
+    }
+
+
+    private void handleDeleteCoupon(HttpExchange exchange, Coupon coupon) throws IOException {
+        try {
+            CouponDao.deleteCouponById(coupon.getId());
+            sendSuccessMessage("Coupon deleted", exchange);
+        }catch (Exception e){
+            internalServerFailureError(e, exchange);
+        }
+    }
+
+    private void handleUpdateCoupon(HttpExchange exchange, Coupon coupon) throws IOException {
+        try {
+            InputStreamReader sr = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(CouponType.class, new CouponTypeDeserializer()).create();
+            CouponDto newCoupon = gson.fromJson(sr, CouponDto.class);
+            if(CouponDao.isCouponCodeTaken(newCoupon.getCouponCode())) {
+                String response = "{\"error\": \"Coupon code already exists\"}";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(409, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+
+            CouponDao.updateCoupon(coupon.getId(), newCoupon);
+            sendSuccessMessage("Coupon updated", exchange);
+        }catch (Exception e){
+            internalServerFailureError(e, exchange);
+        }
+    }
+
+    private void handleGetCouponDetails(HttpExchange exchange, Coupon coupon) throws IOException {
+        try {
+            CouponDto couponDto = coupon.getCouponDto();
+            sendSuccessMessage(new Gson().toJson(couponDto), exchange);
+        } catch (Exception e){
             internalServerFailureError(e, exchange);
         }
     }

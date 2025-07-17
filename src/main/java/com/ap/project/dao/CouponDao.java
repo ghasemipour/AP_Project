@@ -98,4 +98,35 @@ public class CouponDao {
             transactionRollBack(transaction, e);
         }
     }
+
+    public static boolean isCouponCodeTaken(String couponCode) {
+        Transaction transaction = null;
+        boolean res = false;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()){
+            transaction = session.beginTransaction();
+            Long count = (Long) session.createQuery("select count(c) from Coupon c WHERE c.couponCode =: couponCode")
+                    .setParameter("couponCode", couponCode)
+                    .uniqueResult();
+
+            if(count > 0)
+                res = true;
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+        return res;
+    }
+
+    public static Coupon getCouponByCouponCode(String couponCode) {
+        Coupon coupon = null;
+        Transaction transaction = null;
+        try(Session session = HibernateUtil.getSessionFactory().openSession()){
+            transaction = session.beginTransaction();
+            coupon = session.createQuery("FROM Coupon c WHERE c.couponCode = :code", Coupon.class)
+                    .setParameter("code", couponCode)
+                    .uniqueResult();
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+        return coupon;
+    }
 }
