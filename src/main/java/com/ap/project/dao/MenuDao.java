@@ -60,7 +60,7 @@ public class MenuDao {
             return menu;
         }
     }
-    //TODO: Remove menu from food items as well
+
     public static void deleteMenu(int restaurantId, int id, HttpExchange exchange) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {

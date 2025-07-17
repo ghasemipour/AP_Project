@@ -2,10 +2,7 @@ package com.ap.project.entity.general;
 
 import com.ap.project.Enums.CouponType;
 import com.ap.project.dto.CouponDto;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,12 +14,19 @@ public class Coupon {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    @Column(nullable = false)
     private String couponCode;
+    @Column(nullable = false)
     private CouponType type;
+    @Column(nullable = false)
     private int value;
+    @Column(nullable = false)
     private int minPrice;
+    @Column(nullable = false)
     private int userCount;
+    @Column(nullable = false)
     private String startDate;
+    @Column(nullable = false)
     private String endDate;
 
     public Coupon(CouponType type, String couponCode, Integer minPrice, Integer value, Integer userCount, String startDate, String endDate) {

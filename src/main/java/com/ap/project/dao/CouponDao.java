@@ -40,4 +40,62 @@ public class CouponDao {
         }
         return result;
     }
+
+    public static Coupon getCouponById(int id) {
+        Transaction transaction = null;
+        Coupon coupon = null;
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            coupon = session.get(Coupon.class, id);
+            transaction.commit();
+        } catch(Exception e){
+            transactionRollBack(transaction, e);
+        }
+        return coupon;
+    }
+
+    public static void deleteCouponById(int id) {
+        Transaction transaction = null;
+        try(Session session = HibernateUtil.getSessionFactory().openSession()){
+            transaction = session.beginTransaction();
+            Coupon coupon = session.get(Coupon.class, id);
+            session.remove(coupon);
+            transaction.commit();
+        } catch(Exception e){
+            transactionRollBack(transaction, e);
+        }
+    }
+
+    public static void updateCoupon(int id, CouponDto newCoupon) {
+        Transaction transaction = null;
+        try(Session session = HibernateUtil.getSessionFactory().openSession()){
+            transaction = session.beginTransaction();
+            Coupon coupon = session.get(Coupon.class, id);
+            if(newCoupon.getCouponCode() != null){
+                coupon.setCouponCode(newCoupon.getCouponCode());
+            }
+            if(newCoupon.getType() != null){
+                coupon.setType(newCoupon.getType());
+            }
+            if(newCoupon.getValue() != null){
+                coupon.setValue(newCoupon.getValue());
+            }
+            if(newCoupon.getMinPrice() != null){
+                coupon.setMinPrice(newCoupon.getMinPrice());
+            }
+            if(newCoupon.getUserCount() != null){
+                coupon.setUserCount(newCoupon.getUserCount());
+            }
+            if(newCoupon.getStartDate() != null){
+                coupon.setStartDate(newCoupon.getStartDate());
+            }
+            if(newCoupon.getEndDate() != null){
+                coupon.setEndDate(newCoupon.getEndDate());
+            }
+            session.update(coupon);
+            transaction.commit();
+        }catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+    }
 }
