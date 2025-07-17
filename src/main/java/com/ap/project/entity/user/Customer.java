@@ -55,6 +55,11 @@ public class Customer extends User implements HasAddress {
 
     }
 
+    public void setWallet(Wallet wallet) {
+        TransactionDao.saveWallet(wallet, this.getUserId());
+        this.wallet = wallet;
+    }
+
     @Override
     public ProfileDto getProfile() {
         ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), this.address, null, null, null, UserRole.CUSTOMER);

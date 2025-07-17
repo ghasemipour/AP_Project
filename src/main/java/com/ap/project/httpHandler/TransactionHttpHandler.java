@@ -159,8 +159,12 @@ public class  TransactionHttpHandler implements HttpHandler {
                 return;
             }
 
-            TransactionDao.topUpWallet(customer.getUserId(), amount, exchange);
             Wallet wallet = UserDao.getWalletByUserId(customer.getUserId(), exchange);
+            if(wallet == null){
+                customer.setWallet(new Wallet());
+                wallet = UserDao.getWalletByUserId(customer.getUserId(), exchange);
+            }
+            TransactionDao.topUpWallet(customer.getUserId(), amount, exchange);
             Transaction transaction = new Transaction(null, wallet, customer, TransactionMethod.WALLET, TransactionStatus.SUCCESS);
             TransactionDao.saveTransaction(transaction,customer.getUserId(), -1, wallet.getId(), exchange);
             sendSuccessMessage("Wallet topped up successfully", exchange);
