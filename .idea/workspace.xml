@@ -6,13 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="3c17796f-4cc5-49d5-be3f-f3a0c693f9ac" name="Changes" comment="merging">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/UserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/UserDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/LoginResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/LoginResponseDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/user/Customer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/user/Customer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/LoginHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/LoginHttpHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/ProfileHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/ProfileHttpHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RegisterHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RegisterHttpHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/ProfileDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/ProfileDto.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -168,7 +163,10 @@
       <workItem from="1752856380257" duration="1610000" />
       <workItem from="1752858840711" duration="3000" />
       <workItem from="1752862273574" duration="3511000" />
-      <workItem from="1752918196488" duration="8456000" />
+      <workItem from="1752918196488" duration="9602000" />
+      <workItem from="1752942861200" duration="2437000" />
+      <workItem from="1752953497415" duration="35000" />
+      <workItem from="1752953945759" duration="1781000" />
     </task>
     <task id="LOCAL-00001" summary="merging">
       <option name="closed" value="true" />

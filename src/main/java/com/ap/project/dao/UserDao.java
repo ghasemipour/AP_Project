@@ -12,7 +12,6 @@ import com.sun.net.httpserver.HttpExchange;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,9 +73,9 @@ public class UserDao {
                     }
                 }
 
-                if (newProfile.getDiscription() != null && !newProfile.getDiscription().isBlank()) {
+                if (newProfile.getDescription() != null && !newProfile.getDescription().isBlank()) {
                     if (user instanceof Seller) {
-                        ((Seller) user).setDiscription(newProfile.getDiscription());
+                        ((Seller) user).setDiscription(newProfile.getDescription());
                     }
                 }
 
