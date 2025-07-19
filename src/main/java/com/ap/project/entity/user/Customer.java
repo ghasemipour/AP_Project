@@ -46,9 +46,6 @@ public class Customer extends User implements HasAddress {
     public Customer(String name, String number, String password, String email, String profilePricture, String address) {
         super(name, number, password, email, profilePricture);
         this.address = address;
-        Wallet wallet = new Wallet();
-        TransactionDao.saveWallet(wallet, this.getUserId());
-        this.wallet = wallet;
     }
 
     public Customer() {
