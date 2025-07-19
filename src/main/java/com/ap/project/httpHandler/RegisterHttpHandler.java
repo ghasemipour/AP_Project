@@ -1,12 +1,14 @@
 package com.ap.project.httpHandler;
 
 import com.ap.project.Enums.UserRole;
+import com.ap.project.dao.TransactionDao;
 import com.ap.project.dao.UserDao;
 import com.ap.project.deserializer.UserRoleDeserializer;
 import com.ap.project.dto.RegisterDto;
 
 import com.ap.project.dto.RegisterResponseDto;
 import com.ap.project.entity.general.BankAccount;
+import com.ap.project.entity.general.Wallet;
 import com.ap.project.entity.user.Courier;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.Seller;
@@ -145,6 +147,7 @@ public class RegisterHttpHandler implements HttpHandler {
             }
 
             UserDao.saveUser(user);
+            if (user instanceof Customer) ((Customer) user).setWallet(new Wallet());
 
 
             String token = generateToken(user.getUserId());

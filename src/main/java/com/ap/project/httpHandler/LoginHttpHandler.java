@@ -1,8 +1,12 @@
 package com.ap.project.httpHandler;
 
+import com.ap.project.Enums.UserRole;
 import com.ap.project.dao.UserDao;
 import com.ap.project.dto.LoginDto;
 import com.ap.project.dto.LoginResponseDto;
+import com.ap.project.entity.user.Courier;
+import com.ap.project.entity.user.Customer;
+import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
 import com.ap.project.services.Validate;
 import com.ap.project.util.JwtUtil;
@@ -68,10 +72,15 @@ public class LoginHttpHandler implements HttpHandler {
                 return;
             }
             String token = JwtUtil.generateToken(user.getUserId());
-
+            UserRole role = null;
+            if (user instanceof Seller) role = UserRole.SELLER;
+            if (user instanceof Customer) role = UserRole.CUSTOMER;
+            if (user instanceof Courier) role = UserRole.COURIER;
             LoginResponseDto loginResponseDto = new LoginResponseDto("User logged in successfully",
                     user.getUserId(),
-                    token);
+                    token,
+                    role,
+                    user.getName());
 
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             sendSuccessMessage(new Gson().toJson(loginResponseDto), exchange);

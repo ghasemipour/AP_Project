@@ -57,18 +57,13 @@ public class ProfileHttpHandler extends SuperHttpHandler implements HttpHandler 
             InputStreamReader isr = new InputStreamReader(exchange.getRequestBody());
             ProfileDto newProfile = new Gson().fromJson(isr, ProfileDto.class);
 
+            String response = "";
             if (newProfile.getPhone() != null) {
                 if (!Validate.validatePhone(newProfile.getPhone(), exchange)) {
                     return;
                 }
                 if (UserDao.IsPhoneNumberTaken(newProfile.getPhone()) && !user.getPhoneNumber().equals(newProfile.getPhone())) {
-                    String response = "{\"error\": \"Phone number already exists\"}";
-                    byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-                    exchange.sendResponseHeaders(409, responseBytes.length);
-                    OutputStream os = exchange.getResponseBody();
-                    os.write(responseBytes);
-                    os.close();
-                    return;
+                    response += "{\"error\": \"Phone number already exists\"}\n";
                 }
             }
 
@@ -78,15 +73,16 @@ public class ProfileHttpHandler extends SuperHttpHandler implements HttpHandler 
                 }
 
                 if (UserDao.IsEmailTaken(newProfile.getEmail()) && !user.getEmail().equals(newProfile.getEmail())) {
-                    String response = "{\"error\": \"Email already exists\"}";
-                    byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-                    exchange.sendResponseHeaders(409, responseBytes.length);
-                    OutputStream os = exchange.getResponseBody();
-                    os.write(responseBytes);
-                    os.close();
-                    return;
-
+                    response += "{\"error\": \"Email already exists\"}\n";
                 }
+            }
+            if (!response.isEmpty()) {
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(409, responseBytes.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(responseBytes);
+                os.close();
+                return;
             }
 
             UserDao.updateUser(user.getUserId(), newProfile);

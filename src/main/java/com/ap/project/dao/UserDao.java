@@ -43,47 +43,50 @@ public class UserDao {
             transaction = session.beginTransaction();
             User user = session.get(User.class, id);
             if(user != null) {
-                if(newProfile.getFull_name() != null) {
+                if (newProfile.getFull_name() != null && !newProfile.getFull_name().isBlank()) {
                     user.setName(newProfile.getFull_name());
                 }
-                if(newProfile.getPhone() != null) {
+
+                if (newProfile.getPhone() != null && !newProfile.getPhone().isBlank()) {
                     user.setPhoneNumber(newProfile.getPhone());
                 }
-                if(newProfile.getEmail() != null) {
+
+                if (newProfile.getEmail() != null && !newProfile.getEmail().isBlank()) {
                     user.setEmail(newProfile.getEmail());
                 }
-                if(newProfile.getAddress() != null) {
-                    if(user instanceof HasAddress) {
-                        ((HasAddress)user).setAddress(newProfile.getAddress());
+
+                if (newProfile.getAddress() != null && !newProfile.getAddress().isBlank()) {
+                    if (user instanceof HasAddress) {
+                        ((HasAddress) user).setAddress(newProfile.getAddress());
                     }
                 }
+
                 if (newProfile.getBank_info() != null) {
-                    if (newProfile.getBank_info().getBank_name() != null) {
+                    if (newProfile.getBank_info().getBank_name() != null && !newProfile.getBank_info().getBank_name().isBlank()) {
                         if (user instanceof HasBankAccount) {
                             ((HasBankAccount) user).getBankAccount().setBankName(newProfile.getBank_info().getBank_name());
                         }
                     }
-                    if (newProfile.getBank_info().getAccount_number() != null) {
+                    if (newProfile.getBank_info().getAccount_number() != null && !newProfile.getBank_info().getAccount_number().isBlank()) {
                         if (user instanceof HasBankAccount) {
                             ((HasBankAccount) user).getBankAccount().setAccountNumber(newProfile.getBank_info().getAccount_number());
                         }
                     }
                 }
-                if(newProfile.getDiscription() != null) {
-                    if(user instanceof Seller)
-                    {
-                        ((Seller)user).setDiscription(newProfile.getDiscription());
+
+                if (newProfile.getDiscription() != null && !newProfile.getDiscription().isBlank()) {
+                    if (user instanceof Seller) {
+                        ((Seller) user).setDiscription(newProfile.getDiscription());
                     }
                 }
 
-                if(newProfile.getBrandInfo() != null) {
-                    if(user instanceof Seller)
-                    {
-                        ((Seller)user).setBrandInfo(newProfile.getBrandInfo());
+                if (newProfile.getBrandInfo() != null && !newProfile.getBrandInfo().isBlank()) {
+                    if (user instanceof Seller) {
+                        ((Seller) user).setBrandInfo(newProfile.getBrandInfo());
                     }
                 }
 
-                if(newProfile.getProfileImageBase64() != null) {
+                if (newProfile.getProfileImageBase64() != null && !newProfile.getProfileImageBase64().isBlank()) {
                     user.setProfilePicture(newProfile.getProfileImageBase64());
                 }
                 session.update(user);
