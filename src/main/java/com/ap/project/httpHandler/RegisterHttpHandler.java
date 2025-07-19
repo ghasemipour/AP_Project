@@ -152,6 +152,7 @@ public class RegisterHttpHandler implements HttpHandler {
             RegisterResponseDto response = new RegisterResponseDto(
                     "User registered successfully",
                     user.getUserId(),
+                    user.getName(),
                     token
             );
 
