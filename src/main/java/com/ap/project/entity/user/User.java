@@ -34,6 +34,8 @@ public abstract class User {
         this.password = PasswordUtil.hashPassword(password);
         this.profilePicture = profilePicture;
         this.email = email;
+        if(this.email.isEmpty())
+            this.email = null;
     }
 
     public User() {

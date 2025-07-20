@@ -146,6 +146,9 @@ public class RegisterHttpHandler implements HttpHandler {
                 return;
             }
 
+            if(user.getProfilePicture().isEmpty())
+                user.setProfilePicture(null);
+
             UserDao.saveUser(user);
             if (user instanceof Customer) ((Customer) user).setWallet(new Wallet());
 
