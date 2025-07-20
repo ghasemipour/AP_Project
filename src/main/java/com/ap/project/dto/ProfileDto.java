@@ -18,7 +18,7 @@ public class ProfileDto {
     private String email;
     private BankAccountDto bank_info;
     private String brandInfo;
-    private String discription;
+    private String description;
     private ApprovalStatus approvalStatus;
 
 
@@ -31,7 +31,7 @@ public class ProfileDto {
         if(bankAccount != null) {
             this.bank_info = new BankAccountDto(bankAccount.getBankName(), bankAccount.getAccountNumber());
         }
-        this.discription = discription;
+        this.description = discription;
         this.brandInfo = brandInfo;
         this.role = role;
         this.approvalStatus = approvalStatus;
