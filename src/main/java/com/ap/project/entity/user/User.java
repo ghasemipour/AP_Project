@@ -32,10 +32,10 @@ public abstract class User {
         this.name = name;
         this.phoneNumber = number;
         this.password = PasswordUtil.hashPassword(password);
-        this.profilePicture = profilePicture;
-        this.email = email;
-        if(this.email.isEmpty())
-            this.email = null;
+        if (profilePicture != null)
+            this.profilePicture = profilePicture;
+        if (email != null)
+            this.email = email;
     }
 
     public User() {
