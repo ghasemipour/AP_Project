@@ -43,7 +43,7 @@ public class RegisterHttpHandler implements HttpHandler {
                     .registerTypeAdapter(UserRole.class, new UserRoleDeserializer()).create();
             RegisterDto req = gson.fromJson(reader, RegisterDto.class);
 
-            if (req.getFull_name() == null || req.getPassword() == null || req.getRole() == null || req.getPhone() == null) {
+            if ((req.getFull_name() == null || req.getFull_name().isEmpty()) || (req.getPassword() == null || req.getPassword().isEmpty()) || req.getRole() == null || (req.getPhone() == null || req.getPhone().isEmpty())) {
                 String response = "";
                 if (req.getFull_name() == null)
                     response += "{\"error\": \"Name required\"}\n";
