@@ -156,6 +156,7 @@ public class RegisterHttpHandler implements HttpHandler {
                     "User registered successfully",
                     user.getUserId(),
                     user.getName(),
+                    user.getProfilePicture(),
                     token
             );
 

@@ -78,7 +78,8 @@ public class LoginHttpHandler implements HttpHandler {
                     user.getUserId(),
                     token,
                     role,
-                    user.getName());
+                    user.getName(),
+                    user.getProfilePicture());
 
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             sendSuccessMessage(new Gson().toJson(loginResponseDto), exchange);
