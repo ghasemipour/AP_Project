@@ -146,6 +146,9 @@ public class UserDao {
     }
 
     public static boolean IsEmailTaken(String email) {
+        if(email == null || email.isEmpty()) {
+            return false;
+        }
         boolean res = false;
         Session session = HibernateUtil.getSessionFactory().openSession();
 
