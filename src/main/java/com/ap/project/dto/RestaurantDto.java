@@ -13,7 +13,7 @@ public class RestaurantDto {
     private WorkingHourDto working_hour;
     private int id;
 
-    public RestaurantDto(int id, String name, String address, String phone, String logoBase64, Integer tax_fee, Integer additional_fee, WorkingHourDto working_hour ) {
+    public RestaurantDto(int id, String name, String address, String phone, String logoBase64, Integer tax_fee, Integer additional_fee, WorkingHourDto working_hour) {
         this.name = name;
         this.address = address;
         this.phone = phone;
