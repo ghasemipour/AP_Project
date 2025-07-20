@@ -1,12 +1,11 @@
 package com.ap.project.httpHandler;
 
+import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Enums.Status;
-import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.dao.FoodItemDao;
 import com.ap.project.dao.MenuDao;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.RestaurantDao;
-import com.ap.project.dto.FoodDto;
 import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Menu;
@@ -43,7 +42,12 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
         String path = exchange.getRequestURI().getPath();
         String[] parts = path.split("/");
         if(path.startsWith("/restaurants")){
-            if (!(user instanceof Seller) || (!((Seller) user).getApprovalStatus().equals("APPROVED"))) {
+            if (user instanceof Seller seller) {
+                if (!seller.getApprovalStatus().equals(ApprovalStatus.APPROVED)) {
+                    exchange.sendResponseHeaders(403,-1);
+                    return;
+                }
+            } else {
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }
@@ -93,7 +97,6 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
 
             InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             RestaurantDto req = new Gson().fromJson(reader, RestaurantDto.class);
-
             if (req.getName() == null || req.getPhone() == null || req.getAddress() == null) {
                 String response = "";
                 if (req.getName() == null)
@@ -127,9 +130,18 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
 
             Restaurant restaurant = new Restaurant(req, (Seller) user);
             RestaurantDao.saveRestaurant(restaurant, user.getUserId(), exchange);
-            sendSuccessMessage("Restaurant created successfully", exchange);
+            RestaurantDto dto = restaurant.GetDto();
+            sendSuccessMessage(new Gson().toJson(dto), exchange);
 
-        } catch (Exception e) {
+        } catch (NumberFormatException | JsonSyntaxException e) {
+            String response = "{\"error\": \"Invalid numeric values\"}";
+            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(400, responseBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
+            }
+        }
+        catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
 
@@ -370,5 +382,15 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             internalServerFailureError(e, exchange);
         }
 
+    }
+
+    private boolean isNumeric(String str) {
+        if (str == null) return false;
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }
