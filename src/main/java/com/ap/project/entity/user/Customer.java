@@ -59,7 +59,7 @@ public class Customer extends User implements HasAddress {
 
     @Override
     public ProfileDto getProfile() {
-        ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), this.address, null, null, null, UserRole.CUSTOMER, null);
+        ProfileDto profileDto = new ProfileDto(this.getUserId(), this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), this.address, null, null, null, UserRole.CUSTOMER, null);
         return profileDto;
     }
 

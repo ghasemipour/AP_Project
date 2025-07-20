@@ -3,12 +3,15 @@ package com.ap.project.dto;
 import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Enums.UserRole;
 import com.ap.project.entity.general.BankAccount;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class ProfileDto {
+    private Integer userId;
     private String full_name;
     private String phone;
     private String password;
@@ -19,10 +22,12 @@ public class ProfileDto {
     private BankAccountDto bank_info;
     private String brandInfo;
     private String description;
+    @Enumerated(EnumType.STRING)
     private ApprovalStatus approvalStatus;
 
 
-    public ProfileDto(String name, String phoneNumber, String email, String profilePicture, String address, BankAccount bankAccount, String discription, String brandInfo, UserRole role, ApprovalStatus approvalStatus) {
+    public ProfileDto(int userId, String name, String phoneNumber, String email, String profilePicture, String address, BankAccount bankAccount, String discription, String brandInfo, UserRole role, ApprovalStatus approvalStatus) {
+        this.userId = userId;
         this.full_name = name;
         this.phone = phoneNumber;
         this.email = email;

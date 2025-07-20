@@ -48,7 +48,7 @@ public class Seller extends User implements HasAddress, HasBankAccount, NeedAppr
     @Override
     public ProfileDto getProfile()
     {
-        ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), this.address, this.bankAccount, this.discription, this.brandInfo, UserRole.SELLER, approvalStatus);
+        ProfileDto profileDto = new ProfileDto(this.getUserId(), this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), this.address, this.bankAccount, this.discription, this.brandInfo, UserRole.SELLER, approvalStatus);
         return profileDto;
     }
 

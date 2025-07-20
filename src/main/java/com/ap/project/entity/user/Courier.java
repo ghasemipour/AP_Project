@@ -38,7 +38,7 @@ public class Courier extends User implements HasBankAccount, NeedApproval {
     @Override
     public ProfileDto getProfile()
     {
-        ProfileDto profileDto = new ProfileDto(this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), null, this.bankAccount, null, null, UserRole.COURIER, approvalStatus);
+        ProfileDto profileDto = new ProfileDto(this.getUserId(), this.getName(), this.getPhoneNumber(), this.getEmail(), this.getProfilePicture(), null, this.bankAccount, null, null, UserRole.COURIER, approvalStatus);
         return profileDto;
     }
 

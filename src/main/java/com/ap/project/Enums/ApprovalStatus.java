@@ -1,7 +1,7 @@
 package com.ap.project.Enums;
 
 public enum ApprovalStatus {
-    WAITING("Waiting"),
+    WAITING("waiting"),
     APPROVED("approved"),
     REJECTED("rejected");
 
