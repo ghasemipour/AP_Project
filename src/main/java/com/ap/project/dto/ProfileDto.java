@@ -14,7 +14,7 @@ public class ProfileDto {
     private String password;
     private UserRole role;
     private String address;
-        private String profileImageBase64;
+    private String profileImageBase64;
     private String email;
     private BankAccountDto bank_info;
     private String brandInfo;
