@@ -73,7 +73,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 }
             }
         } else if(path.startsWith("/vendors")){
-            if (!(user instanceof Customer) || (user instanceof Courier && !((Courier) user).getApprovalStatus().equals("APPROVED"))) {
+            if (!(user instanceof Customer)|| (!((Courier) user).getApprovalStatus().equals(ApprovalStatus.APPROVED))) {
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }

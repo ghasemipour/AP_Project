@@ -1,5 +1,6 @@
 package com.ap.project.httpHandler;
 
+import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.dao.FoodItemDao;
 import com.ap.project.dao.MenuDao;
 import com.ap.project.dao.RestaurantDao;
@@ -35,7 +36,7 @@ public class MenuHttpHandler implements HttpHandler {
             return;
         }
 
-        if (!(user instanceof Seller)|| (!((Seller) user).getApprovalStatus().equals("APPROVED"))) {
+        if (!(user instanceof Seller)|| (!((Seller) user).getApprovalStatus().equals(ApprovalStatus.APPROVED))) {
             exchange.sendResponseHeaders(403, -1);
             return;
         }
