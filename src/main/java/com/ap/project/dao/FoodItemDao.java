@@ -201,4 +201,27 @@ public class FoodItemDao {
         }
         return keywords;
     }
+
+    public static List<FoodDto> getItemsByRestaurantId(int restaurantId, HttpExchange exchange) {
+        List<FoodDto> res = new ArrayList<>();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Restaurant restaurant = session.get(Restaurant.class, restaurantId);
+            if (restaurant == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchRestaurant(restaurantId + " not found");
+            }
+            Hibernate.initialize(restaurant.getFoodItems());
+            List<Food> foodList = restaurant.getFoodItems();
+            for (Food food : foodList) {
+                Hibernate.initialize(food.getKeywords());
+                res.add(food.getFoodDto());
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return res;
+    }
 }
