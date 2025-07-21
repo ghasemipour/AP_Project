@@ -43,7 +43,7 @@ public class OrderDto {
         this.user_id = user_id;
         if (courier != null)
             this.courier_id = courier.getUserId();
-
+        else courier_id = 0;
         this.created_at = created_at.toString();
         this.updated_at = updated_at.toString();
 
