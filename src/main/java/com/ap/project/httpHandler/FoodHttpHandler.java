@@ -61,7 +61,9 @@ public class FoodHttpHandler implements HttpHandler {
             if (parts.length == 4) {
                 if (method.equals("POST"))
                     handleAddFoodItem(exchange, restaurant);
-                else {
+                else if(method.equals("GET")){
+                    handleGetItems(exchange, restaurant);
+                }else{
                     exchange.sendResponseHeaders(405, -1);
                 }
             } else if (parts.length == 5) {
@@ -98,6 +100,16 @@ public class FoodHttpHandler implements HttpHandler {
 
     }
 
+    public void handleGetItems(HttpExchange exchange, Restaurant restaurant) throws IOException {
+        try {
+            List<FoodDto> foodList = FoodItemDao.getItemsByRestaurantId(restaurant.getId(), exchange);
+            sendSuccessMessage(new Gson().toJson(foodList), exchange);
+
+        } catch (Exception e){
+            internalServerFailureError(e, exchange);
+        }
+    }
+
     public void handleAddFoodItem(HttpExchange exchange, Restaurant restaurant) throws IOException {
         try {
             InputStreamReader input = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
@@ -125,7 +137,8 @@ public class FoodHttpHandler implements HttpHandler {
 
             Food food = new Food(req, restaurant);
             FoodItemDao.saveFood(food, restaurant.getId(), exchange);
-            sendSuccessMessage("Food item created successfully.", exchange);
+            FoodDto dto = food.getFoodDto();
+            sendSuccessMessage(new Gson().toJson(dto), exchange);
 
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
@@ -145,7 +158,9 @@ public class FoodHttpHandler implements HttpHandler {
             }
 
             FoodItemDao.updateFood(req, foodId, exchange);
-            sendSuccessMessage("Food item updated successfully.", exchange);
+            food = FoodItemDao.getFoodByID(foodId, exchange);
+            FoodDto dto = food.getFoodDto();
+            sendSuccessMessage(new Gson().toJson(dto), exchange);
         }
         catch (Exception e) {
             internalServerFailureError(e, exchange);
