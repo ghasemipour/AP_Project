@@ -225,7 +225,6 @@ public class RestaurantDao {
             for (Restaurant restaurant : restaurants) {
                 results.add(restaurant.getRestaurantDto());
             }
-
             transaction.commit();
         } catch (Exception e){
             transactionRollBack(transaction, e);
