@@ -1,5 +1,6 @@
 package com.ap.project.httpHandler;
 
+import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.dao.FoodItemDao;
 import com.ap.project.dao.RestaurantDao;
 import com.ap.project.dto.FoodDto;
@@ -39,8 +40,9 @@ public class FoodHttpHandler implements HttpHandler {
         }
 
         if (path.startsWith("/restaurant")) {
-            if(!(user instanceof Seller) || (!((Seller) user).getApprovalStatus().equals("APPROVED"))){
+            if(!(user instanceof Seller) || !(((Seller) user).getApprovalStatus().equals(ApprovalStatus.APPROVED))){
                 exchange.sendResponseHeaders(403, -1);
+                System.out.println("user is not approved");
                 return;
             }
             Restaurant restaurant = RestaurantDao.getRestaurantById(Integer.parseInt(parts[2]));

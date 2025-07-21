@@ -1,5 +1,6 @@
 package com.ap.project.httpHandler;
 
+import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Enums.Status;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.entity.restaurant.Order;
@@ -34,7 +35,7 @@ public class DeliveryHttpHandler extends SuperHttpHandler implements HttpHandler
         String method = exchange.getRequestMethod();
 
         if(path.startsWith("/deliveries")){
-            if(!(user instanceof Courier) || (!((Courier) user).getApprovalStatus().equals("APPROVED"))) {
+            if(!(user instanceof Courier) || (!((Courier) user).getApprovalStatus().equals(ApprovalStatus.APPROVED))) {
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }
