@@ -73,7 +73,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 }
             }
         } else if(path.startsWith("/vendors")){
-            if (!(user instanceof Customer)|| (!((Courier) user).getApprovalStatus().equals("APPROVED"))) {
+            if (!(user instanceof Customer) || (user instanceof Courier && !((Courier) user).getApprovalStatus().equals("APPROVED"))) {
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }
@@ -188,7 +188,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             if (req.getPhone() != null && RestaurantDao.isPhoneNumberTaken(req.getPhone())) {
                 String response = "{\"error\": \"Phone number already exists\"}";
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-                exchange.sendResponseHeaders(400, responseBytes.length);
+                exchange.sendResponseHeaders(409, responseBytes.length);
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(responseBytes);
                 }
@@ -198,7 +198,15 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             RestaurantDao.updateRestaurant(restaurantId, req);
             sendSuccessMessage("Restaurant updated successfully.", exchange);
 
-        } catch (Exception e) {
+        } catch (NumberFormatException | JsonSyntaxException e) {
+            String response = "{\"error\": \"Invalid numeric value.\"}";
+            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(400, responseBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
+            }
+        }
+        catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
     }
@@ -308,6 +316,8 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
 
             List<RestaurantDto> results = RestaurantDao.getRestaurantsByFilter(search, keywords);
+            if (results.isEmpty())
+                sendSuccessMessage("No matches found.", exchange);
             sendSuccessMessage(new Gson().toJson(results), exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
