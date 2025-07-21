@@ -125,7 +125,8 @@ public class FoodHttpHandler implements HttpHandler {
 
             Food food = new Food(req, restaurant);
             FoodItemDao.saveFood(food, restaurant.getId(), exchange);
-            sendSuccessMessage("Food item created successfully.", exchange);
+            FoodDto dto = food.getFoodDto();
+            sendSuccessMessage(new Gson().toJson(dto), exchange);
 
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
