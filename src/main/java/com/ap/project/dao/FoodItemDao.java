@@ -135,7 +135,7 @@ public class FoodItemDao {
             StringBuilder hql = new StringBuilder("FROM Food f WHERE 1=1");
 
             if (search != null && !search.isEmpty()) {
-                hql.append(" AND (lower(f.name) LIKE :search");
+                hql.append(" AND (lower(f.name) LIKE :search)");
             }
 
             if (price >= 0) {
