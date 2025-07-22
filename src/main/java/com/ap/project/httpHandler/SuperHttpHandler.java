@@ -1,13 +1,16 @@
 package com.ap.project.httpHandler;
 
 import com.ap.project.dao.UserDao;
+import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.user.User;
 import com.ap.project.util.JwtUtil;
 import com.sun.net.httpserver.HttpExchange;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 public class SuperHttpHandler {
 

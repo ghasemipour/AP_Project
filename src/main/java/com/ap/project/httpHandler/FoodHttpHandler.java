@@ -212,7 +212,6 @@ public class FoodHttpHandler implements HttpHandler {
                     keywords.add(element.getAsString());
                 }
             }
-
             List<FoodDto> results = FoodItemDao.getItemsByFilters(search, price, keywords);
             sendSuccessMessage(new Gson().toJson(results), exchange);
 

@@ -2,6 +2,7 @@ package com.ap.project.dao;
 
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.Exceptions.NoSuchUser;
+import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.restaurant.Menu;
 import com.ap.project.entity.restaurant.Order;
@@ -148,10 +149,11 @@ public class RestaurantDao {
         }
     }
 
-    public static List<Order> getRestaurantOrdersByRestaurantId(int restaurantId, String status, String search, String user, String courier) {
+    public static List<OrderDto> getRestaurantOrdersByRestaurantId(int restaurantId, String status, String search, String user, String courier) {
         Transaction transaction = null;
-        List<Order> orders = new ArrayList<>();
+        List<OrderDto> results = new ArrayList<>();
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Order> orders = new ArrayList<>();
             transaction = session.beginTransaction();
             String hql = "FROM Order o WHERE o.restaurant.id = :restaurantId";
 
@@ -185,12 +187,15 @@ public class RestaurantDao {
             }
 
             orders = query.list();
+            for (Order order : orders) {
+                results.add(order.getOrderDto());
+            }
             transaction.commit();
 
         } catch (Exception e) {
             transactionRollBack(transaction, e);
         }
-        return orders;
+        return results;
     }
 
     public static List<RestaurantDto> getRestaurantsByFilter(String search, List<String> keywords) {

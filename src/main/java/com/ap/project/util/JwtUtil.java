@@ -28,6 +28,12 @@ public class JwtUtil {
 
     public static String validateToken(String token) {
         try {
+
+            if (JwtBlacklist.isBlacklisted(token)) {
+                System.out.println("Token is blacklisted");
+                return null;
+            }
+
             return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()

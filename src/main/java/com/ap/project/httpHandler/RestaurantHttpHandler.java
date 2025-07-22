@@ -6,6 +6,7 @@ import com.ap.project.dao.FoodItemDao;
 import com.ap.project.dao.MenuDao;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.RestaurantDao;
+import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Menu;
@@ -27,9 +28,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandler {
     @Override
@@ -73,7 +76,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 }
             }
         } else if(path.startsWith("/vendors")){
-            if (!(user instanceof Customer)|| (!((Courier) user).getApprovalStatus().equals(ApprovalStatus.APPROVED))) {
+            if (!(user instanceof Customer)|| (user instanceof Courier &&!((Courier) user).getApprovalStatus().equals(ApprovalStatus.APPROVED))) {
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }
@@ -213,13 +216,18 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
 
     private void handleGetRestaurantsOrders(HttpExchange exchange, int restaurantId, User seller) throws IOException {
         try {
+            System.out.println("in the request");
             if (!exchange.getRequestMethod().equals("GET")) {
                 exchange.sendResponseHeaders(405, -1);
                 return;
             }
 
             if (RestaurantDao.getSellerId(restaurantId) != seller.getUserId()) {
-                exchange.sendResponseHeaders(403, -1);
+                String response = "Restaurant not owned by seller";
+                exchange.sendResponseHeaders(403, response.getBytes().length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
                 return;
             }
             String query = exchange.getRequestURI().getQuery();
@@ -238,7 +246,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             String user = queryParams.get("user");
             String courier = queryParams.get("courier");
 
-            List<Order> orders = RestaurantDao.getRestaurantOrdersByRestaurantId(restaurantId, status, search, user, courier);
+            List<OrderDto> orders = RestaurantDao.getRestaurantOrdersByRestaurantId(restaurantId, status, search, user, courier);
             sendSuccessMessage(new Gson().toJson(orders), exchange);
 
         } catch (Exception e) {
