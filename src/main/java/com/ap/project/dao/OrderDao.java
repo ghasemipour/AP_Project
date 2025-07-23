@@ -82,9 +82,27 @@ public class OrderDao {
                 throw new NoSuchRestaurant(vendorId + " not found");
             }
             if (customer == null) {
-                String response = "{\"error\": \"User not found\"}";
+                String response = "{\"error\": \"User not found\"}\n";
                 sendNotFoundMessage(response, exchange);
                 throw new NoSuchUser(userId + " not found");
+            }
+            boolean allItemsBelong = true;
+            for (OrderItem orderItem : order.getItems()) {
+                boolean found = false;
+                for (Food food : restaurant.getFoodItems()) {
+                    if (food.getFoodId() == orderItem.getFood().getFoodId()) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    allItemsBelong = false;
+                    break;
+                }
+            }
+            if (!allItemsBelong) {
+                String response = "{\"error\": \"item does not belong to vendor\"}\n";
+                sendNotFoundMessage(response, exchange);
             }
             restaurant.addOrder(order);
             customer.addOrder(order);

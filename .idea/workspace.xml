@@ -6,12 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="3c17796f-4cc5-49d5-be3f-f3a0c693f9ac" name="Changes" comment="merging">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/OrderDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/OrderDao.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/RestaurantDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/RestaurantDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Order.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/OrderHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/OrderHttpHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RegisterHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RegisterHttpHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RestaurantHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RestaurantHttpHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/wrappers/StatusWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/wrappers/StatusWrapper.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -178,7 +176,7 @@
       <workItem from="1753111494164" duration="4486000" />
       <workItem from="1753122303203" duration="143000" />
       <workItem from="1753163925846" duration="13612000" />
-      <workItem from="1753264826957" duration="2325000" />
+      <workItem from="1753264826957" duration="8477000" />
     </task>
     <task id="LOCAL-00001" summary="merging">
       <option name="closed" value="true" />

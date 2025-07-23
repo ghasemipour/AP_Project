@@ -177,8 +177,8 @@ public class RestaurantDao {
             if (status != null && !status.isEmpty()) {
                 try {
                     query.setParameter("status", Status.valueOf(status.toUpperCase()));
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("Invalid status value: " + status);
+                } catch (Exception e) {
+                    transactionRollBack(transaction, e);
                 }
             }
 
