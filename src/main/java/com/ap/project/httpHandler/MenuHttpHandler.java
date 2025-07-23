@@ -17,6 +17,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.List;
 
 import static com.ap.project.httpHandler.SuperHttpHandler.internalServerFailureError;
 import static com.ap.project.httpHandler.SuperHttpHandler.sendSuccessMessage;
@@ -52,11 +53,16 @@ public class MenuHttpHandler implements HttpHandler {
         }
 
         if(parts.length == 4) {
-            if (!method.equals("POST")) {
+            if (method.equals("POST")) {
+                handleAddMenu(exchange, restaurant);
+
+            } else if(method.equals("GET")) {
+                handleGetListOfMenus(exchange, restaurant);
+            } else{
                 exchange.sendResponseHeaders(405, -1);
                 return;
             }
-            handleAddMenu(exchange, restaurant);
+
         } else if(parts.length == 5) {
             if(method.equals("DELETE")) {
                 handleDeleteMenu(exchange, restaurant, parts[4]);
@@ -161,5 +167,14 @@ public class MenuHttpHandler implements HttpHandler {
             internalServerFailureError(e, exchange);
         }
 
+    }
+
+    private void handleGetListOfMenus(HttpExchange exchange, Restaurant restaurant) throws IOException {
+        try {
+            List<MenuDto> menus = MenuDao.getListOfMenu(restaurant.getId());
+            sendSuccessMessage(new Gson().toJson(menus), exchange);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

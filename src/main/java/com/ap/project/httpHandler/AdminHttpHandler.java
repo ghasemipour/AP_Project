@@ -265,6 +265,7 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
                 return;
             }
             CouponDao.saveCoupon(coupon);
+            sendSuccessMessage(new Gson().toJson(coupon.getCouponDto()), exchange);
 
         } catch (Exception e){
             internalServerFailureError(e, exchange);
@@ -308,7 +309,7 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
             }
 
             CouponDao.updateCoupon(coupon.getId(), newCoupon);
-            sendSuccessMessage("Coupon updated", exchange);
+            sendSuccessMessage(new Gson().toJson(coupon.getCouponDto()), exchange);
         }catch (Exception e){
             internalServerFailureError(e, exchange);
         }

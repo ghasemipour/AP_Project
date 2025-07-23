@@ -45,4 +45,8 @@ public class Menu{
     public void removeFoodItem(Food food) {
         foodItems.remove(food);
     }
+
+    public MenuDto getDto() {
+        return new MenuDto(this.getTitle());
+    }
 }

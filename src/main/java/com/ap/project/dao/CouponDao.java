@@ -33,6 +33,7 @@ public class CouponDao {
             List<Coupon> coupons = session.createQuery("from Coupon").list();
             for (Coupon coupon : coupons) {
                 CouponDto couponDto = coupon.getCouponDto();
+                result.add(couponDto);
             }
             transaction.commit();
         } catch (Exception e){

@@ -4,6 +4,7 @@ import com.ap.project.Exceptions.NoSuchFoodItem;
 import com.ap.project.Exceptions.NoSuchMenu;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.dto.FoodDto;
+import com.ap.project.dto.MenuDto;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Menu;
 import com.ap.project.entity.restaurant.Restaurant;
@@ -160,5 +161,25 @@ public class MenuDao {
         }
 
         return foodItems;
+    }
+
+    public static List<MenuDto> getListOfMenu(int restaurantId) {
+        List<MenuDto> res = new ArrayList<>();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Restaurant restaurant = (Restaurant) session.get(Restaurant.class, restaurantId);
+            if(restaurant == null) {
+                throw new NoSuchRestaurant(restaurantId + "restaurant not found");
+            }
+            Hibernate.initialize(restaurant.getMenus());
+            List<Menu> menus = restaurant.getMenus();
+            for (Menu menu : menus) {
+                res.add(menu.getDto());
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return res;
     }
 }
