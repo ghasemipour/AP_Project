@@ -3,6 +3,7 @@ package com.ap.project.httpHandler;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.dao.RestaurantDao;
 import com.ap.project.dao.UserDao;
+import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.User;
@@ -13,6 +14,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -76,25 +78,25 @@ public class FavoriteHttpHandler extends SuperHttpHandler implements HttpHandler
     private void handleGetFavoriteRestaurants(HttpExchange exchange, User user) throws IOException {
         try {
             List<Restaurant> favorites = UserDao.getFavoriteRestaurants(user.getUserId(), exchange);
-            JsonArray restaurants = new JsonArray();
+            List<RestaurantDto> res = new ArrayList<RestaurantDto>();
             for(Restaurant restaurant : favorites){
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("name", restaurant.getName());
-                jsonObject.addProperty("id", restaurant.getId());
-                jsonObject.addProperty("address", restaurant.getAddress());
-                jsonObject.addProperty("phone", restaurant.getPhone());
-                jsonObject.addProperty("tax_fee", restaurant.getTax_fee());
-                jsonObject.addProperty("additional_fee", restaurant.getAdditional_fee());
-                if(restaurant.getLogoBase64() != null) {
-                    jsonObject.addProperty("logo", restaurant.getLogoBase64());
-                }
-                restaurants.add(jsonObject);
-
+//                JsonObject jsonObject = new JsonObject();
+//                jsonObject.addProperty("name", restaurant.getName());
+//                jsonObject.addProperty("id", restaurant.getId());
+//                jsonObject.addProperty("address", restaurant.getAddress());
+//                jsonObject.addProperty("phone", restaurant.getPhone());
+//                jsonObject.addProperty("tax_fee", restaurant.getTax_fee());
+//                jsonObject.addProperty("additional_fee", restaurant.getAdditional_fee());
+//                if(restaurant.getLogoBase64() != null) {
+//                    jsonObject.addProperty("logo", restaurant.getLogoBase64());
+//                }
+//                restaurants.add(jsonObject);
+                res.add(restaurant.GetDto());
             }
 
-            JsonObject response = new JsonObject();
-            response.add("restaurants", restaurants);
-            sendSuccessMessage(new Gson().toJson(response), exchange);
+//            JsonObject response = new JsonObject();
+//            response.add("restaurants", restaurants);
+            sendSuccessMessage(new Gson().toJson(res), exchange);
 
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
