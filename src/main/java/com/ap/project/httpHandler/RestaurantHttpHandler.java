@@ -245,11 +245,17 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             String search = queryParams.get("search");
             String user = queryParams.get("user");
             String courier = queryParams.get("courier");
-            System.out.println(status);
-            List<OrderDto> orders = RestaurantDao.getRestaurantOrdersByRestaurantId(restaurantId, status, search, user, courier);
-            sendSuccessMessage(new Gson().toJson(orders), exchange);
+            List<OrderDto> orders = new ArrayList<>();
+            try {
+                orders = RestaurantDao.getRestaurantOrdersByRestaurantId(restaurantId, status, search, user, courier);
+                sendSuccessMessage(new Gson().toJson(orders), exchange);
+            } catch (IllegalArgumentException e) {
+                sendSuccessMessage(new Gson().toJson(orders), exchange);
+            }
 
-        } catch (Exception e) {
+
+        }
+        catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
     }
@@ -290,6 +296,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
 
             OrderDao.changeOrderStatus(orderId, statusEnum, exchange);
+            System.out.println(statusEnum);
             sendSuccessMessage("Status changed successfully.", exchange);
 
         } catch (Exception e) {

@@ -67,8 +67,9 @@ public class OrderHttpHandler implements HttpHandler {
                 response += "{\"error\": \"Address required\"}\n";
             if (orderDto.getVendor_id() == null)
                 response += "{\"error\": \"Vendor ID required\"}\n";
-            if (orderDto.getItems() == null) // check this later
+            if (orderDto.getItems() == null) {// check this later
                 response += "{\"error\": \"Please select your items.\"}\n";
+            }
             if (!response.isEmpty()) {
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
