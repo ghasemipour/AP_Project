@@ -1,9 +1,11 @@
 package com.ap.project.httpHandler;
 
 import com.ap.project.Enums.Status;
+import com.ap.project.dao.FoodItemDao;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.OrderItemDto;
+import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.User;
@@ -75,6 +77,19 @@ public class OrderHttpHandler implements HttpHandler {
                 }
                 return;
             }
+            for (OrderItemDto orderItem : orderDto.getItems()) {
+                Integer id = orderItem.getItem_id();
+                Integer quantity = orderItem.getQuantity();
+                Food item = FoodItemDao.getFoodByID(id, exchange);
+                if (item.getSupply() < quantity) {
+                    String error = "Insufficient supply for item id " + id + "\n";
+                    byte[] responseBytes = error.getBytes(StandardCharsets.UTF_8);
+                    exchange.sendResponseHeaders(400, responseBytes.length);
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(responseBytes);
+                    }
+                }
+            }
             Order order = new Order(orderDto, exchange, (Customer) user, Status.fromString("submitted"));
             OrderDao.submitOrder(order, orderDto.getVendor_id(), user.getUserId(), exchange);
             sendSuccessMessage(String.format("Order submitted successfully.\nYour order ID is %d", order.getId()), exchange);
@@ -123,11 +138,11 @@ public class OrderHttpHandler implements HttpHandler {
             String vendor = queryParams.get("vendor");
 
             List<OrderDto> results = OrderDao.getOrderHistory(user.getUserId(), search, vendor);
-            if (results.isEmpty()) {
-                String response = "No order history found.";
-                sendSuccessMessage(response, exchange);
-                return;
-            }
+//            if (results.isEmpty()) {
+//                String response = "No order history found.";
+//                sendSuccessMessage(response, exchange);
+//                return;
+//            }
             sendSuccessMessage(new Gson().toJson(results), exchange);
 
         } catch (Exception e) {

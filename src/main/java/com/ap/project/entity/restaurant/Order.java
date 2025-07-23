@@ -34,6 +34,7 @@ public class Order {
     @Column(nullable = false)
     private String delivery_address;
 
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)

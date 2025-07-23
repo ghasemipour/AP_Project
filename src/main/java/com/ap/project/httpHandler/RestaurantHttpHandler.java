@@ -245,7 +245,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             String search = queryParams.get("search");
             String user = queryParams.get("user");
             String courier = queryParams.get("courier");
-
+            System.out.println(status);
             List<OrderDto> orders = RestaurantDao.getRestaurantOrdersByRestaurantId(restaurantId, status, search, user, courier);
             sendSuccessMessage(new Gson().toJson(orders), exchange);
 

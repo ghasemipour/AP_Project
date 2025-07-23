@@ -1,5 +1,6 @@
 package com.ap.project.dao;
 
+import com.ap.project.Enums.Status;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.OrderDto;
@@ -174,10 +175,15 @@ public class RestaurantDao {
             query.setParameter("restaurantId", restaurantId);
 
             if (status != null && !status.isEmpty()) {
-                query.setParameter("status", status);
+                try {
+                    query.setParameter("status", Status.valueOf(status.toUpperCase()));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid status value: " + status);
+                }
             }
+
             if (search != null && !search.isEmpty()) {
-                query.setParameter("search", "%" + search + "%");
+                query.setParameter("search", "%" + search.toLowerCase() + "%");
             }
             if (user != null && !user.isEmpty()) {
                 query.setParameter("user", user);

@@ -88,10 +88,15 @@ public class RegisterHttpHandler implements HttpHandler {
             }
             if (req.getRole().equals(UserRole.COURIER) && (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null)) {
                 String response = "";
-                if (req.getBank_info().getBank_name() == null)
+                if (req.getBank_info() == null) {
                     response += "{\"error\": \"Bank name required\"}\n";
-                if (req.getBank_info().getAccount_number() == null)
-                    response += "{\"error\": \"Account number required\"}\n";
+                }
+                else {
+                    if (req.getBank_info().getBank_name() == null)
+                        response += "{\"error\": \"Bank name required\"}\n";
+                    if (req.getBank_info().getAccount_number() == null)
+                        response += "{\"error\": \"Account number required\"}\n";
+                }
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
                 try (OutputStream os = exchange.getResponseBody()) {
