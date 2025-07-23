@@ -78,7 +78,7 @@ public class RatingHttpHandler implements HttpHandler {
             if (req.getOrder_id() == null)
                 response.append("{\"error\": \"Order ID required.\"}\n");
             if (req.getRating() == null)
-                response.append("{\"error\": \"Rating number required.\"}\n");
+                response.append("{\"error\": \"rating number required.\"}\n");
             if (req.getComment() == null)
                 response.append("{\"error\": \"comment required.\"}\n");
             if (req.getRating() < 1 || req.getRating() > 5)
@@ -92,10 +92,10 @@ public class RatingHttpHandler implements HttpHandler {
                 return;
             }
 
-            req.setUserId(user.getUserId());
+            req.setUser_id(user.getUserId());
             Rating rating = new Rating(req, exchange);
-            RatingDao.submitRating(rating, exchange, req.getOrder_id(), req.getUserId());
-            sendSuccessMessage("Rating submitted successfully.", exchange);
+            RatingDao.submitRating(rating, exchange, req.getOrder_id(), req.getUser_id());
+            sendSuccessMessage(new Gson().toJson(rating.getRatingDto()), exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
@@ -108,11 +108,11 @@ public class RatingHttpHandler implements HttpHandler {
                 return;
             }
             List<RatingDto> result = RatingDao.getRatingsForItem(itemId);
-            if (result.isEmpty()) {
-                String response = "No ratings found.";
-                sendSuccessMessage(response, exchange);
-                return;
-            }
+//            if (result.isEmpty()) {
+//                String response = "No ratings found.";
+//                sendSuccessMessage(response, exchange);
+//                return;
+//            }
             sendSuccessMessage(new Gson().toJson(result), exchange);
             
         } catch (Exception e) {
@@ -144,7 +144,7 @@ public class RatingHttpHandler implements HttpHandler {
         try {
             InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             RatingDto req = new Gson().fromJson(reader, RatingDto.class);
-            if (req.getRating() < 1 || req.getRating() > 5) {
+            if (req.getRating() > 5) {
                 String response = "Invalid Rating";
                 byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.getResponseHeaders().add("Content-Type", "application/json");
@@ -153,8 +153,8 @@ public class RatingHttpHandler implements HttpHandler {
                     os.write(bytes);
                 }
             }
-            RatingDao.updateRating(ratingId, req, exchange, user);
-            sendSuccessMessage("Rating updated successfully.", exchange);
+            Rating updated = RatingDao.updateRating(ratingId, req, exchange, user);
+            sendSuccessMessage(new Gson().toJson(updated.getRatingDto()), exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }

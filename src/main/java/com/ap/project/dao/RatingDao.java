@@ -4,7 +4,9 @@ import com.ap.project.Exceptions.NoSuchOrder;
 import com.ap.project.Exceptions.NoSuchRating;
 import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.RatingDto;
+import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Order;
+import com.ap.project.entity.restaurant.OrderItem;
 import com.ap.project.entity.restaurant.Rating;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.util.HibernateUtil;
@@ -56,9 +58,12 @@ public class RatingDao {
                     os.write(bytes);
                 }
             }
+            for (OrderItem items : order.getItems()) {
+                Food foodItem = items.getFood();
+                foodItem.getRatings().add(rating.getRating());
+            }
             order.addRating(rating);
             user.addRating(rating);
-
             session.persist(rating);
             transaction.commit();
         } catch (Exception e) {
@@ -110,9 +115,9 @@ public class RatingDao {
         return rating;
     }
 
-    public static void updateRating(int ratingId, RatingDto req, HttpExchange exchange, Customer user) {
+    public static Rating updateRating(int ratingId, RatingDto req, HttpExchange exchange, Customer user) {
         Transaction transaction = null;
-        Rating rating;
+        Rating rating = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             rating = session.get(Rating.class, ratingId);
@@ -130,6 +135,7 @@ public class RatingDao {
                     os.write(bytes);
                 }
             }
+            Hibernate.initialize(rating.getImageBase64());
             if (req.getRating() != null) {
                 rating.setRating(req.getRating());
             }
@@ -143,6 +149,7 @@ public class RatingDao {
         } catch (Exception e) {
             transactionRollBack(transaction, e);
         }
+        return rating;
     }
 
     public static void deleteRating(int ratingId, HttpExchange exchange, Customer user) {

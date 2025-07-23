@@ -39,7 +39,7 @@ public class CouponHttpHandler extends SuperHttpHandler implements HttpHandler {
             }
             String requestBody = sb.toString();
             JsonObject json = JsonParser.parseString(requestBody).getAsJsonObject();
-            if(!json.has(" coupon_code") || json.get(" coupon_code").isJsonNull()){
+            if(!json.has("coupon_code") || json.get("coupon_code").isJsonNull()){
                 String response = "coupon code required";
                 byte[] responseBytes = response.getBytes("UTF-8");
                 exchange.sendResponseHeaders(400, responseBytes.length);
@@ -48,7 +48,7 @@ public class CouponHttpHandler extends SuperHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            String couponCode = json.get(" coupon_code").getAsString();
+            String couponCode = json.get("coupon_code").getAsString();
             Coupon coupon = CouponDao.getCouponByCouponCode(couponCode);
             if(coupon == null){
                 exchange.sendResponseHeaders(404, -1);

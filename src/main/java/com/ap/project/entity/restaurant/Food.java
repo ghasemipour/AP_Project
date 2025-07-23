@@ -3,6 +3,7 @@ package com.ap.project.entity.restaurant;
 import com.ap.project.dao.RestaurantDao;
 import com.ap.project.dto.FoodDto;
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Hibernate;
@@ -39,6 +40,9 @@ public class Food {
     @ManyToMany(mappedBy = "foodItems")
     private List<Menu> menus = new ArrayList<>();
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    private List<Integer> ratings = new ArrayList<>();
+
     public Food (FoodDto foodDto, Restaurant restaurant) {
         name = foodDto.getName();
         imageBase64 = foodDto.getImageBase64();
@@ -52,7 +56,7 @@ public class Food {
     public Food() {}
 
     public FoodDto getFoodDto() {
-        return new FoodDto(name, description, price, supply, keywords, restaurant.getId(), imageBase64, foodId);
+        return new FoodDto(name, description, price, supply, keywords, restaurant.getId(), imageBase64, foodId, ratings);
     }
 
     public void addMenu(Menu menu) {

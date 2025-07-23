@@ -57,7 +57,7 @@ public class Rating {
         comment = req.getComment();
         order = OrderDao.getOrderFromId(req.getOrder_id(), exchange);
         imageBase64 = req.getImageBase64();
-        this.user = (Customer) UserDao.getUserById(req.getUserId());
+        this.user = (Customer) UserDao.getUserById(req.getUser_id());
     }
 
     public Rating() {
