@@ -2,7 +2,12 @@ package com.ap.project.dto;
 
 import com.ap.project.Enums.TransactionMethod;
 import com.ap.project.Enums.TransactionStatus;
+import lombok.Getter;
+import lombok.Setter;
 
+
+@Getter
+@Setter
 public class TransactionDto {
 
     private Integer id;

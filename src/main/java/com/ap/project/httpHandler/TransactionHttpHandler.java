@@ -149,7 +149,9 @@ public class  TransactionHttpHandler implements HttpHandler {
             }
             Transaction transaction = new Transaction(order, wallet, user, TransactionMethod.fromString(method), TransactionStatus.SUCCESS, order.getPay_price());
             boolean paymentStatus = TransactionDao.onlinePayment(transaction);
-//            TransactionDao.saveTransaction(transaction, user.getUserId(), orderId, wallet.getId(), exchange);
+            TransactionDao.saveTransaction(transaction, user.getUserId(), orderId, wallet.getId(), exchange);
+            TransactionDto transactionDto = transaction.getDto();
+            System.out.println(transactionDto.getId());
             if (!paymentStatus) {
                 String error = "{\"error\": \"Balance not enough.\"}";
                 byte[] responseBytes = error.getBytes(StandardCharsets.UTF_8);
@@ -159,7 +161,8 @@ public class  TransactionHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            sendSuccessMessage("Payment successful.", exchange);
+
+            sendSuccessMessage("Payment successful. Transaction ID: " + transactionDto.getId(), exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }

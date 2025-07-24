@@ -45,7 +45,6 @@ public class TransactionDao {
         }
         return result;
     }
-
     public static void topUpWallet(int userId, double amount, HttpExchange exchange) {
         org.hibernate.Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -155,7 +154,7 @@ public class TransactionDao {
             }
             else if (transaction.getMethod().equals(TransactionMethod.ONLINE))
                 order.setStatus(Status.WAITING_VENDOR);
-            session.merge(transaction);
+            session.persist(transaction);
             session.merge(order);
             tx.commit();
             return true;
