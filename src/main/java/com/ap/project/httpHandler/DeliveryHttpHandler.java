@@ -53,7 +53,13 @@ public class DeliveryHttpHandler extends SuperHttpHandler implements HttpHandler
                 }
                 handleGetDeliveryHistory(exchange, (Courier) user);
 
-            } else{
+            } else if(parts[2].equals("mine")){
+                if(!(method.equals("GET"))){
+                    exchange.sendResponseHeaders(405, -1);
+                    return;
+                }
+                handleGetCurrentDelivery(exchange, (Courier) user);
+            }else{
                 if(!(method.equals("PATCH"))){
                     exchange.sendResponseHeaders(405, -1);
                     return;
@@ -65,33 +71,26 @@ public class DeliveryHttpHandler extends SuperHttpHandler implements HttpHandler
         }
     }
 
+    private void handleGetCurrentDelivery(HttpExchange exchange, Courier user) throws IOException {
+        try {
+            List<DeliveryDto> deliveries = OrderDao.getOrderFromCourierId(user.getUserId(), exchange);
+            sendSuccessMessage(new Gson().toJson(deliveries), exchange);
+
+        } catch (Exception e){
+            internalServerFailureError(e, exchange);
+        }
+    }
+
     private void handleGetAvailableDeliveryRequests(HttpExchange exchange, Courier courier) throws IOException {
         try {
             List<Order> availableDeliveries = OrderDao.getOrderByStatus(exchange, Status.FINDING_COURIER);
             List<DeliveryDto> res = new ArrayList<>();
             for (Order order : availableDeliveries) {
-//                JsonObject delivery = new JsonObject();
-//                delivery.addProperty("id", order.getId());
-//                delivery.addProperty("delivery_address", order.getDelivery_address());
-//                JsonObject buyer = new JsonObject();
-//                Customer customer = OrderDao.getCustomer(order.getId(), exchange);
-//                buyer.addProperty("buyer name", customer.getName());
-//                buyer.addProperty("buyer phone", customer.getPhoneNumber());
-//                delivery.add("buyer", buyer);
-//                JsonObject restaurantJson = new JsonObject();
-//                Restaurant restaurant = OrderDao.getRestaurant(order.getId(), exchange);
-//                restaurantJson.addProperty("restaurant name", restaurant.getName());
-//                restaurantJson.addProperty("restaurant address", restaurant.getAddress());
-//                restaurantJson.addProperty("restaurant phone", restaurant.getPhone());
-//                delivery.add("restaurant", restaurantJson);
-//                deliveryArray.add(delivery);
 
                 res.add(order.getDeliveryDto(exchange));
             }
-//            JsonObject responseJson = new JsonObject();
-//            responseJson.add("available deliveries", deliveryArray);
             sendSuccessMessage(new Gson().toJson(res), exchange);
-        } catch (IOException e) {
+        } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
 
@@ -147,42 +146,33 @@ public class DeliveryHttpHandler extends SuperHttpHandler implements HttpHandler
                 sb.append(line);
             }
             String requestBody = sb.toString();
-            JsonObject json = JsonParser.parseString(requestBody).getAsJsonObject();
+            System.out.println(requestBody);
+            JsonElement element = JsonParser.parseString(requestBody);
+            String search = null;
+            String vendorId = null;
+            String userId = null;
+            if(element != null && element.isJsonObject()) {
 
-            String search = (json.has("search") && !json.get("search").isJsonNull())
-                    ? json.get("search").getAsString()
-                    : null;
+                JsonObject json = JsonParser.parseString(requestBody).getAsJsonObject();
 
-            String vendorId = (json.has("vendor") && !json.get("vendor").isJsonNull())
-                    ? json.get("vendor").getAsString()
-                    : null;
+                search = (json.has("search") && !json.get("search").isJsonNull())
+                        ? json.get("search").getAsString()
+                        : null;
 
-            String userId = (json.has("user") && !json.get("user").isJsonNull())
-                    ? json.get("user").getAsString()
-                    : null;
+                vendorId = (json.has("vendor") && !json.get("vendor").isJsonNull())
+                        ? json.get("vendor").getAsString()
+                        : null;
 
-            List<Order> orders = OrderDao.getDeliveryHistory(courier, search, vendorId, userId);
-            JsonArray deliveryArray = new JsonArray();
-            for (Order order : orders) {
-                JsonObject delivery = new JsonObject();
-                delivery.addProperty("id", order.getId());
-                delivery.addProperty("delivery_address", order.getDelivery_address());
-                JsonObject buyer = new JsonObject();
-                Customer customer = OrderDao.getCustomer(order.getId(), exchange);
-                buyer.addProperty("buyer name", customer.getName());
-                buyer.addProperty("buyer phone", customer.getPhoneNumber());
-                delivery.add("buyer", buyer);
-                JsonObject restaurantJson = new JsonObject();
-                Restaurant restaurant = OrderDao.getRestaurant(order.getId(), exchange);
-                restaurantJson.addProperty("restaurant name", restaurant.getName());
-                restaurantJson.addProperty("restaurant address", restaurant.getAddress());
-                restaurantJson.addProperty("restaurant phone", restaurant.getPhone());
-                delivery.add("restaurant", restaurantJson);
-                deliveryArray.add(delivery);
+                userId = (json.has("user") && !json.get("user").isJsonNull())
+                        ? json.get("user").getAsString()
+                        : null;
             }
-            JsonObject responseJson = new JsonObject();
-            responseJson.add("deliveries history", deliveryArray);
-            sendSuccessMessage(new Gson().toJson(responseJson), exchange);
+            List<Order> orders = OrderDao.getDeliveryHistory(courier, search, vendorId, userId);
+            List<DeliveryDto> deliveryArray = new ArrayList<>();
+            for (Order order : orders) {
+                deliveryArray.add(order.getDeliveryDto(exchange));
+            }
+            sendSuccessMessage(new Gson().toJson(deliveryArray), exchange);
         } catch (Exception e){
             internalServerFailureError(e, exchange);
         }

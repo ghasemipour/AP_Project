@@ -4,6 +4,7 @@ import com.ap.project.Enums.Status;
 import com.ap.project.Exceptions.NoSuchOrder;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.Exceptions.NoSuchUser;
+import com.ap.project.dto.DeliveryDto;
 import com.ap.project.dto.OrderDto;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Order;
@@ -325,6 +326,27 @@ public class OrderDao {
             transaction.commit();
         } catch (Exception e) {
             transactionRollBack(transaction, e);
+        }
+        return results;
+    }
+
+    public static List<DeliveryDto> getOrderFromCourierId(int userId, HttpExchange exchange) {
+        List<DeliveryDto> results = new ArrayList<>();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Courier courier = session.get(Courier.class, userId);
+            if (courier == null) {
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchUser(userId + " courier not found.");
+            }
+            Hibernate.initialize(courier.getOrders());
+            List<Order> orders = courier.getOrders();
+            for (Order order: orders) {
+                results.add(order.getDeliveryDto(exchange));
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
         return results;
     }
