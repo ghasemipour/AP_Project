@@ -1,19 +1,17 @@
 package com.ap.project.Enums;
 
 public enum Status {
-    SUBMITTED("submitted"),
-    UNPAID_AND_CANCELLED("unpaid and cancelled"),
-    WAITING_VENDOR("waiting vendor"),
+    SUBMITTED("submitted"), //buyer
+    PAYMENT_FAILED("payment failed"), //buyer
+    WAITING_VENDOR("waiting vendor"), //buyer (payment completed)
     CANCELLED("cancelled"),
-    FINDING_COURIER("finding courier"),
+    FINDING_COURIER("finding courier"), //for seller
     ON_THE_WAY("on the way"),
-    COMPLETED("completed"),
-    ACCEPTED("accepted"),
+    ACCEPTED("accepted"), //for seller (update supplies)
     Courier_Accepted("courier accepted"),
     DELIVERED("delivered"),
-    RECEIVED("received"),
-    REJECTED("rejected"),
-    SERVED("served");
+    RECEIVED("received"), // courier receiving item
+    REJECTED("rejected"); //for seller (refund)
 
     private final String orderStatus;
 

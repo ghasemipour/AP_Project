@@ -10,7 +10,7 @@ import java.util.Date;
 public class JwtUtil {
     private static final String SECRET = "Fk3LpQDFsXnZGr8R5gcC1N1FbNUjRYXyLdpQs5Q49kQ=";
     private static final Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
-    private static final long EXPIRATION_MS = 3 * 60 * 60 * 1000 * 10; // 3 hours
+    private static final long EXPIRATION_MS = 3 * 60 * 60 * 1000 * 10; // 30 hours
 
     public static String generateToken(int userId) {
         try {

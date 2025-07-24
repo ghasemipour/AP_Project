@@ -58,8 +58,8 @@ public class Order {
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Rating rating;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Transaction transaction;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Transaction> transactions;
     // TODO: CHECK HOW TO CALCULATE TAX FEE AND COURIER FEE
     private Integer raw_price;
     private Integer tax_fee = 0;
@@ -114,7 +114,7 @@ public class Order {
     }
 
     private Integer calculatePayPrice() {
-        return raw_price + tax_fee + courier_fee + additional_fee;
+        return ((raw_price + additional_fee) * (tax_fee + 100) / 100) + courier_fee ;
     }
 
     public DeliveryDto getDeliveryDto(HttpExchange exchange) {

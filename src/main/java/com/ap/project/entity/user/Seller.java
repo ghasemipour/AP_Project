@@ -33,6 +33,7 @@ public class Seller extends User implements HasAddress, HasBankAccount, NeedAppr
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Restaurant> restaurants = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
     ApprovalStatus approvalStatus = ApprovalStatus.WAITING;
 
     public Seller(String name, String number, String password, String email, String profilePicture, String address, BankAccount bankAccount) {

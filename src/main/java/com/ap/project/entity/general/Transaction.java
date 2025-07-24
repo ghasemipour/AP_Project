@@ -18,8 +18,8 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @OneToOne
-    @JoinColumn(name = "order_id")
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = true)
     private Order order;
     @ManyToOne
     @JoinColumn(name = "wallet_id")
@@ -33,19 +33,33 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionStatus status;
+    @Column(nullable = false)
+    private Double amount;
 
-    public Transaction(Order order, Wallet wallet, Customer customer, TransactionMethod transactionMethod, TransactionStatus transactionStatus) {
-     this.order = order;
-     this.wallet = wallet;
-     this.user = customer;
-     this.method = transactionMethod;
-     this.status = transactionStatus;
+    public Transaction(Order order, Wallet wallet, Customer customer, TransactionMethod transactionMethod, TransactionStatus transactionStatus, Double amount) {
+        this.order = order;
+        this.wallet = wallet;
+        this.user = customer;
+        this.method = transactionMethod;
+        this.status = transactionStatus;
+        this.amount = amount;
     }
-    public Transaction(){
 
+    public Transaction(Order order, Wallet wallet, Customer customer, TransactionMethod transactionMethod, TransactionStatus transactionStatus, Integer amount) {
+        this.order = order;
+        this.wallet = wallet;
+        this.user = customer;
+        this.method = transactionMethod;
+        this.status = transactionStatus;
+        this.amount = Double.valueOf(amount);
     }
 
+    public Transaction() {
+
+    }
     public TransactionDto getDto() {
-        return new TransactionDto(id, order.getId(), user.getUserId(), method, status);
+        if (order != null)
+            return new TransactionDto(id, order.getId(), user.getUserId(), method, status, amount);
+        else return new TransactionDto(id, null, user.getUserId(), method, status, amount);
     }
 }

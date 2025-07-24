@@ -1,5 +1,6 @@
 package com.ap.project.dao;
 
+import com.ap.project.Enums.Status;
 import com.ap.project.Enums.TransactionMethod;
 import com.ap.project.Enums.TransactionStatus;
 import com.ap.project.Exceptions.NoSuchOrder;
@@ -10,6 +11,7 @@ import com.ap.project.entity.general.Transaction;
 import com.ap.project.entity.general.Wallet;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.user.Customer;
+import com.ap.project.entity.user.User;
 import com.ap.project.util.HibernateUtil;
 import com.sun.net.httpserver.HttpExchange;
 import org.hibernate.Hibernate;
@@ -56,7 +58,9 @@ public class TransactionDao {
             Hibernate.initialize(customer.getWallet());
             Wallet wallet = customer.getWallet();
             wallet.topUp(amount);
+            session.merge(wallet);
             transaction.commit();
+            session.refresh(wallet);
         } catch (Exception e) {
             transactionRollBack(transaction, e);
         }
@@ -89,7 +93,7 @@ public class TransactionDao {
                         os.write(bytes);
                     }
                 }
-                order.setTransaction(newTransaction);
+                order.getTransactions().add(newTransaction);
             }
             if (walletId > 0) {
                 Wallet wallet = session.get(Wallet.class, walletId);
@@ -130,6 +134,7 @@ public class TransactionDao {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
 
+            Order order = transaction.getOrder();
             Wallet wallet = session.get(Wallet.class, transaction.getWallet().getId());
             Hibernate.initialize(transaction);
 
@@ -138,15 +143,20 @@ public class TransactionDao {
                 double balance = wallet.getBalance();
 
                 if (payPrice > balance) {
+                    order.setStatus(Status.PAYMENT_FAILED);
                     transaction.setStatus(TransactionStatus.FAILED);
                     return false;
                 } else {
                     wallet.setBalance(balance - payPrice);
                     session.merge(wallet);
+                    order.setStatus(Status.WAITING_VENDOR);
                     transaction.setStatus(TransactionStatus.SUCCESS);
                 }
             }
+            else if (transaction.getMethod().equals(TransactionMethod.ONLINE))
+                order.setStatus(Status.WAITING_VENDOR);
             session.merge(transaction);
+            session.merge(order);
             tx.commit();
             return true;
 
@@ -213,6 +223,23 @@ public class TransactionDao {
         return results;
     }
 
-
-
+    public static Double getBalance(int userId) {
+        Wallet wallet = null;
+        Double balance = 0.0;
+        org.hibernate.Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            wallet = session.createQuery("FROM Wallet w WHERE w.customer.userId = :userId", Wallet.class)
+                    .setParameter("userId", userId)
+                    .uniqueResult();
+            if (wallet == null) {
+                return balance;
+            }
+            else {
+                balance = wallet.getBalance();
+            }
+            tx.commit();
+        }
+        return balance;
+    }
 }
