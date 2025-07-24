@@ -71,13 +71,13 @@ public class RegisterHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            if (req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null))) {
+            if (req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null) || req.getBank_info().getBank_name().isEmpty() || req.getBank_info().getBank_name().isEmpty())) {
                 String response = "";
                 if (req.getAddress() == null)
                     response += "{\"error\": \"Address required\"}\n";
-                if (req.getBank_info() == null || req.getBank_info().getBank_name() == null)
+                if (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getBank_name().isEmpty())
                     response += "{\"error\": \"Bank name required\"}\n";
-                if (req.getBank_info() == null || req.getBank_info().getAccount_number() == null)
+                if (req.getBank_info() == null || req.getBank_info().getAccount_number() == null || req.getBank_info().getAccount_number().isEmpty())
                     response += "{\"error\": \"Bank account number required\"}\n";
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
@@ -86,15 +86,15 @@ public class RegisterHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            if (req.getRole().equals(UserRole.COURIER) && (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null)) {
+            if (req.getRole().equals(UserRole.COURIER) && (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null || req.getBank_info().getBank_name().isEmpty() || req.getBank_info().getBank_name().isEmpty())) {
                 String response = "";
                 if (req.getBank_info() == null) {
                     response += "{\"error\": \"Bank name required\"}\n";
                 }
                 else {
-                    if (req.getBank_info().getBank_name() == null)
+                    if (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getBank_name().isEmpty())
                         response += "{\"error\": \"Bank name required\"}\n";
-                    if (req.getBank_info().getAccount_number() == null)
+                    if (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getBank_name().isEmpty())
                         response += "{\"error\": \"Account number required\"}\n";
                 }
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
