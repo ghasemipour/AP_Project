@@ -3,6 +3,7 @@ package com.ap.project.httpHandler;
 import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Enums.Status;
 import com.ap.project.dao.OrderDao;
+import com.ap.project.dto.DeliveryDto;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.OrderItem;
 import com.ap.project.entity.restaurant.Restaurant;
@@ -67,27 +68,29 @@ public class DeliveryHttpHandler extends SuperHttpHandler implements HttpHandler
     private void handleGetAvailableDeliveryRequests(HttpExchange exchange, Courier courier) throws IOException {
         try {
             List<Order> availableDeliveries = OrderDao.getOrderByStatus(exchange, Status.FINDING_COURIER);
-            JsonArray deliveryArray = new JsonArray();
+            List<DeliveryDto> res = new ArrayList<>();
             for (Order order : availableDeliveries) {
-                JsonObject delivery = new JsonObject();
-                delivery.addProperty("id", order.getId());
-                delivery.addProperty("delivery_address", order.getDelivery_address());
-                JsonObject buyer = new JsonObject();
-                Customer customer = OrderDao.getCustomer(order.getId(), exchange);
-                buyer.addProperty("buyer name", customer.getName());
-                buyer.addProperty("buyer phone", customer.getPhoneNumber());
-                delivery.add("buyer", buyer);
-                JsonObject restaurantJson = new JsonObject();
-                Restaurant restaurant = OrderDao.getRestaurant(order.getId(), exchange);
-                restaurantJson.addProperty("restaurant name", restaurant.getName());
-                restaurantJson.addProperty("restaurant address", restaurant.getAddress());
-                restaurantJson.addProperty("restaurant phone", restaurant.getPhone());
-                delivery.add("restaurant", restaurantJson);
-                deliveryArray.add(delivery);
+//                JsonObject delivery = new JsonObject();
+//                delivery.addProperty("id", order.getId());
+//                delivery.addProperty("delivery_address", order.getDelivery_address());
+//                JsonObject buyer = new JsonObject();
+//                Customer customer = OrderDao.getCustomer(order.getId(), exchange);
+//                buyer.addProperty("buyer name", customer.getName());
+//                buyer.addProperty("buyer phone", customer.getPhoneNumber());
+//                delivery.add("buyer", buyer);
+//                JsonObject restaurantJson = new JsonObject();
+//                Restaurant restaurant = OrderDao.getRestaurant(order.getId(), exchange);
+//                restaurantJson.addProperty("restaurant name", restaurant.getName());
+//                restaurantJson.addProperty("restaurant address", restaurant.getAddress());
+//                restaurantJson.addProperty("restaurant phone", restaurant.getPhone());
+//                delivery.add("restaurant", restaurantJson);
+//                deliveryArray.add(delivery);
+
+                res.add(order.getDeliveryDto(exchange));
             }
-            JsonObject responseJson = new JsonObject();
-            responseJson.add("available deliveries", deliveryArray);
-            sendSuccessMessage(new Gson().toJson(responseJson), exchange);
+//            JsonObject responseJson = new JsonObject();
+//            responseJson.add("available deliveries", deliveryArray);
+            sendSuccessMessage(new Gson().toJson(res), exchange);
         } catch (IOException e) {
             internalServerFailureError(e, exchange);
         }

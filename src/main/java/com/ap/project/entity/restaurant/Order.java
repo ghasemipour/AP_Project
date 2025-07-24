@@ -2,13 +2,14 @@ package com.ap.project.entity.restaurant;
 
 
 import com.ap.project.Enums.Status;
+import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.RestaurantDao;
+import com.ap.project.dto.DeliveryDto;
 import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.OrderItemDto;
 import com.ap.project.entity.general.Transaction;
 import com.ap.project.entity.user.Courier;
 import com.ap.project.entity.user.Customer;
-import com.ap.project.entity.user.User;
 import com.sun.net.httpserver.HttpExchange;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -114,5 +115,11 @@ public class Order {
 
     private Integer calculatePayPrice() {
         return raw_price + tax_fee + courier_fee + additional_fee;
+    }
+
+    public DeliveryDto getDeliveryDto(HttpExchange exchange) {
+        Customer customer = OrderDao.getCustomer(this.getId(), exchange);
+        Restaurant restaurant = OrderDao.getRestaurant(this.getId(), exchange);
+        return new DeliveryDto(this.id, this.delivery_address, customer.getName(), customer.getPhoneNumber(), restaurant.getName(), restaurant.getAddress(), restaurant.getPhone(), this.status);
     }
 }
