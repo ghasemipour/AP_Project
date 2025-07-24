@@ -1,5 +1,6 @@
 package com.ap.project.httpHandler;
 
+import com.ap.project.Enums.Status;
 import com.ap.project.Enums.TransactionMethod;
 import com.ap.project.Enums.TransactionStatus;
 import com.ap.project.dao.OrderDao;
@@ -10,6 +11,7 @@ import com.ap.project.entity.general.Wallet;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.User;
+import com.ap.project.wrappers.BalanceWrapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -47,7 +49,8 @@ public class  TransactionHttpHandler implements HttpHandler {
         }
         else if (path.equals("/payment/online")) {
             handleOnlinePayment(exchange, (Customer) user);
-        }
+        } else if (path.equals("/balance"))
+            handleGetBalance(exchange, user.getUserId());
 
     }
 
@@ -59,11 +62,11 @@ public class  TransactionHttpHandler implements HttpHandler {
             }
 
             List<TransactionDto> results = TransactionDao.getTransactionHistoryByUserID(userId);
-            if (results == null || results.isEmpty())  {
-                String response = "No transactions found.";
-                sendSuccessMessage(response, exchange);
-                return;
-            }
+//            if (results == null || results.isEmpty())  {
+//                String response = "No transactions found.";
+//                sendSuccessMessage(response, exchange);
+//                return;
+//            }
 
             sendSuccessMessage(new Gson().toJson(results), exchange);
 
@@ -104,8 +107,19 @@ public class  TransactionHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            int orderId = req.get("order_id").getAsInt();
-            String method = req.get("method").getAsString();
+            int orderId = 0;
+            String method = "";
+            try {
+                orderId = req.get("order_id").getAsInt();
+                method = req.get("method").getAsString();
+            } catch (NumberFormatException e) {
+                String error = "{\"error\": \"numeric parsing error\"}";
+                exchange.sendResponseHeaders(400, error.getBytes(StandardCharsets.UTF_8).length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(error.getBytes(StandardCharsets.UTF_8));
+                }
+
+            }
 
             if (!method.equals("online") && !method.equals("wallet")) {
                 response = "{\"error\": \"Invalid payment method\"}\n";
@@ -117,14 +131,25 @@ public class  TransactionHttpHandler implements HttpHandler {
                 return;
             }
             Order order = OrderDao.getOrderFromId(orderId, exchange);
+            System.out.println("Order ID: " + orderId);
+            System.out.println("Status: " + order.getStatus());
+            if (order.getStatus().equals(Status.WAITING_VENDOR)) {
+                response = "{\"error\": \"Order already paid for\"}\n";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
             Wallet wallet = getWalletByUserId(user.getUserId(), exchange);
             if(wallet == null){
                 user.setWallet(new Wallet());
                 wallet = getWalletByUserId(user.getUserId(), exchange);
             }
-            Transaction transaction = new Transaction(order, wallet, user, TransactionMethod.fromString(method), TransactionStatus.fromString("success"));
+            Transaction transaction = new Transaction(order, wallet, user, TransactionMethod.fromString(method), TransactionStatus.SUCCESS, order.getPay_price());
             boolean paymentStatus = TransactionDao.onlinePayment(transaction);
-            TransactionDao.saveTransaction(transaction, user.getUserId(), orderId, wallet.getId(), exchange);
+//            TransactionDao.saveTransaction(transaction, user.getUserId(), orderId, wallet.getId(), exchange);
             if (!paymentStatus) {
                 String error = "{\"error\": \"Balance not enough.\"}";
                 byte[] responseBytes = error.getBytes(StandardCharsets.UTF_8);
@@ -134,7 +159,7 @@ public class  TransactionHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            sendSuccessMessage("Online payment successful.", exchange);
+            sendSuccessMessage("Payment successful.", exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
@@ -163,8 +188,19 @@ public class  TransactionHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            double amount = json.get("amount").getAsDouble();
-            if(amount <= 0){
+            double amount = 0;
+            try {
+                amount = json.get("amount").getAsDouble();
+            } catch (NumberFormatException e) {
+                String response = "numeric error";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+            if(amount < 0){
                 String response = "Amount must be greater than 0.";
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(400, responseBytes.length);
@@ -180,11 +216,28 @@ public class  TransactionHttpHandler implements HttpHandler {
                 wallet = getWalletByUserId(customer.getUserId(), exchange);
             }
             TransactionDao.topUpWallet(customer.getUserId(), amount, exchange);
-            Transaction transaction = new Transaction(null, wallet, customer, TransactionMethod.WALLET, TransactionStatus.SUCCESS);
-            TransactionDao.saveTransaction(transaction,customer.getUserId(), -1, wallet.getId(), exchange);
-            sendSuccessMessage("Wallet topped up successfully", exchange);
+            Transaction transaction = new Transaction(null, wallet, customer, TransactionMethod.WALLET, TransactionStatus.SUCCESS, amount);
+            TransactionDao.saveTransaction(transaction,customer.getUserId(), 0, wallet.getId(), exchange);
+            wallet = getWalletByUserId(customer.getUserId(), exchange);
+            BalanceWrapper balance = new BalanceWrapper(wallet.getBalance());
+            sendSuccessMessage(new Gson().toJson(balance), exchange);
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
+        }
+    }
+
+    private void handleGetBalance(HttpExchange exchange, int userId) {
+        try {
+            if (!exchange.getRequestMethod().equals("GET")) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+
+            Double balance = TransactionDao.getBalance(userId);
+            BalanceWrapper balanceWrapper = new BalanceWrapper(balance);
+            sendSuccessMessage(new Gson().toJson(balanceWrapper), exchange);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

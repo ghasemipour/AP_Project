@@ -91,7 +91,7 @@ public class OrderHttpHandler implements HttpHandler {
                     }
                 }
             }
-            Order order = new Order(orderDto, exchange, (Customer) user, Status.fromString("submitted"));
+            Order order = new Order(orderDto, exchange, (Customer) user, Status.SUBMITTED);
             OrderDao.submitOrder(order, orderDto.getVendor_id(), user.getUserId(), exchange);
             sendSuccessMessage(String.format("Order submitted successfully.\nYour order ID is %d", order.getId()), exchange);
 

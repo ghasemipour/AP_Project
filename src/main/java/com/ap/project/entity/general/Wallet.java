@@ -16,6 +16,7 @@ public class Wallet {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    @Column
     double balance;
 
     @OneToOne
@@ -26,7 +27,9 @@ public class Wallet {
     List<Transaction> transaction;
 
     public void topUp(double amount){
+        System.out.println("BEFORE: " + balance);
         balance += amount;
+        System.out.println("AFTER: " + balance);
     }
 
     public void withdraw(double amount){

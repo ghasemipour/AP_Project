@@ -24,6 +24,7 @@ public class Courier extends User implements HasBankAccount, NeedApproval {
     @OneToMany(mappedBy = "courier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Order> orders = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
     ApprovalStatus approvalStatus = ApprovalStatus.WAITING;
 
     public Courier(String name, String number, String password, String email, String profilePicture, BankAccount bankAccount) {

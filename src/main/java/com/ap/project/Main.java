@@ -30,6 +30,7 @@ public class Main {
         httpServer.createContext("/transactions", new TransactionHttpHandler());
         httpServer.createContext("/wallet/top-up", new TransactionHttpHandler());
         httpServer.createContext("/payment/online", new TransactionHttpHandler());
+        httpServer.createContext("/balance", new TransactionHttpHandler());
         httpServer.createContext("/admin", new AdminHttpHandler());
         httpServer.createContext("/coupons", new CouponHttpHandler());
 
