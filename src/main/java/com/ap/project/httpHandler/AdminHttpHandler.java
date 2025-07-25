@@ -181,13 +181,17 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
             String customer = queryParams.get("customer");
             String status = queryParams.get("status");
             List<OrderDto> results = OrderDao.getAllOrders(search, vendor, courier, customer, status);
-            if (results.isEmpty()) {
-                String response = "No orders found.";
-                sendSuccessMessage(response, exchange);
-                return;
-            }
             sendSuccessMessage(new Gson().toJson(results), exchange);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            String response = "Invalid enum";
+            byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(400, responseBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
+            }
+        }
+
+        catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
     }
@@ -210,12 +214,15 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
             String method = queryParams.get("method");
             String status = queryParams.get("status");
             List<TransactionDto> result = TransactionDao.getAllTransactions(search, user, method, status);
-            if (result.isEmpty()) {
-                String response = "No transactions found.";
-                sendSuccessMessage(response, exchange);
-            }
             sendSuccessMessage(new Gson().toJson(result), exchange);
 
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            String response = "Invalid enum";
+            byte[] responseByte = response.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(400, responseByte.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseByte);
+            }
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }

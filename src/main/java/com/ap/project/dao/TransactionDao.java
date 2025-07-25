@@ -45,6 +45,7 @@ public class TransactionDao {
         }
         return result;
     }
+
     public static void topUpWallet(int userId, double amount, HttpExchange exchange) {
         org.hibernate.Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -151,8 +152,7 @@ public class TransactionDao {
                     order.setStatus(Status.WAITING_VENDOR);
                     transaction.setStatus(TransactionStatus.SUCCESS);
                 }
-            }
-            else if (transaction.getMethod().equals(TransactionMethod.ONLINE))
+            } else if (transaction.getMethod().equals(TransactionMethod.ONLINE))
                 order.setStatus(Status.WAITING_VENDOR);
             session.persist(transaction);
             session.merge(order);
@@ -172,7 +172,7 @@ public class TransactionDao {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
             StringBuilder hql = new StringBuilder("SELECT DISTINCT t FROM Transaction t LEFT JOIN t.order o" +
-                    " LEFT JOIN o.orderItems oi LEFT JOIN" +
+                    " LEFT JOIN o.items oi LEFT JOIN" +
                     " oi.food f WHERE 1=1");
 
             if (search != null && !search.isEmpty()) {
@@ -182,10 +182,10 @@ public class TransactionDao {
                 hql.append(" AND t.user.userId = :user");
             }
             if (method != null && !method.isEmpty()) {
-                hql.append(" AND t.method = :method");
+                    hql.append(" AND t.method = :method");
             }
             if (status != null && !status.isEmpty()) {
-                hql.append(" AND t.status = :status");
+                    hql.append(" AND t.status = :status");
             }
             Query<Transaction> query = session.createQuery(hql.toString(), Transaction.class);
             if (search != null && !search.isEmpty()) {
@@ -195,20 +195,14 @@ public class TransactionDao {
                 query.setParameter("user", user);
             }
             if (method != null && !method.isEmpty()) {
-                try {
-                    TransactionMethod enumMethod = TransactionMethod.valueOf(method.toUpperCase());
-                    query.setParameter("method", enumMethod);
-                } catch (IllegalArgumentException e) {
+                if (TransactionMethod.fromString(method) == null)
                     throw new IllegalArgumentException("Invalid transaction method: " + method);
-                }
+                else query.setParameter("method", TransactionMethod.fromString(method));
             }
             if (status != null && !status.isEmpty()) {
-                try {
-                    TransactionStatus enumStatus = TransactionStatus.valueOf(status.toUpperCase());
-                    query.setParameter("status", enumStatus);
-                } catch (IllegalArgumentException e) {
+                if (TransactionStatus.fromString(status) == null)
                     throw new IllegalArgumentException("Invalid transaction status: " + status);
-                }
+                else query.setParameter("status", TransactionStatus.fromString(status));
             }
             List<Transaction> transactions = query.list();
             for (Transaction transaction : transactions) {
@@ -233,8 +227,7 @@ public class TransactionDao {
                     .uniqueResult();
             if (wallet == null) {
                 return balance;
-            }
-            else {
+            } else {
                 balance = wallet.getBalance();
             }
             tx.commit();

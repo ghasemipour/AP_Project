@@ -39,8 +39,8 @@ public class OrderDao {
             order = session.get(Order.class, orderId);
             if (order == null) {
                 String response = "{\"error\": \"Order not found\"}\n";
-                    sendNotFoundMessage(response, exchange);
-                    throw new NoSuchOrder(response);
+                sendNotFoundMessage(response, exchange);
+                throw new NoSuchOrder(response);
             }
             transaction.commit();
         } catch (Exception e) {
@@ -169,7 +169,7 @@ public class OrderDao {
             query.setParameter("status", status);
             orders = query.getResultList();
             transaction.commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             transactionRollBack(transaction, e);
         }
 
@@ -188,7 +188,7 @@ public class OrderDao {
             }
             Hibernate.initialize(order.getUser());
             customer = order.getUser();
-            if(customer == null){
+            if (customer == null) {
                 exchange.sendResponseHeaders(404, -1);
                 throw new NoSuchUser(orderId + " Order customer not found.");
             }
@@ -212,7 +212,7 @@ public class OrderDao {
             }
             Hibernate.initialize(order.getRestaurant());
             restaurant = order.getRestaurant();
-            if(restaurant == null){
+            if (restaurant == null) {
                 exchange.sendResponseHeaders(404, -1);
                 throw new NoSuchRestaurant(orderId + " Order restaurant not found.");
             }
@@ -226,34 +226,34 @@ public class OrderDao {
 
     public static List<Order> getDeliveryHistory(Courier courier, String search, String vendorId, String userId) {
         List<Order> result = new ArrayList<>();
-        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             StringBuilder hql = new StringBuilder("FROM Order o WHERE o.courier = :courier AND o.status IN (:statuses)");
-            if(vendorId != null && !vendorId.isEmpty()) {
+            if (vendorId != null && !vendorId.isEmpty()) {
                 hql.append(" AND o.restaurant.id = :vendorId");
             }
-            if(userId != null && !userId.isEmpty()) {
+            if (userId != null && !userId.isEmpty()) {
                 hql.append(" AND o.user.id = :userId");
             }
-            if(search != null && !search.isEmpty()) {
+            if (search != null && !search.isEmpty()) {
                 hql.append(" AND (lower(o.restaurant.name) LIKE :search OR lower(o.user.name) LIKE :search)");
             }
             Query<Order> query = session.createQuery(hql.toString(), Order.class);
             query.setParameter("courier", courier);
             query.setParameter("statuses", List.of(Status.DELIVERED, Status.RECEIVED));
 
-            if(vendorId != null && !vendorId.isEmpty()) {
+            if (vendorId != null && !vendorId.isEmpty()) {
                 query.setParameter("vendorId", Integer.parseInt(vendorId));
             }
-            if(userId != null && !userId.isEmpty()) {
+            if (userId != null && !userId.isEmpty()) {
                 query.setParameter("userId", Integer.parseInt(userId));
             }
-            if(search != null && !search.isEmpty()) {
+            if (search != null && !search.isEmpty()) {
                 query.setParameter("search", "%" + search.toLowerCase() + "%");
             }
 
             result = query.list();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -279,7 +279,7 @@ public class OrderDao {
             courier.addOrder(order);
             session.merge(order);
             transaction.commit();
-        } catch (Exception e){
+        } catch (Exception e) {
             transactionRollBack(transaction, e);
         }
     }
@@ -312,15 +312,12 @@ public class OrderDao {
             if (customer != null && !customer.isBlank())
                 query.setParameter("customer", customer);
             if (status != null && !status.isBlank()) {
-                try {
-                    Status enumStatus = Status.valueOf(status.toUpperCase());
-                    query.setParameter("status", enumStatus);
-                } catch (IllegalArgumentException e) {
-                    throw new RuntimeException("Invalid order status: " + status);
-                }
+                if (Status.fromString(status) == null) {
+                    throw new IllegalArgumentException("Invalid order status: " + status);
+                } else query.setParameter("status", Status.fromString(status));
             }
             List<Order> orders = query.list();
-            for (Order order: orders) {
+            for (Order order : orders) {
                 results.add(order.getOrderDto());
             }
             transaction.commit();
@@ -342,10 +339,10 @@ public class OrderDao {
             }
             Hibernate.initialize(courier.getOrders());
             List<Order> orders = courier.getOrders();
-            for (Order order: orders) {
+            for (Order order : orders) {
                 results.add(order.getDeliveryDto(exchange));
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return results;
