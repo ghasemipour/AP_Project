@@ -182,10 +182,10 @@ public class TransactionDao {
                 hql.append(" AND t.user.userId = :user");
             }
             if (method != null && !method.isEmpty()) {
-                    hql.append(" AND t.method = :method");
+                hql.append(" AND t.method = :method");
             }
             if (status != null && !status.isEmpty()) {
-                    hql.append(" AND t.status = :status");
+                hql.append(" AND t.status = :status");
             }
             Query<Transaction> query = session.createQuery(hql.toString(), Transaction.class);
             if (search != null && !search.isEmpty()) {
@@ -233,5 +233,20 @@ public class TransactionDao {
             tx.commit();
         }
         return balance;
+    }
+
+    public static void refundUser(int userId, int refund) {
+        Wallet wallet = null;
+        org.hibernate.Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            wallet = session.createQuery("FROM Wallet w WHERE w.customer.userId = :userId", Wallet.class)
+                    .setParameter("userId", userId)
+                    .uniqueResult();
+            double balance = wallet.getBalance();
+            wallet.setBalance(balance + refund);
+            session.merge(wallet);
+            tx.commit();
+        }
     }
 }

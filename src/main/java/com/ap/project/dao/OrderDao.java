@@ -61,7 +61,15 @@ public class OrderDao {
             }
 
             order.setStatus(status);
-            session.update(order);
+            if (order.getStatus().equals(Status.ACCEPTED)) {
+                for (OrderItem item : order.getItems()) {
+                    FoodItemDao.updateSupplies(item.getFood().getFoodId(), exchange, item.getQuantity());
+                }
+            }
+            else if (order.getStatus().equals(Status.REJECTED)) {
+                TransactionDao.refundUser(order.getUser().getUserId(), order.getPay_price());
+            }
+            session.merge(order);
             transaction.commit();
 
         } catch (Exception e) {

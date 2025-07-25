@@ -4,6 +4,7 @@ import com.ap.project.Exceptions.NoSuchFoodItem;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.dto.FoodDto;
 import com.ap.project.entity.restaurant.Food;
+import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.OrderItem;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.util.HibernateUtil;
@@ -209,9 +210,9 @@ public class FoodItemDao {
             transaction = session.beginTransaction();
             Restaurant restaurant = session.get(Restaurant.class, restaurantId);
             if (restaurant == null) {
-                exchange.sendResponseHeaders(404, -1);
-                throw new NoSuchRestaurant(restaurantId + " not found");
+                sendNotFoundMessage("restaurant not found", exchange);
             }
+            assert restaurant != null;
             Hibernate.initialize(restaurant.getFoodItems());
             List<Food> foodList = restaurant.getFoodItems();
             for (Food food : foodList) {
@@ -223,5 +224,23 @@ public class FoodItemDao {
             e.printStackTrace();
         }
         return res;
+    }
+
+    public static void updateSupplies(int itemID, HttpExchange exchange, int quantity) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()){
+            transaction = session.beginTransaction();
+            Food item = session.get(Food.class, itemID);
+            if (item == null) {
+                sendNotFoundMessage("food item not found", exchange);
+                return;
+            }
+            int supply = item.getSupply();
+            item.setSupply(supply - quantity);
+            session.merge(item);
+            transaction.commit();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

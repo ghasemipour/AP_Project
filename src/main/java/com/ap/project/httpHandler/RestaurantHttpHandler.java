@@ -282,16 +282,24 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
             InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             StatusWrapper statusWrp = new Gson().fromJson(reader, StatusWrapper.class);
-
+            String response = "";
             if (statusWrp == null || statusWrp.status == null) {
-                exchange.sendResponseHeaders(400, -1);
+                response = "Status is null";
+                exchange.sendResponseHeaders(400, response.getBytes(StandardCharsets.UTF_8).length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
                 return;
             }
 
-            String statusStr = statusWrp.status.toString();
+            String statusStr = statusWrp.status;
             Status statusEnum = Status.fromString(statusStr);
             if (statusEnum == null) {
-                exchange.sendResponseHeaders(400, -1);
+                response = "Invalid status";
+                exchange.sendResponseHeaders(400, response.getBytes(StandardCharsets.UTF_8).length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
                 return;
             }
 

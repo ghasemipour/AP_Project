@@ -7,7 +7,7 @@ public enum Status {
     CANCELLED("cancelled"),
     FINDING_COURIER("finding courier"), //for seller
     ON_THE_WAY("on the way"),
-    ACCEPTED("accepted"), //for seller (update supplies)
+    ACCEPTED("accepted"), //for seller (update supplies) DONE
     Courier_Accepted("courier accepted"),
     DELIVERED("delivered"),
     RECEIVED("received"), // courier receiving item
