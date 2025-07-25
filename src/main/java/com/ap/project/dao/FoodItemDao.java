@@ -4,7 +4,6 @@ import com.ap.project.Exceptions.NoSuchFoodItem;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.dto.FoodDto;
 import com.ap.project.entity.restaurant.Food;
-import com.ap.project.entity.restaurant.OrderItem;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.util.HibernateUtil;
 import com.sun.net.httpserver.HttpExchange;
@@ -223,5 +222,22 @@ public class FoodItemDao {
             e.printStackTrace();
         }
         return res;
+    }
+
+    public static List<Integer> getRatings(int foodId) {
+        List<Integer> ratings = new ArrayList<>();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Food food = session.get(Food.class, foodId);
+            if (food == null) {
+                throw new NoSuchFoodItem(foodId + " not found");
+            }
+            Hibernate.initialize(food.getRatings());
+            ratings = food.getRatings();
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+        return ratings;
     }
 }
