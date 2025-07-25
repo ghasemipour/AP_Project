@@ -1,12 +1,10 @@
 package com.ap.project.entity.restaurant;
 
-import com.ap.project.dao.RestaurantDao;
+import com.ap.project.dao.FoodItemDao;
 import com.ap.project.dto.FoodDto;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 
 import java.util.*;
 
@@ -56,7 +54,7 @@ public class Food {
     public Food() {}
 
     public FoodDto getFoodDto() {
-        return new FoodDto(name, description, price, supply, keywords, restaurant.getId(), imageBase64, foodId, ratings);
+        return new FoodDto(name, description, price, supply, FoodItemDao.getKeywords(this.foodId), restaurant.getId(), imageBase64, foodId, FoodItemDao.getRatings(this.foodId));
     }
 
     public void addMenu(Menu menu) {

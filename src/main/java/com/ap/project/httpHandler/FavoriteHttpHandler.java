@@ -80,22 +80,8 @@ public class FavoriteHttpHandler extends SuperHttpHandler implements HttpHandler
             List<Restaurant> favorites = UserDao.getFavoriteRestaurants(user.getUserId(), exchange);
             List<RestaurantDto> res = new ArrayList<RestaurantDto>();
             for(Restaurant restaurant : favorites){
-//                JsonObject jsonObject = new JsonObject();
-//                jsonObject.addProperty("name", restaurant.getName());
-//                jsonObject.addProperty("id", restaurant.getId());
-//                jsonObject.addProperty("address", restaurant.getAddress());
-//                jsonObject.addProperty("phone", restaurant.getPhone());
-//                jsonObject.addProperty("tax_fee", restaurant.getTax_fee());
-//                jsonObject.addProperty("additional_fee", restaurant.getAdditional_fee());
-//                if(restaurant.getLogoBase64() != null) {
-//                    jsonObject.addProperty("logo", restaurant.getLogoBase64());
-//                }
-//                restaurants.add(jsonObject);
                 res.add(restaurant.GetDto());
             }
-
-//            JsonObject response = new JsonObject();
-//            response.add("restaurants", restaurants);
             sendSuccessMessage(new Gson().toJson(res), exchange);
 
         } catch (Exception e) {

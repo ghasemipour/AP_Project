@@ -243,4 +243,21 @@ public class FoodItemDao {
             e.printStackTrace();
         }
     }
+
+    public static List<Integer> getRatings(int foodId) {
+        List<Integer> ratings = new ArrayList<>();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Food food = session.get(Food.class, foodId);
+            if (food == null) {
+                throw new NoSuchFoodItem(foodId + " not found");
+            }
+            Hibernate.initialize(food.getRatings());
+            ratings = food.getRatings();
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+        return ratings;
+    }
 }

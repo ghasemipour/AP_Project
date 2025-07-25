@@ -6,6 +6,8 @@ import com.ap.project.dao.FoodItemDao;
 import com.ap.project.dao.MenuDao;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.RestaurantDao;
+import com.ap.project.dto.FoodDto;
+import com.ap.project.dto.MenuDto;
 import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.RestaurantDto;
 import com.ap.project.entity.restaurant.Food;
@@ -348,7 +350,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
     }
 
     private void handleGetListOfMenus(HttpExchange exchange, int restaurantId) throws IOException {
-
+        System.out.println("get list of menus");
         try {
             if(!exchange.getRequestMethod().equals("GET")) {
                 exchange.sendResponseHeaders(405, -1);
@@ -360,58 +362,30 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 return;
             }
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            JsonObject responseJson = new JsonObject();
-            JsonArray menuTitles = new JsonArray();
-
             List<Menu> menus = RestaurantDao.getRestaurantMenus(restaurantId, exchange);
             if(menus == null ||menus.isEmpty()){
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
-
+            List<MenuDto> res = new ArrayList<>();
             for(Menu menu : menus) {
                 String title = menu.getTitle();
-                menuTitles.add(title);
-
-                JsonArray foodArray = new JsonArray();
+                MenuDto menuDto = new MenuDto(title);
+                List<FoodDto> items  = new ArrayList<>();
                 List<Food> foodItems = MenuDao.getFoodItems(menu.getId(), exchange);
                 if(foodItems != null && !foodItems.isEmpty()){
 
                     for(Food food : foodItems){
-                        System.out.println(food.getName());
-                        JsonObject foodJson = new JsonObject();
-                        foodJson.addProperty("name", food.getName());
-                        foodJson.addProperty("price", food.getPrice());
-                        foodJson.addProperty("description", food.getDescription());
-                        foodJson.addProperty("id", food.getFoodId());
-                        foodJson.addProperty("supply", food.getSupply());
-                        System.out.println(foodJson);
-                        JsonArray keywordsArray = new JsonArray();
-                        List<String> keywords = FoodItemDao.getKeywords(food.getFoodId());
-                        if(keywords != null && !keywords.isEmpty()){
-                            for (String keyword : keywords) {
-                                keywordsArray.add(keyword);
-                            }
-                        }
-                        foodJson.add("keywords", keywordsArray);
-
-                        if(food.getImageBase64() != null) {
-                            foodJson.addProperty("image", food.getImageBase64());
-                        }
-
-                        foodArray.add(foodJson);
-
+                        items.add(food.getFoodDto());
                     }
                 }
-                responseJson.add(title, foodArray);
-
+                menuDto.setItems(items);
+                res.add(menuDto);
             }
 
-            responseJson.add("menuTitles", menuTitles);
-            sendSuccessMessage(new Gson().toJson(responseJson), exchange);
+            sendSuccessMessage(new Gson().toJson(res), exchange);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
 
