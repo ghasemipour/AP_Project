@@ -28,7 +28,7 @@ public class CouponHttpHandler extends SuperHttpHandler implements HttpHandler {
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }
-            if(!exchange.getRequestMethod().equalsIgnoreCase("GET")) {
+            if(!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
                 exchange.sendResponseHeaders(405, -1);
             }
             BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody(), "UTF-8"));
