@@ -122,26 +122,19 @@ public class UserDao {
 
     public static boolean IsPhoneNumberTaken(String phoneNumber) {
         boolean res = false;
-        Session session = HibernateUtil.getSessionFactory().openSession();
-
-        try {
-            session.beginTransaction();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
             Long count = session.createQuery(
                             "select count(u) from User u where u.phoneNumber = :phoneNumber", Long.class)
                     .setParameter("phoneNumber", phoneNumber)
                     .uniqueResult();
-
-
+            System.out.println("COUNT: " + count);
             res = count != null && count > 0;
-            session.getTransaction().commit();
+            transaction.commit();
         } catch (Exception e) {
-            if (session.getTransaction() != null) session.getTransaction().rollback();
-            e.printStackTrace();
-        } finally {
-            session.close();
+            transactionRollBack(transaction, e);
         }
-
-
         return res;
     }
 

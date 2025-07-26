@@ -25,7 +25,7 @@ public class FoodDto {
             int price,
             int supply,
             List<String> keywords,
-            int vendor_id, 
+            int vendor_id,
             String imageBase64,
             int id,
             List<Integer> ratings
