@@ -43,7 +43,7 @@ public class RegisterHttpHandler implements HttpHandler {
                     .registerTypeAdapter(UserRole.class, new UserRoleDeserializer()).create();
             RegisterDto req = gson.fromJson(reader, RegisterDto.class);
 
-            if ((req.getFull_name() == null || req.getFull_name().isEmpty()) || (req.getPassword() == null || req.getPassword().isEmpty()) || req.getRole() == null || (req.getPhone() == null || req.getPhone().isEmpty())) {
+            if (req.getFull_name() == null || req.getPassword() == null || req.getRole() == null || req.getPhone() == null) {
                 String response = "";
                 if (req.getFull_name() == null)
                     response += "{\"error\": \"Name required\"}\n";
@@ -61,7 +61,7 @@ public class RegisterHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            if (req.getRole().equals(UserRole.CUSTOMER) && req.getAddress() == null) {
+            if ((req.getRole().equals(UserRole.CUSTOMER) || req.getRole().equals(UserRole.SELLER)) && req.getAddress() == null) {
                 String response = "{\"error\": \"Address required\"}\n";
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
 
@@ -71,38 +71,24 @@ public class RegisterHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            if (req.getRole().equals(UserRole.SELLER) && (req.getAddress() == null || (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null) || req.getBank_info().getBank_name().isEmpty() || req.getBank_info().getBank_name().isEmpty())) {
+            if (req.getRole().equals(UserRole.SELLER) || req.getRole().equals(UserRole.COURIER)) {
                 String response = "";
-                if (req.getAddress() == null)
-                    response += "{\"error\": \"Address required\"}\n";
-                if (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getBank_name().isEmpty())
-                    response += "{\"error\": \"Bank name required\"}\n";
-                if (req.getBank_info() == null || req.getBank_info().getAccount_number() == null || req.getBank_info().getAccount_number().isEmpty())
-                    response += "{\"error\": \"Bank account number required\"}\n";
-                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-                exchange.sendResponseHeaders(400, responseBytes.length);
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(responseBytes);
-                }
-                return;
-            }
-            if (req.getRole().equals(UserRole.COURIER) && (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getAccount_number() == null || req.getBank_info().getBank_name().isEmpty() || req.getBank_info().getBank_name().isEmpty())) {
-                String response = "";
-                if (req.getBank_info() == null) {
-                    response += "{\"error\": \"Bank name required\"}\n";
-                }
+                if (req.getBank_info() == null)
+                    response += "{\"error\": \"bank info required\"}\n";
                 else {
-                    if (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getBank_name().isEmpty())
-                        response += "{\"error\": \"Bank name required\"}\n";
-                    if (req.getBank_info() == null || req.getBank_info().getBank_name() == null || req.getBank_info().getBank_name().isEmpty())
-                        response += "{\"error\": \"Account number required\"}\n";
+                    if (req.getBank_info().getBank_name() == null)
+                        response += "{\"error\": \"bank name required\"}\n";
+                    if (req.getBank_info().getAccount_number() == null)
+                        response += "{\"error\": \"bank account number required\"}\n";
                 }
-                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
-                exchange.sendResponseHeaders(400, responseBytes.length);
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(responseBytes);
+                if (!response.isEmpty()) {
+                    byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                    exchange.sendResponseHeaders(400, responseBytes.length);
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(responseBytes);
+                    }
+                    return;
                 }
-                return;
             }
 
             //Checking phoneNumber format
@@ -111,7 +97,6 @@ public class RegisterHttpHandler implements HttpHandler {
             }
 
             //Checking Email format
-
             if (!Validate.validateEmail(req.getEmail(), exchange)) {
                 return;
             }
