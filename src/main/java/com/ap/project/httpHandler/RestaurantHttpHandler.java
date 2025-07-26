@@ -363,10 +363,10 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
 
             List<Menu> menus = RestaurantDao.getRestaurantMenus(restaurantId, exchange);
-            if(menus == null ||menus.isEmpty()){
-                exchange.sendResponseHeaders(400, -1);
-                return;
-            }
+//            if(menus == null ||menus.isEmpty()){
+//                exchange.sendResponseHeaders(400, -1);
+//                return;
+//            }
             List<MenuDto> res = new ArrayList<>();
             for(Menu menu : menus) {
                 String title = menu.getTitle();
