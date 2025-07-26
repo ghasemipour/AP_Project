@@ -149,7 +149,7 @@ public class  TransactionHttpHandler implements HttpHandler {
             }
             Transaction transaction = new Transaction(order, wallet, user, TransactionMethod.fromString(method), TransactionStatus.SUCCESS, order.getPay_price());
             boolean paymentStatus = TransactionDao.onlinePayment(transaction);
-            TransactionDao.saveTransaction(transaction, user.getUserId(), orderId, wallet.getId(), exchange);
+//            TransactionDao.saveTransaction(transaction, user.getUserId(), orderId, wallet.getId(), exchange);
             TransactionDto transactionDto = transaction.getDto();
             System.out.println(transactionDto.getId());
             if (!paymentStatus) {
@@ -218,9 +218,9 @@ public class  TransactionHttpHandler implements HttpHandler {
                 customer.setWallet(new Wallet());
                 wallet = getWalletByUserId(customer.getUserId(), exchange);
             }
-            TransactionDao.topUpWallet(customer.getUserId(), amount, exchange);
             Transaction transaction = new Transaction(null, wallet, customer, TransactionMethod.WALLET, TransactionStatus.SUCCESS, amount);
-            TransactionDao.saveTransaction(transaction,customer.getUserId(), 0, wallet.getId(), exchange);
+            TransactionDao.topUpWallet(customer.getUserId(), amount, exchange, transaction);
+//            TransactionDao.saveTransaction(transaction,customer.getUserId(), 0, wallet.getId(), exchange);
             wallet = getWalletByUserId(customer.getUserId(), exchange);
             BalanceWrapper balance = new BalanceWrapper(wallet.getBalance());
             sendSuccessMessage(new Gson().toJson(balance), exchange);

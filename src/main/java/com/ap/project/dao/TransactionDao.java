@@ -46,7 +46,7 @@ public class TransactionDao {
         return result;
     }
 
-    public static void topUpWallet(int userId, double amount, HttpExchange exchange) {
+    public static void topUpWallet(int userId, double amount, HttpExchange exchange, Transaction newTransaction) {
         org.hibernate.Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -59,6 +59,7 @@ public class TransactionDao {
             Wallet wallet = customer.getWallet();
             wallet.topUp(amount);
             session.merge(wallet);
+            session.persist(newTransaction);
             transaction.commit();
             session.refresh(wallet);
         } catch (Exception e) {
@@ -145,6 +146,9 @@ public class TransactionDao {
                 if (payPrice > balance) {
                     order.setStatus(Status.PAYMENT_FAILED);
                     transaction.setStatus(TransactionStatus.FAILED);
+                    session.persist(transaction);
+                    session.merge(order);
+                    tx.commit();
                     return false;
                 } else {
                     wallet.setBalance(balance - payPrice);
@@ -154,6 +158,7 @@ public class TransactionDao {
                 }
             } else if (transaction.getMethod().equals(TransactionMethod.ONLINE))
                 order.setStatus(Status.WAITING_VENDOR);
+
             session.persist(transaction);
             session.merge(order);
             tx.commit();

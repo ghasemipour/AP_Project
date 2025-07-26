@@ -89,6 +89,7 @@ public class OrderHttpHandler implements HttpHandler {
                     try (OutputStream os = exchange.getResponseBody()) {
                         os.write(responseBytes);
                     }
+                    return;
                 }
             }
             Order order = new Order(orderDto, exchange, (Customer) user, Status.SUBMITTED);
@@ -139,11 +140,6 @@ public class OrderHttpHandler implements HttpHandler {
             String vendor = queryParams.get("vendor");
 
             List<OrderDto> results = OrderDao.getOrderHistory(user.getUserId(), search, vendor);
-//            if (results.isEmpty()) {
-//                String response = "No order history found.";
-//                sendSuccessMessage(response, exchange);
-//                return;
-//            }
             sendSuccessMessage(new Gson().toJson(results), exchange);
 
         } catch (Exception e) {

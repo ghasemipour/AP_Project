@@ -82,6 +82,9 @@ public class Order {
         for (OrderItemDto orderItemDto : orderDto.getItems()) {
             items.add(orderItemDto.mapper(exchange, this));
         }
+        assert restaurant != null;
+        additional_fee = restaurant.getAdditional_fee();
+        tax_fee = restaurant.getTax_fee();
         raw_price = calculateRawPrice();
         pay_price = calculatePayPrice();
         this.status = status;

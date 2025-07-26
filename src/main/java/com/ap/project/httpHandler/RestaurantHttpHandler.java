@@ -84,6 +84,8 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
             if(path.equals("/vendors")){
                 handleGetListOfRestaurants(exchange);
+            } else if (path.equals("/vendors/top")) {
+                handleGetTopRestaurants(exchange);
             } else if(parts.length == 3) {
                 handleGetListOfMenus(exchange, Integer.parseInt(parts[2]));
             } else {
@@ -304,9 +306,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 }
                 return;
             }
-
-            OrderDao.changeOrderStatus(orderId, statusEnum, exchange);
-            System.out.println(statusEnum);
+            OrderDao. changeOrderStatus(orderId, statusEnum, exchange);
             sendSuccessMessage("Status changed successfully.", exchange);
 
         } catch (Exception e) {
@@ -340,10 +340,11 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 }
             }
 
+            System.out.println(keywords);
+
             List<RestaurantDto> results = RestaurantDao.getRestaurantsByFilter(search, keywords);
-            if (results.isEmpty())
-                sendSuccessMessage("No matches found.", exchange);
             sendSuccessMessage(new Gson().toJson(results), exchange);
+
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
         }
@@ -391,13 +392,17 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
 
     }
 
-    private boolean isNumeric(String str) {
-        if (str == null) return false;
+    private void handleGetTopRestaurants(HttpExchange exchange) {
         try {
-            Integer.parseInt(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
+            if (!exchange.getRequestMethod().equals("GET")) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+            List<RestaurantDto> restaurantDtoList = RestaurantDao.getTopRestaurants();
+            sendSuccessMessage(new Gson().toJson(restaurantDtoList), exchange);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
 }

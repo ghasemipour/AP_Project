@@ -258,4 +258,24 @@ public class RestaurantDao {
         }
         return menus;
     }
+
+    public static List<RestaurantDto> getTopRestaurants() {
+        Transaction transaction = null;
+        List<RestaurantDto> results = new ArrayList<>();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+
+            List<Restaurant> restaurants = session.createQuery("FROM Restaurant ORDER BY ratings_avg DESC", Restaurant.class).setMaxResults(10).list();
+
+            for (Restaurant restaurant:restaurants) {
+                results.add(restaurant.getRestaurantDto());
+            }
+
+            transaction.commit();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
 }
