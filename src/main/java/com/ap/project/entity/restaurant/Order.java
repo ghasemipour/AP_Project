@@ -1,12 +1,15 @@
 package com.ap.project.entity.restaurant;
 
 
+import com.ap.project.Enums.CouponType;
 import com.ap.project.Enums.Status;
+import com.ap.project.dao.CouponDao;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.RestaurantDao;
 import com.ap.project.dto.DeliveryDto;
 import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.OrderItemDto;
+import com.ap.project.entity.general.Coupon;
 import com.ap.project.entity.general.Transaction;
 import com.ap.project.entity.user.Courier;
 import com.ap.project.entity.user.Customer;
@@ -49,7 +52,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderItem> items = new ArrayList<>();
 
-    private Integer coupon_id;
+    private String coupon_code;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false)
@@ -77,7 +80,7 @@ public class Order {
     public Order(OrderDto orderDto, HttpExchange exchange, Customer user, Status status) throws IOException {
         delivery_address = orderDto.getDelivery_address();
         restaurant = RestaurantDao.getRestaurantById(orderDto.getVendor_id());
-        coupon_id = orderDto.getCoupon_id();
+        coupon_code = orderDto.getCoupon_code();
         this.user = user;
         for (OrderItemDto orderItemDto : orderDto.getItems()) {
             items.add(orderItemDto.mapper(exchange, this));
@@ -92,7 +95,7 @@ public class Order {
     }
 
     public OrderDto getOrderDto() {
-        return new OrderDto(delivery_address, restaurant.getId(), coupon_id, items, status, id, user.getUserId(), created_at, updated_at, raw_price, tax_fee, additional_fee, courier_fee, pay_price, courier);
+        return new OrderDto(delivery_address, restaurant.getId(), coupon_code, items, status, id, user.getUserId(), created_at, updated_at, raw_price, tax_fee, additional_fee, courier_fee, pay_price, courier);
     }
 
     public void addRating(Rating rating) {
@@ -114,7 +117,16 @@ public class Order {
     }
 
     private Integer calculatePayPrice() {
-        return ((raw_price + additional_fee) * (tax_fee + 100) / 100) + courier_fee ;
+        Integer price = raw_price;
+        if(coupon_code != null) {
+            Coupon coupon = CouponDao.getCouponByCouponCode(coupon_code);
+            if (coupon.getType().equals(CouponType.FIXED))
+                price -= coupon.getValue();
+            else
+                price -= price * (coupon.getValue()) / 100;
+        }
+
+        return ((price + additional_fee) * (tax_fee + 100) / 100) + courier_fee ;
     }
 
     public DeliveryDto getDeliveryDto(HttpExchange exchange) {

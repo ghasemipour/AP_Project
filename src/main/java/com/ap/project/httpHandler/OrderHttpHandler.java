@@ -1,10 +1,12 @@
 package com.ap.project.httpHandler;
 
 import com.ap.project.Enums.Status;
+import com.ap.project.dao.CouponDao;
 import com.ap.project.dao.FoodItemDao;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.OrderItemDto;
+import com.ap.project.entity.general.Coupon;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.user.Customer;
@@ -69,6 +71,17 @@ public class OrderHttpHandler implements HttpHandler {
                 response += "{\"error\": \"Vendor ID required\"}\n";
             if (orderDto.getItems() == null) {// check this later
                 response += "{\"error\": \"Please select your items.\"}\n";
+            }
+            if(orderDto.getCoupon_code() != null){
+                String couponCode = orderDto.getCoupon_code();
+                if(!CouponDao.isCouponValid(couponCode)){
+                    response += "{\"error\": \"Coupon code invalid or coupon is out of date\"}\n";
+                } else {
+                    Coupon coupon = CouponDao.getCouponByCouponCode(couponCode);
+                    if(coupon.getMinPrice() > orderDto.getRaw_price()){
+                        response += "{\"error\": \"Min price to use coupon is more\"}\n";
+                    }
+                }
             }
             if (!response.isEmpty()) {
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);

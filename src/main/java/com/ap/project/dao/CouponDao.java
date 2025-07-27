@@ -7,7 +7,11 @@ import com.sun.net.httpserver.HttpExchange;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import javax.swing.text.DateFormatter;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.ap.project.dao.FoodItemDao.transactionRollBack;
@@ -129,5 +133,23 @@ public class CouponDao {
             transactionRollBack(transaction, e);
         }
         return coupon;
+    }
+
+    public static boolean isCouponValid(String couponCode) {
+        boolean res = false;
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()){
+            transaction = session.beginTransaction();
+            Coupon coupon = session.get(Coupon.class, couponCode);
+            LocalDate localDate = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String date = localDate.format(formatter);
+            if(coupon.getCouponCode() != null && (date.compareTo(coupon.getStartDate()) > 0 && date.compareTo(coupon.getEndDate()) < 0)){
+                res = true;
+            }
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+        return res;
     }
 }
