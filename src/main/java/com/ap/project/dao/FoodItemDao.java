@@ -4,8 +4,6 @@ import com.ap.project.Exceptions.NoSuchFoodItem;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.dto.FoodDto;
 import com.ap.project.entity.restaurant.Food;
-import com.ap.project.entity.restaurant.Order;
-import com.ap.project.entity.restaurant.OrderItem;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.util.HibernateUtil;
 import com.sun.net.httpserver.HttpExchange;
@@ -98,7 +96,7 @@ public class FoodItemDao {
     public static void deleteFood(int foodId, HttpExchange exchange) {
         Transaction transaction = null;
         Food food;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()){
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 
             transaction = session.beginTransaction();
             food = session.get(Food.class, foodId);
@@ -220,7 +218,7 @@ public class FoodItemDao {
                 res.add(food.getFoodDto());
             }
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return res;
@@ -228,7 +226,7 @@ public class FoodItemDao {
 
     public static void updateSupplies(int itemID, HttpExchange exchange, int quantity) {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()){
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             Food item = session.get(Food.class, itemID);
             if (item == null) {
@@ -255,9 +253,53 @@ public class FoodItemDao {
             }
             Hibernate.initialize(food.getRatings());
             ratings = food.getRatings();
-        } catch (Exception e){
+        } catch (Exception e) {
             transactionRollBack(transaction, e);
         }
         return ratings;
+    }
+
+    public static boolean saveDiscount(int foodId, Integer percentage) {
+
+        Transaction transaction = null;
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Food food = session.get(Food.class, foodId);
+
+            if (food == null) {
+                throw new NoSuchFoodItem("Food ID " + foodId + " not found");
+            }
+
+            if (food.getDiscountPercentage() != null && food.getDiscountPercentage() != 0) {
+                throw new IllegalStateException("Food already discounted");
+            }
+
+            if (percentage == 0)
+                return false;
+            food.setDiscountPercentage(percentage);
+            session.merge(food);
+
+            transaction.commit();
+        }
+        return true;
+    }
+
+    public static void deleteDiscount(int foodId) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+
+            Food food = session.get(Food.class, foodId);
+
+            if (food == null) {
+                throw new NoSuchFoodItem("food id " + foodId + " not found");
+            }
+
+            food.setDiscountPercentage(0);
+            session.merge(food);
+
+            transaction.commit();
+        }
     }
 }

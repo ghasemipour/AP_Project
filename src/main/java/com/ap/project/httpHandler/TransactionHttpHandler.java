@@ -130,9 +130,9 @@ public class  TransactionHttpHandler implements HttpHandler {
                 }
                 return;
             }
+
             Order order = OrderDao.getOrderFromId(orderId, exchange);
-            System.out.println("Order ID: " + orderId);
-            System.out.println("Status: " + order.getStatus());
+
             if (order.getStatus().equals(Status.WAITING_VENDOR)) {
                 response = "{\"error\": \"Order already paid for\"}\n";
                 byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
@@ -141,17 +141,26 @@ public class  TransactionHttpHandler implements HttpHandler {
                     os.write(responseBytes);
                 }
                 return;
+            } else if (order.getStatus().equals(Status.REJECTED)) {
+                response = "{\"error\": \"Order rejected by the vendor\"}\n";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(409, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
             }
+
             Wallet wallet = getWalletByUserId(user.getUserId(), exchange);
             if(wallet == null){
                 user.setWallet(new Wallet());
                 wallet = getWalletByUserId(user.getUserId(), exchange);
             }
+
             Transaction transaction = new Transaction(order, wallet, user, TransactionMethod.fromString(method), TransactionStatus.SUCCESS, order.getPay_price());
             boolean paymentStatus = TransactionDao.onlinePayment(transaction);
-//            TransactionDao.saveTransaction(transaction, user.getUserId(), orderId, wallet.getId(), exchange);
             TransactionDto transactionDto = transaction.getDto();
-            System.out.println(transactionDto.getId());
+
             if (!paymentStatus) {
                 String error = "{\"error\": \"Balance not enough.\"}";
                 byte[] responseBytes = error.getBytes(StandardCharsets.UTF_8);

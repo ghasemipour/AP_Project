@@ -6,15 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="3c17796f-4cc5-49d5-be3f-f3a0c693f9ac" name="Changes" comment="merging">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/MenuDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/MenuDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/RatingDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/RatingDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/RestaurantDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/RestaurantDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/TransactionDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/TransactionDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/RatingDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/RatingDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/RestaurantDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/RestaurantDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/FoodItemDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/FoodItemDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/FoodDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/FoodDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Food.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Food.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Order.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Restaurant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/entity/restaurant/Restaurant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/OrderHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/OrderHttpHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/FoodHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/FoodHttpHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RestaurantHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RestaurantHttpHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/TransactionHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/TransactionHttpHandler.java" afterDir="false" />
     </list>
@@ -197,6 +193,11 @@
       <workItem from="1753537860394" duration="7626000" />
       <workItem from="1753548499900" duration="678000" />
       <workItem from="1753551538319" duration="12205000" />
+      <workItem from="1753569316701" duration="36000" />
+      <workItem from="1753613558857" duration="11312000" />
+      <workItem from="1753631984165" duration="5020000" />
+      <workItem from="1753647245601" duration="1328000" />
+      <workItem from="1753697412485" duration="2188000" />
     </task>
     <task id="LOCAL-00001" summary="merging">
       <option name="closed" value="true" />

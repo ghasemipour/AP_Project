@@ -64,7 +64,7 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                 if (parts.length == 3) {
                     handleUpdateRestaurant(exchange, user, Integer.parseInt(parts[2]));
                 } else if (parts.length >= 4) {
-                    if (parts[3].equals("item")) {
+                    if (parts[3].equals("item") || parts[3].equals("discount")) {
                         FoodHttpHandler foodHandler = new FoodHttpHandler();
                         foodHandler.handle(exchange);
                     } else if (parts[3].equals("menu")) {
@@ -72,7 +72,8 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                         menuHandler.handle(exchange);
                     } else if (parts[3].startsWith("orders")) {
                         handleGetRestaurantsOrders(exchange, Integer.parseInt(parts[2]), user);
-                    } else if (parts[2].equals("orders")) {
+                    }
+                    else if (parts[2].equals("orders")) {
                         handleChangeOrderStatus(exchange, Integer.parseInt(parts[3]), user);
                     }
                 }
@@ -404,5 +405,4 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             e.printStackTrace();
         }
     }
-
 }

@@ -1,6 +1,5 @@
 package com.ap.project.dto;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +17,7 @@ public class FoodDto {
     private String imageBase64;
     private int id;
     private double avg_rating;
+    private Integer discountPercentage = 0;
 
     public FoodDto(
             String name,
@@ -28,8 +28,8 @@ public class FoodDto {
             int vendor_id,
             String imageBase64,
             int id,
-            List<Integer> ratings
-    ) {
+            List<Integer> ratings,
+            Integer discountPercentage) {
         this.name = name;
         this.description = description;
         this.imageBase64 = imageBase64;
@@ -46,6 +46,7 @@ public class FoodDto {
             avg /= ratings.size();
             avg_rating = avg;
         }
+        this.discountPercentage = discountPercentage;
     }
 
     @Override

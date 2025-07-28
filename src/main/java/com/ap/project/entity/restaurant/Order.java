@@ -111,7 +111,7 @@ public class Order {
     private Integer calculateRawPrice() {
         int rawPrice = 0;
         for (OrderItem orderItem: items) {
-            rawPrice += (orderItem.getFood().getPrice() * orderItem.getQuantity());
+            rawPrice += (orderItem.getFood().getFinalPrice() * orderItem.getQuantity());
         }
         return rawPrice;
     }

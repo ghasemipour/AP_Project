@@ -41,7 +41,9 @@ public class Food {
     @ElementCollection(fetch = FetchType.LAZY)
     private List<Integer> ratings = new ArrayList<>();
 
-    public Food (FoodDto foodDto, Restaurant restaurant) {
+    private Integer discountPercentage = 0;
+
+    public Food(FoodDto foodDto, Restaurant restaurant) {
         name = foodDto.getName();
         imageBase64 = foodDto.getImageBase64();
         description = foodDto.getDescription();
@@ -51,10 +53,11 @@ public class Food {
         this.restaurant = restaurant;
     }
 
-    public Food() {}
+    public Food() {
+    }
 
     public FoodDto getFoodDto() {
-        return new FoodDto(name, description, price, supply, FoodItemDao.getKeywords(this.foodId), restaurant.getId(), imageBase64, foodId, FoodItemDao.getRatings(this.foodId));
+        return new FoodDto(name, description, price, supply, FoodItemDao.getKeywords(this.foodId), restaurant.getId(), imageBase64, foodId, FoodItemDao.getRatings(this.foodId), discountPercentage);
     }
 
     public void addMenu(Menu menu) {
@@ -63,5 +66,9 @@ public class Food {
 
     public void removeMenu(Menu menu) {
         menus.remove(menu);
+    }
+
+    public Integer getFinalPrice() {
+        return (int) (price * (1 - discountPercentage / 100.0));
     }
 }
