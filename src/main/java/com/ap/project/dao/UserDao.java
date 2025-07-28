@@ -3,8 +3,10 @@ package com.ap.project.dao;
 import com.ap.project.Enums.ApprovalStatus;
 import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.Exceptions.NoSuchUser;
+import com.ap.project.dto.FoodDto;
 import com.ap.project.dto.ProfileDto;
 import com.ap.project.entity.general.Wallet;
+import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Restaurant;
 import com.ap.project.entity.user.*;
 import com.ap.project.util.HibernateUtil;
@@ -245,6 +247,9 @@ public class UserDao {
             }
             Hibernate.initialize(user.getFavoriteRestaurants());
             favorites = user.getFavoriteRestaurants();
+            for (Restaurant r : user.getFavoriteRestaurants()) {
+                Hibernate.initialize(r.getFoodItems());
+            }
 
         } catch (Exception e){
             e.printStackTrace();
@@ -299,5 +304,32 @@ public class UserDao {
         } catch (Exception e){
             transactionRollBack(transaction, e);
         }
+    }
+
+    public static List<FoodDto> getRecommendations(List<Restaurant> restaurants) {
+        Transaction transaction = null;
+        List<FoodDto> results = new ArrayList<>();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Hibernate.initialize(restaurants);
+
+            List<Food> foodList = new ArrayList<>();
+
+            for (Restaurant restaurant : restaurants) {
+                Hibernate.initialize(restaurant.getFoodItems());
+                for (Food food : restaurant.getFoodItems()) {
+                    if (food.getDiscountPercentage() != null && food.getDiscountPercentage() != 0) {
+                        foodList.add(food);
+                    }
+                }
+            }
+            for (Food food : foodList) {
+                results.add(food.getFoodDto());
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            transactionRollBack(transaction, e);
+        }
+        return results;
     }
 }

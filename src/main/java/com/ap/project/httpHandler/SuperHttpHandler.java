@@ -27,6 +27,7 @@ public class SuperHttpHandler {
         }
 
         String userId = JwtUtil.validateToken(token);
+
         if (userId == null) {
             exchange.sendResponseHeaders(401, -1);
             return null;
