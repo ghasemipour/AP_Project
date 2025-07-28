@@ -5,20 +5,21 @@ import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.OrderDto;
 import com.ap.project.dto.RestaurantDto;
-import com.ap.project.entity.restaurant.Menu;
-import com.ap.project.entity.restaurant.Order;
-import com.ap.project.entity.restaurant.Restaurant;
+import com.ap.project.dto.RestaurantReportResponseDto;
+import com.ap.project.entity.restaurant.*;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.util.HibernateUtil;
 import com.sun.net.httpserver.HttpExchange;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 import org.hibernate.query.Query;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ap.project.dao.FoodItemDao.transactionRollBack;
@@ -257,5 +258,111 @@ public class RestaurantDao {
             e.printStackTrace();
         }
         return menus;
+    }
+
+    public static List<RestaurantReportResponseDto> getRestaurantReport(int restaurantId, String startDate, String endDate, List<String> keywords) {
+        List<RestaurantReportResponseDto> res = new ArrayList<>();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Restaurant restaurant = session.get(Restaurant.class, restaurantId);
+            if (restaurant == null) {
+                throw new NoSuchRestaurant(restaurantId + " not found");
+            }
+            Hibernate.initialize(restaurant.getOrders());
+            List<Order> orders = restaurant.getOrders();
+            if(orders != null && !orders.isEmpty()) {
+                for(Order o : orders){
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    Hibernate.initialize(o.getCreated_at());
+                    String date = o.getCreated_at().format(formatter);
+                    if(date.compareTo(startDate) < 0 && date.compareTo(endDate) > 0) {
+                        continue;
+                    }
+                    double sale = 0;
+                    if(keywords != null && !keywords.isEmpty()) {
+                        Hibernate.initialize(o.getItems());
+                        for(OrderItem item : o.getItems()){
+                            Hibernate.initialize(item.getFood());;
+                            Food food = item.getFood();
+                            Hibernate.initialize(food.getKeywords());
+                            List<String> keywordsList = item.getFood().getKeywords();
+                            if(keywordsList != null && !keywordsList.isEmpty()) {
+                                for(String k : keywords){
+                                    if(keywordsList.contains(k)){
+                                        sale += food.getPrice() * item.getQuantity();
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        sale = o.getRaw_price();
+                    }
+                    res.add(new RestaurantReportResponseDto(date, sale));
+                }
+            }
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+        return res;
+    }
+
+    public static String getBestItem(int restaurantId, String startDate, String endDate, List<String> keywords) {
+        String res = "";
+        HashMap<String, Integer> numOfSales = new HashMap<String, Integer>();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Restaurant restaurant = session.get(Restaurant.class, restaurantId);
+            if (restaurant == null) {
+                throw new NoSuchRestaurant(restaurantId + " not found");
+            }
+            Hibernate.initialize(restaurant.getOrders());
+            List<Order> orders = restaurant.getOrders();
+            if(orders != null && !orders.isEmpty()) {
+                for(Order o : orders){
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    Hibernate.initialize(o.getCreated_at());
+                    String date = o.getCreated_at().format(formatter);
+                    if(date.compareTo(startDate) < 0 && date.compareTo(endDate) > 0) {
+                        continue;
+                    }
+                    Hibernate.initialize(o.getItems());
+                    for(OrderItem item : o.getItems()){
+                        Hibernate.initialize(item.getFood());;
+                        Food food = item.getFood();
+                        Hibernate.initialize(food.getKeywords());
+                        List<String> keywordsList = item.getFood().getKeywords();
+                        if(keywords != null && !keywords.isEmpty() && keywordsList != null && !keywordsList.isEmpty()) {
+                            for(String k : keywords){
+                                if(keywordsList.contains(k)){
+                                    if(numOfSales.containsKey(food.getName())) {
+                                        Integer oldNumOfSales = numOfSales.get(food.getName());
+                                        numOfSales.replace(food.getName(), oldNumOfSales + item.getQuantity());
+                                    } else
+                                        numOfSales.put(food.getName(), item.getQuantity());
+                                    break;
+                                }
+                            }
+                        } else{
+                            if(numOfSales.containsKey(food.getName())) {
+                                Integer oldNumOfSales = numOfSales.get(food.getName());
+                                numOfSales.replace(food.getName(), oldNumOfSales + item.getQuantity());
+                            }else
+                                numOfSales.put(food.getName(), item.getQuantity());
+                        }
+
+                    }
+                }
+            }
+        } catch (Exception e){
+            transactionRollBack(transaction, e);
+        }
+        if(!numOfSales.isEmpty()) {
+            Map.Entry<String, Integer> entry = Collections.max(numOfSales.entrySet(), Comparator.comparing(Map.Entry::getValue));
+            res = entry.getKey();
+        }
+        return res;
     }
 }

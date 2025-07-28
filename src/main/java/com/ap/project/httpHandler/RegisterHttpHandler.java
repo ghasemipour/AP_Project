@@ -149,6 +149,9 @@ public class RegisterHttpHandler implements HttpHandler {
                     user.getProfilePicture(),
                     token
             );
+            if(user instanceof Customer) System.out.println("customer");
+            else if(user instanceof Courier) System.out.println("courier");
+            else if(user instanceof Seller) System.out.println("seller");
 
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             sendSuccessMessage(gson.toJson(response), exchange);

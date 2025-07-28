@@ -6,10 +6,7 @@ import com.ap.project.dao.FoodItemDao;
 import com.ap.project.dao.MenuDao;
 import com.ap.project.dao.OrderDao;
 import com.ap.project.dao.RestaurantDao;
-import com.ap.project.dto.FoodDto;
-import com.ap.project.dto.MenuDto;
-import com.ap.project.dto.OrderDto;
-import com.ap.project.dto.RestaurantDto;
+import com.ap.project.dto.*;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Menu;
 import com.ap.project.entity.restaurant.Order;
@@ -74,6 +71,8 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
                         handleGetRestaurantsOrders(exchange, Integer.parseInt(parts[2]), user);
                     } else if (parts[2].equals("orders")) {
                         handleChangeOrderStatus(exchange, Integer.parseInt(parts[3]), user);
+                    } else if(parts[3].equals("report")){
+                        handleGetRestaurantReport(exchange, user, Integer.parseInt(parts[2]));
                     }
                 }
             }
@@ -389,6 +388,53 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             internalServerFailureError(e, exchange);
         }
 
+    }
+
+    private void handleGetRestaurantReport(HttpExchange exchange, User user, int restaurantId) throws IOException {
+        try {
+            if (!exchange.getRequestMethod().equals("POST")) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+            InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
+            RestaurantReportRequestDto req = new Gson().fromJson(reader, RestaurantReportRequestDto.class);
+            Restaurant restaurant = RestaurantDao.getRestaurantById(restaurantId);
+            if (restaurant == null) {
+                exchange.sendResponseHeaders(404, -1);
+                return;
+            }
+            if (!(RestaurantDao.getSellerId(restaurantId) == user.getUserId())) {
+                exchange.sendResponseHeaders(403, -1);
+                return;
+            }
+            String response = "";
+            if(req == null || req.getStartDate() == null || req.getStartDate().isEmpty()) {
+                response += "Start Date required.";
+            }
+            if(req == null || req.getEndDate() == null || req.getEndDate().isEmpty()) {
+                response += "End Date required.";
+            }
+            if(!response.isEmpty()) {
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(400, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
+                return;
+            }
+
+            List<RestaurantReportResponseDto> dtoList = RestaurantDao.getRestaurantReport(restaurantId, req.getStartDate(), req.getEndDate(), req.getKeywords());
+            String bestItem = RestaurantDao.getBestItem(restaurantId, req.getStartDate(), req.getEndDate(), req.getKeywords());
+            double totalIncome = 0;
+            for(RestaurantReportResponseDto restaurantReportResponseDto : dtoList) {
+                totalIncome += restaurantReportResponseDto.getTotalSales();
+            }
+            RestaurantReportDto res = new RestaurantReportDto(dtoList, bestItem, totalIncome);
+            sendSuccessMessage(new Gson().toJson(res), exchange);
+
+        } catch (Exception e) {
+            internalServerFailureError(e, exchange);
+        }
     }
 
     private boolean isNumeric(String str) {
