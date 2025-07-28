@@ -47,4 +47,8 @@ public class Coupon {
     public CouponDto getCouponDto() {
         return new CouponDto(id, couponCode, type, value, minPrice, userCount, startDate, endDate);
     }
+
+    public void changeUserCounts(int diff) {
+        this.userCount += diff;
+    }
 }

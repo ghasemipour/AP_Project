@@ -6,6 +6,7 @@ import com.ap.project.Exceptions.NoSuchRestaurant;
 import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.DeliveryDto;
 import com.ap.project.dto.OrderDto;
+import com.ap.project.entity.general.Coupon;
 import com.ap.project.entity.restaurant.Food;
 import com.ap.project.entity.restaurant.Order;
 import com.ap.project.entity.restaurant.OrderItem;
@@ -68,6 +69,13 @@ public class OrderDao {
             }
             else if (order.getStatus().equals(Status.REJECTED)) {
                 TransactionDao.refundUser(order.getUser().getUserId(), order.getPay_price());
+                if(order.getCoupon_code() != null && !order.getCoupon_code().isEmpty()) {
+                    Coupon coupon = session.createQuery("FROM Coupon c WHERE c.couponCode = :code", Coupon.class)
+                            .setParameter("code", order.getCoupon_code())
+                            .uniqueResult();
+
+                    coupon.changeUserCounts(1);
+                }
             }
             session.merge(order);
             transaction.commit();
@@ -115,6 +123,13 @@ public class OrderDao {
             }
             restaurant.addOrder(order);
             customer.addOrder(order);
+            if(order.getCoupon_code() != null && !order.getCoupon_code().isEmpty()) {
+                Coupon coupon = session.createQuery("FROM Coupon c WHERE c.couponCode = :code", Coupon.class)
+                        .setParameter("code", order.getCoupon_code())
+                        .uniqueResult();
+
+                coupon.changeUserCounts(-1);
+            }
 
             session.persist(order);
             transaction.commit();
