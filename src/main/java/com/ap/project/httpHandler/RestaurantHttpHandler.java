@@ -86,6 +86,8 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             }
             if(path.equals("/vendors")){
                 handleGetListOfRestaurants(exchange);
+            } else if (path.equals("/vendors/top")) {
+                handleGetTopRestaurants(exchange);
             } else if(parts.length == 3) {
                 handleGetListOfMenus(exchange, Integer.parseInt(parts[2]));
             } else {
