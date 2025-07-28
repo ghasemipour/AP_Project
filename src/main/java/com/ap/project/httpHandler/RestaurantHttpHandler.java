@@ -16,10 +16,13 @@ import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.Seller;
 import com.ap.project.entity.user.User;
 import com.ap.project.services.Validate;
+import com.ap.project.util.HibernateUtil;
 import com.ap.project.wrappers.StatusWrapper;
 import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -434,6 +437,19 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
 
         } catch (Exception e) {
             internalServerFailureError(e, exchange);
+        }
+    }
+
+    private void handleGetTopRestaurants(HttpExchange exchange) {
+        try {
+            if (!exchange.getRequestMethod().equals("GET")) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+            List<RestaurantDto> restaurantDtoList = RestaurantDao.getTopRestaurants();
+            sendSuccessMessage(new Gson().toJson(restaurantDtoList), exchange);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
