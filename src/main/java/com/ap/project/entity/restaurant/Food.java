@@ -69,6 +69,8 @@ public class Food {
     }
 
     public Integer getFinalPrice() {
-        return (int) (price * (1 - discountPercentage / 100.0));
+        if (discountPercentage != null)
+            return (int) (price * (1 - discountPercentage / 100.0));
+        return price;
     }
 }
