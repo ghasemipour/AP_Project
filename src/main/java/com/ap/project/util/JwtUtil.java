@@ -12,10 +12,13 @@ public class JwtUtil {
     private static final Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
     private static final long EXPIRATION_MS = 3 * 60 * 60 * 1000 * 10; // 30 hours
 
-    public static String generateToken(int userId) {
+    public static String generateToken(int userId, String role, String username, String profilePhotoUrl) {
         try {
             return Jwts.builder()
                     .setSubject(String.valueOf(userId))
+                    .claim("role", role)
+                    .claim("username", username)
+                    .claim("profilePhoto", profilePhotoUrl)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
                     .signWith(key, SignatureAlgorithm.HS256)
@@ -28,7 +31,7 @@ public class JwtUtil {
 
     public static String validateToken(String token) {
         try {
-
+            System.out.println("TOKEN" + token);
             if (JwtBlacklist.isBlacklisted(token)) {
                 System.out.println("Token is blacklisted");
                 return null;

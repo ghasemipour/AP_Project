@@ -68,12 +68,12 @@ public class LoginHttpHandler implements HttpHandler {
                 }
                 return;
             }
-            String token = JwtUtil.generateToken(user.getUserId());
             UserRole role = null;
             if (user instanceof Seller) role = UserRole.SELLER;
             if (user instanceof Customer) role = UserRole.CUSTOMER;
             if (user instanceof Courier) role = UserRole.COURIER;
             if(user instanceof Admin) role = UserRole.ADMIN;
+            String token = JwtUtil.generateToken(user.getUserId(), String.valueOf(role), user.getName(), user.getProfilePicture());
             LoginResponseDto loginResponseDto = new LoginResponseDto("User logged in successfully",
                     user.getUserId(),
                     token,

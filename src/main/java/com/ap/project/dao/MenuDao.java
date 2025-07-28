@@ -14,6 +14,8 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,9 @@ public class MenuDao {
         List<Menu> menus = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             Restaurant restaurant = (Restaurant) session.get(Restaurant.class, restaurantId);
+
+            String decodedTitle = URLDecoder.decode(menuTitle, StandardCharsets.UTF_8.name());
+
             if (restaurant == null) {
                 exchange.sendResponseHeaders(404, -1);
                 throw new NoSuchRestaurant(restaurantId + "restaurant not found");
@@ -50,7 +55,7 @@ public class MenuDao {
             Hibernate.initialize(restaurant.getMenus());
             menus = restaurant.getMenus();
             for(Menu m : menus) {
-                if (m.getTitle().equals(menuTitle)) {
+                if (m.getTitle().equals(decodedTitle)) {
                     menu = m;
                     break;
                 }

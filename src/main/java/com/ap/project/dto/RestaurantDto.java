@@ -11,9 +11,10 @@ public class RestaurantDto {
     private Integer tax_fee;
     private Integer additional_fee;
     private WorkingHourDto working_hour;
+    private Double average_rating;
     private int id;
 
-    public RestaurantDto(int id, String name, String address, String phone, String logoBase64, Integer tax_fee, Integer additional_fee, WorkingHourDto working_hour) {
+    public RestaurantDto(int id, String name, String address, String phone, String logoBase64, Integer tax_fee, Integer additional_fee, WorkingHourDto working_hour, Double average_rating) {
         this.name = name;
         this.address = address;
         this.phone = phone;
@@ -21,6 +22,7 @@ public class RestaurantDto {
         this.tax_fee = tax_fee;
         this.additional_fee = additional_fee;
         this.working_hour = working_hour;
+        this.average_rating = average_rating;
         this.id = id;
     }
 }

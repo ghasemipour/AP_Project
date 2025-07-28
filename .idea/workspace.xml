@@ -7,8 +7,11 @@
     <list default="true" id="3c17796f-4cc5-49d5-be3f-f3a0c693f9ac" name="Changes" comment="merging">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/UserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dao/UserDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/FoodDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/dto/FoodDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/FavoriteHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/FavoriteHttpHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/LoginHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/LoginHttpHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RegisterHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/RegisterHttpHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/SuperHttpHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/httpHandler/SuperHttpHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ap/project/util/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ap/project/util/JwtUtil.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -185,7 +188,17 @@
       <workItem from="1753437804356" duration="12917000" />
       <workItem from="1753463638056" duration="8024000" />
       <workItem from="1753480265997" duration="14000" />
-      <workItem from="1753521139900" duration="1489000" />
+      <workItem from="1753521139900" duration="4481000" />
+      <workItem from="1753537860394" duration="7626000" />
+      <workItem from="1753548499900" duration="678000" />
+      <workItem from="1753551538319" duration="12205000" />
+      <workItem from="1753569316701" duration="36000" />
+      <workItem from="1753613558857" duration="11312000" />
+      <workItem from="1753631984165" duration="5020000" />
+      <workItem from="1753647245601" duration="1328000" />
+      <workItem from="1753697412485" duration="7280000" />
+      <workItem from="1753712144144" duration="68000" />
+      <workItem from="1753713921315" duration="3073000" />
     </task>
     <task id="LOCAL-00001" summary="merging">
       <option name="closed" value="true" />

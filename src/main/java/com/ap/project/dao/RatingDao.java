@@ -4,10 +4,7 @@ import com.ap.project.Exceptions.NoSuchOrder;
 import com.ap.project.Exceptions.NoSuchRating;
 import com.ap.project.Exceptions.NoSuchUser;
 import com.ap.project.dto.RatingDto;
-import com.ap.project.entity.restaurant.Food;
-import com.ap.project.entity.restaurant.Order;
-import com.ap.project.entity.restaurant.OrderItem;
-import com.ap.project.entity.restaurant.Rating;
+import com.ap.project.entity.restaurant.*;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.util.HibernateUtil;
 import com.sun.net.httpserver.HttpExchange;
@@ -33,12 +30,12 @@ public class RatingDao {
             if (order == null) {
                 String response = "{\"error\": \"order not found\"}";
                 sendNotFoundMessage(response, exchange);
-                throw new NoSuchOrder(orderId + " not found");
+                return;
             }
             if (user == null) {
                 String response = "{\"error\": \"user not found\"}";
                 sendNotFoundMessage(response, exchange);
-                throw new NoSuchUser(userId + " not found");
+                return;
             }
             if (order.getUser().getUserId() != userId) {
                 String response = "Unauthorized user.";
@@ -48,6 +45,7 @@ public class RatingDao {
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(bytes);
                 }
+                return;
             }
             if (order.getRating() != null) {
                 String response = "Order already has a rating.";
@@ -57,14 +55,28 @@ public class RatingDao {
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(bytes);
                 }
+                return;
             }
             for (OrderItem items : order.getItems()) {
                 Food foodItem = items.getFood();
                 foodItem.getRatings().add(rating.getRating());
+                session.merge(foodItem);
             }
-            order.addRating(rating);
-            user.addRating(rating);
+
+            Restaurant restaurant = order.getRestaurant();
+            restaurant.calculateAverage();
+            session.merge(restaurant);
+
+            rating.setOrder(order);
+            rating.setUser(user);
+
             session.persist(rating);
+            order.addRating(rating);
+            session.merge(order);
+
+            user.addRating(rating);
+            session.merge(user);
+
             transaction.commit();
         } catch (Exception e) {
             transactionRollBack(transaction, e);

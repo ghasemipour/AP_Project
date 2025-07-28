@@ -5,6 +5,7 @@ import com.ap.project.dto.WorkingHourDto;
 import com.ap.project.entity.user.Customer;
 import com.ap.project.entity.user.Seller;
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -46,6 +47,8 @@ public class Restaurant {
     @ManyToMany(mappedBy = "favoriteRestaurants", cascade = {CascadeType.MERGE})
     private List<Customer> likedCustomers = new ArrayList<>();
 
+    private Double ratings_avg = 0.0;
+
     public Restaurant(RestaurantDto restaurantInfo, Seller owner) {
         this.name = restaurantInfo.getName();
         this.address = restaurantInfo.getAddress();
@@ -62,7 +65,7 @@ public class Restaurant {
     public Restaurant() {}
 
     public RestaurantDto GetDto() {
-        RestaurantDto restaurantDto = new RestaurantDto(id, name, address, phone, logoBase64, tax_fee, additional_fee, working_hour);
+        RestaurantDto restaurantDto = new RestaurantDto(id, name, address, phone, logoBase64, tax_fee, additional_fee, working_hour, ratings_avg);
         return restaurantDto;
     }
 
@@ -97,7 +100,7 @@ public class Restaurant {
     }
 
     public RestaurantDto getRestaurantDto() {
-        RestaurantDto res = new RestaurantDto(id, name, address, phone, logoBase64, tax_fee, additional_fee, working_hour );
+        RestaurantDto res = new RestaurantDto(id, name, address, phone, logoBase64, tax_fee, additional_fee, working_hour, ratings_avg);
         return res;
     }
 
@@ -107,5 +110,17 @@ public class Restaurant {
 
     public void removeCustomerFromLiked(Customer user) {
         likedCustomers.remove(user);
+    }
+
+    public void calculateAverage() {
+        double total = 0.0;
+        int count = 0;
+        for (Food food : foodItems) {
+            for (Integer rating : food.getRatings()) {
+                total += rating;
+                count++;
+            }
+        }
+        ratings_avg = (count > 0) ? total/count : 0.0;
     }
 }

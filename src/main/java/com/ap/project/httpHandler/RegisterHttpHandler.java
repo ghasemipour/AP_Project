@@ -140,7 +140,7 @@ public class RegisterHttpHandler implements HttpHandler {
             if (user instanceof Customer) ((Customer) user).setWallet(new Wallet());
 
 
-            String token = generateToken(user.getUserId());
+            String token = generateToken(user.getUserId(), String.valueOf(req.getRole()), user.getName(), user.getProfilePicture());
 
             RegisterResponseDto response = new RegisterResponseDto(
                     "User registered successfully",

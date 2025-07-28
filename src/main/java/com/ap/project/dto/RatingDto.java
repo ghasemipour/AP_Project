@@ -31,7 +31,7 @@ public class RatingDto {
         this.imageBase64 = imageBase64;
         this.user_id = userId;
         this.id = rating_id;
-        this.created_at = created_at.toString();
+        this.created_at = (created_at != null) ? created_at.toString() : null;
         if (updated_at != null)
             this.updated_at = updated_at.toString();
     }
