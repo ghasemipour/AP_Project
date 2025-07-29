@@ -22,8 +22,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.random.RandomGenerator;
 
 @Getter
 @Setter
@@ -37,6 +40,9 @@ public class Order {
 
     @Column(nullable = false)
     private String delivery_address;
+
+    @Column
+    private String phone;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -63,7 +69,7 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transaction> transactions;
-    // TODO: CHECK HOW TO CALCULATE TAX FEE AND COURIER FEE
+
     private Integer raw_price;
     private Integer tax_fee = 0;
     private Integer courier_fee = 0;
@@ -79,6 +85,7 @@ public class Order {
 
     public Order(OrderDto orderDto, HttpExchange exchange, Customer user, Status status) throws IOException {
         delivery_address = orderDto.getDelivery_address();
+        phone = user.getPhoneNumber();
         restaurant = RestaurantDao.getRestaurantById(orderDto.getVendor_id());
         coupon_code = orderDto.getCoupon_code();
         this.user = user;
@@ -88,6 +95,7 @@ public class Order {
         assert restaurant != null;
         additional_fee = restaurant.getAdditional_fee();
         tax_fee = restaurant.getTax_fee();
+        courier_fee = calculateDeliveryFee();
         raw_price = calculateRawPrice();
         pay_price = calculatePayPrice();
         this.status = status;
@@ -98,7 +106,7 @@ public class Order {
     }
 
     public OrderDto getOrderDto() {
-        return new OrderDto(delivery_address, restaurant.getId(), coupon_code, items, status, id, user.getUserId(), created_at, updated_at, raw_price, tax_fee, additional_fee, courier_fee, pay_price, courier);
+        return new OrderDto(delivery_address, restaurant.getId(), coupon_code, items, status, id, user.getUserId(), created_at, updated_at, raw_price, tax_fee, additional_fee, courier_fee, pay_price, courier, phone);
     }
 
     public void addRating(Rating rating) {
@@ -117,6 +125,27 @@ public class Order {
             rawPrice += (orderItem.getFood().getFinalPrice() * orderItem.getQuantity());
         }
         return rawPrice;
+    }
+
+    private boolean isPeakHour() {
+        LocalTime time = LocalDateTime.now().toLocalTime();
+
+        LocalTime lunchStart = LocalTime.of(12, 0);
+        LocalTime lunchEnd = LocalTime.of(14, 0);
+
+        LocalTime dinnerStart = LocalTime.of(19, 0);
+        LocalTime dinnerEnd = LocalTime.of(22, 0);
+
+        return ((time.isAfter(lunchStart) && time.isBefore(lunchEnd)) ||
+                (time.isAfter(dinnerStart) && time.isBefore(dinnerEnd)));
+    }
+
+    private Integer calculateDeliveryFee() {
+        Random random = new Random();
+        if (isPeakHour()) {
+            return random.nextInt(30, 50) * 1000;
+        }
+        return random.nextInt(10, 30) * 1000;
     }
 
     private Integer calculatePayPrice() {

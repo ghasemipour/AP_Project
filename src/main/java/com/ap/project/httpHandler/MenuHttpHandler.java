@@ -1,6 +1,7 @@
 package com.ap.project.httpHandler;
 
 import com.ap.project.Enums.ApprovalStatus;
+import com.ap.project.Exceptions.NoSuchFoodItem;
 import com.ap.project.dao.FoodItemDao;
 import com.ap.project.dao.MenuDao;
 import com.ap.project.dao.RestaurantDao;
@@ -17,6 +18,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static com.ap.project.httpHandler.SuperHttpHandler.internalServerFailureError;
@@ -130,24 +132,30 @@ public class MenuHttpHandler implements HttpHandler {
         try {
             InputStreamReader reader = new InputStreamReader(exchange.getRequestBody());
             Menu menu = MenuDao.getMenuByTitle(restaurant.getId(), menuTitle, exchange);
-            if(menu == null) {
+            if (menu == null) {
                 exchange.sendResponseHeaders(404, -1);
                 return;
             }
             MenuDto menuDto = new Gson().fromJson(reader, MenuDto.class);
-            if(menuDto.getItem_id() == null) {
+            if (menuDto.getItem_id() == null) {
                 String response = "item_id required";
                 byte[] responseBytes = response.getBytes();
                 exchange.sendResponseHeaders(400, responseBytes.length);
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(responseBytes);
-                }
+                }   
                 return;
             }
             MenuDao.addFoodItem(menu.getId(), menuDto.getItem_id(), exchange);
             sendSuccessMessage("Food item created and added to restaurant successfully", exchange);
 
-        } catch (IOException e) {
+        } catch (NoSuchFoodItem e) {
+            exchange.sendResponseHeaders(404, e.getLocalizedMessage().getBytes(StandardCharsets.UTF_8).length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(e.getLocalizedMessage().getBytes(StandardCharsets.UTF_8));
+            }
+        }
+        catch (IOException e) {
             e.printStackTrace();
             internalServerFailureError(e, exchange);
         }

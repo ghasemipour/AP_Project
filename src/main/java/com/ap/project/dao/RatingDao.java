@@ -47,6 +47,7 @@ public class RatingDao {
                 }
                 return;
             }
+
             if (order.getRating() != null) {
                 String response = "Order already has a rating.";
                 byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
@@ -57,9 +58,11 @@ public class RatingDao {
                 }
                 return;
             }
+
             for (OrderItem items : order.getItems()) {
                 Food foodItem = items.getFood();
                 foodItem.getRatings().add(rating.getRating());
+                foodItem.calculateAverageRating();
                 session.merge(foodItem);
             }
 
@@ -147,6 +150,7 @@ public class RatingDao {
                     os.write(bytes);
                 }
             }
+            Order order = rating.getOrder();
             Hibernate.initialize(rating.getImageBase64());
             if (req.getRating() != null) {
                 rating.setRating(req.getRating());
@@ -157,6 +161,17 @@ public class RatingDao {
             if (req.getImageBase64() != null) {
                 rating.setImageBase64(req.getImageBase64());
             }
+
+            for (OrderItem items : order.getItems()) {
+                Food foodItem = items.getFood();
+                foodItem.getRatings().remove(rating.getRating());
+                foodItem.calculateAverageRating();
+                session.merge(foodItem);
+            }
+
+            Restaurant restaurant = order.getRestaurant();
+            restaurant.calculateAverage();
+            session.merge(restaurant);
             transaction.commit();
         } catch (Exception e) {
             transactionRollBack(transaction, e);
@@ -187,6 +202,17 @@ public class RatingDao {
                     os.write(bytes);
                 }
             }
+            for (OrderItem items : order.getItems()) {
+                Food foodItem = items.getFood();
+                foodItem.getRatings().remove(rating.getRating());
+                foodItem.calculateAverageRating();
+                session.merge(foodItem);
+            }
+
+            Restaurant restaurant = order.getRestaurant();
+            restaurant.calculateAverage();
+            session.merge(restaurant);
+
             order.removeRating(rating);
             ratingUser.removeRating(rating);
 

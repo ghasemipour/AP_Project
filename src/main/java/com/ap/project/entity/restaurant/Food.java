@@ -41,6 +41,8 @@ public class Food {
     @ElementCollection(fetch = FetchType.LAZY)
     private List<Integer> ratings = new ArrayList<>();
 
+    private Double avg_rating = 0.0;
+
     private Integer discountPercentage = 0;
 
     public Food(FoodDto foodDto, Restaurant restaurant) {
@@ -57,7 +59,7 @@ public class Food {
     }
 
     public FoodDto getFoodDto() {
-        return new FoodDto(name, description, price, supply, FoodItemDao.getKeywords(this.foodId), restaurant.getId(), imageBase64, foodId, FoodItemDao.getRatings(this.foodId), discountPercentage);
+        return new FoodDto(name, description, price, supply, FoodItemDao.getKeywords(this.foodId), restaurant.getId(), imageBase64, foodId, FoodItemDao.getRatings(foodId), discountPercentage);
     }
 
     public void addMenu(Menu menu) {
@@ -72,5 +74,17 @@ public class Food {
         if (discountPercentage != null)
             return (int) (price * (1 - discountPercentage / 100.0));
         return price;
+    }
+
+    public void calculateAverageRating() {
+        if (ratings == null || ratings.isEmpty()) {
+            avg_rating = 0.0;
+            return;
+        }
+        double sum = 0.0;
+        for (Integer rating : ratings) {
+            sum += rating;
+        }
+        avg_rating = sum / ratings.size();
     }
 }

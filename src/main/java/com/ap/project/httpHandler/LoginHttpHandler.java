@@ -32,7 +32,7 @@ public class LoginHttpHandler implements HttpHandler {
             }
             InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             LoginDto req = new Gson().fromJson(reader, LoginDto.class);
-            if (req.getPhone() == null || req.getPhone().isEmpty() || req.getPassword().isEmpty() || req.getPassword() == null) {
+            if (req.getPhone() == null || req.getPassword() == null) {
                 String response = "";
                 if (req.getPhone() == null || req.getPhone().isEmpty())
                     response += "{\"error\": \"PhoneNumber required\"}\n";

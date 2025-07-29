@@ -14,6 +14,7 @@ import java.util.List;
 @Getter
 public class OrderDto {
     private String delivery_address;
+    private String phone;
     private Integer vendor_id;
     private String coupon_code;
     private List<OrderItemDto> items = new ArrayList<>();
@@ -31,8 +32,26 @@ public class OrderDto {
     private String created_at;
     private String updated_at;
 
-    public OrderDto(String delivery_address, Integer vendor_id, String coupon_code, List<OrderItem> items, Status status, Integer order_id, Integer user_id, LocalDateTime created_at, LocalDateTime updated_at, Integer raw_price, Integer tax_fee, Integer additional_fee, Integer courier_fee, Integer pay_price, Courier courier) {
+    public OrderDto(
+            String delivery_address,
+            Integer vendor_id,
+            String coupon_code,
+            List<OrderItem> items,
+            Status status,
+            Integer order_id,
+            Integer user_id,
+            LocalDateTime created_at,
+            LocalDateTime updated_at,
+            Integer raw_price,
+            Integer tax_fee,
+            Integer additional_fee,
+            Integer courier_fee,
+            Integer pay_price,
+            Courier courier,
+            String phone
+    ) {
         this.delivery_address = delivery_address;
+        this.phone = phone;
         this.vendor_id = vendor_id;
         this.coupon_code = coupon_code;
         for (OrderItem orderItem : items) {

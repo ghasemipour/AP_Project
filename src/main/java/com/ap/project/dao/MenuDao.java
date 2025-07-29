@@ -109,7 +109,7 @@ public class MenuDao {
             Food food = session.get(Food.class, itemId);
             if(food == null) {
                 exchange.sendResponseHeaders(404, -1);
-                throw new NoSuchFoodItem(itemId + "Food item not found");
+                throw new NoSuchFoodItem("Food item not found: " + itemId);
             }
 
             menu.addFoodItem(food);

@@ -124,7 +124,7 @@ public class FoodItemDao {
 
     }
 
-    public static List<FoodDto> getItemsByFilters(String search, int price, List<String> keywords) {
+    public static List<FoodDto> getItemsByFilters(String search, int price, List<String> keywords, double rating) {
         Transaction transaction = null;
         List<FoodDto> results = new ArrayList<>();
 
@@ -142,8 +142,14 @@ public class FoodItemDao {
             }
 
             if (keywords != null && !keywords.isEmpty()) {
-                hql.append(" AND exists (select k from f.keywords k where k in :keywords)");
+                hql.append(" AND exists (select k from f.keywords k where lower(k) in :keywords)");
             }
+
+            if (rating >= 1 && rating <= 5) {
+                hql.append(" AND f.avg_rating >= :rating");
+            }
+
+            hql.append(" ORDER BY f.avg_rating DESC ");
 
             Query<Food> query = session.createQuery(hql.toString(), Food.class);
 
@@ -163,6 +169,10 @@ public class FoodItemDao {
                 query.setParameter("keywords", lowerKeywords);
             }
 
+            if (rating >= 1 && rating <= 5) {
+                query.setParameter("rating", rating);
+            }
+
             List<Food> foodList = query.getResultList();
 
             //to load up the keywords
@@ -173,8 +183,6 @@ public class FoodItemDao {
             for (Food food : foodList) {
                 results.add(food.getFoodDto());
             }
-
-
             transaction.commit();
 
         } catch (Exception e) {

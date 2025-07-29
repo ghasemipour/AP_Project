@@ -226,13 +226,17 @@ public class FoodHttpHandler implements HttpHandler {
                     ? json.get("price").getAsInt()
                     : -1;
 
+            int rating = json.has("rating") && !json.get("rating").isJsonNull()
+                    ? json.get("rating").getAsInt()
+                    : -1;
+
             List<String> keywords = new ArrayList<>();
             if (json.has("keywords") && json.get("keywords").isJsonArray()) {
                 for (JsonElement element : json.getAsJsonArray("keywords")) {
                     keywords.add(element.getAsString());
                 }
             }
-            List<FoodDto> results = FoodItemDao.getItemsByFilters(search, price, keywords);
+            List<FoodDto> results = FoodItemDao.getItemsByFilters(search, price, keywords, rating);
             sendSuccessMessage(new Gson().toJson(results), exchange);
 
 

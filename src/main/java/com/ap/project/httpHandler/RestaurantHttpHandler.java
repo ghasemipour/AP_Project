@@ -181,12 +181,22 @@ public class RestaurantHttpHandler extends SuperHttpHandler implements HttpHandl
             InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             RestaurantDto req = new Gson().fromJson(reader, RestaurantDto.class);
             Restaurant restaurant = RestaurantDao.getRestaurantById(restaurantId);
+
             if (restaurant == null) {
-                exchange.sendResponseHeaders(404, -1);
+                String response = "Restaurant not found";
+                byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(404, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
                 return;
             }
             if (!(RestaurantDao.getSellerId(restaurantId) == user.getUserId())) {
-                exchange.sendResponseHeaders(403, -1);
+                String response = "Restaurant not owned by seller";
+                exchange.sendResponseHeaders(403, response.getBytes().length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
                 return;
             }
 
