@@ -81,20 +81,28 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
                 handleViewAllTransactions(exchange);
             }
         } else if (parts.length == 4){
-            Coupon coupon = CouponDao.getCouponById(Integer.parseInt(parts[3]));
-            if(coupon == null){
-                exchange.sendResponseHeaders(404, -1);
-                throw new NoSuchCoupon(parts[3] + "Coupon not found");
-            }
-            if(method.equals("DELETE")){
-                handleDeleteCoupon(exchange, coupon);
-            } else if(method.equals("GET")){
-                handleGetCouponDetails(exchange, coupon);
+            if(parts[2].equals("users")){
+                if(!method.equals("DELETE")) {
+                    exchange.sendResponseHeaders(405, -1);
+                    return;
+                }
+                handleDeleteUser(exchange, Integer.parseInt(parts[3]));
+            } else {
+                Coupon coupon = CouponDao.getCouponById(Integer.parseInt(parts[3]));
+                if (coupon == null) {
+                    exchange.sendResponseHeaders(404, -1);
+                    throw new NoSuchCoupon(parts[3] + "Coupon not found");
+                }
+                if (method.equals("DELETE")) {
+                    handleDeleteCoupon(exchange, coupon);
+                } else if (method.equals("GET")) {
+                    handleGetCouponDetails(exchange, coupon);
 
-            } else if(method.equals("PUT")){
-                handleUpdateCoupon(exchange, coupon);
-            } else{
-                exchange.sendResponseHeaders(405, -1);
+                } else if (method.equals("PUT")) {
+                    handleUpdateCoupon(exchange, coupon);
+                } else {
+                    exchange.sendResponseHeaders(405, -1);
+                }
             }
         }else if(parts.length == 5){
             if(!method.equals("PATCH")){
@@ -161,6 +169,18 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
             internalServerFailureError(e, exchange);
         }
 
+    }
+
+    private void handleDeleteUser(HttpExchange exchange, int userId) throws IOException {
+        try {
+            System.out.println(userId);
+            UserDao.deleteUserById(userId, exchange);
+            System.out.println("user deleted");
+            sendSuccessMessage("User deleted", exchange);
+
+        } catch (Exception e){
+            internalServerFailureError(e, exchange);
+        }
     }
 
     private void handleViewAllOrders(HttpExchange exchange) throws IOException {
