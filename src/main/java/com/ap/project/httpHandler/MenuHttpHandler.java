@@ -143,7 +143,7 @@ public class MenuHttpHandler implements HttpHandler {
                 exchange.sendResponseHeaders(400, responseBytes.length);
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(responseBytes);
-                }   
+                }
                 return;
             }
             MenuDao.addFoodItem(menu.getId(), menuDto.getItem_id(), exchange);

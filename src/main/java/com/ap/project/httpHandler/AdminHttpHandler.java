@@ -62,7 +62,7 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
                     handleGetListOfCoupons(exchange);
 
                 } else if(method.equals("POST")){
-                    handleCreatCoupon(exchange);
+                    handleCreateCoupon(exchange);
                 } else {
                     exchange.sendResponseHeaders(405, -1);
                     return;
@@ -249,7 +249,7 @@ public class AdminHttpHandler extends SuperHttpHandler implements HttpHandler {
     }
 
 
-    private void handleCreatCoupon(HttpExchange exchange) throws IOException {
+    private void handleCreateCoupon(HttpExchange exchange) throws IOException {
         try {
             InputStreamReader sr = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
             Gson gson = new GsonBuilder()
