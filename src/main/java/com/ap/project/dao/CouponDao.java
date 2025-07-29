@@ -146,7 +146,8 @@ public class CouponDao {
             LocalDate localDate = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String date = localDate.format(formatter);
-            if(coupon.getCouponCode() != null && (date.compareTo(coupon.getStartDate()) > 0 && date.compareTo(coupon.getEndDate()) < 0)){
+            
+            if(coupon.getCouponCode() != null && (date.compareTo(coupon.getStartDate()) >= 0 && date.compareTo(coupon.getEndDate()) <= 0)){
                 res = true;
             }
         } catch (Exception e){
