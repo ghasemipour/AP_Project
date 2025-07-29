@@ -332,4 +332,20 @@ public class UserDao {
         }
         return results;
     }
+
+    public static void deleteUserById(int userId, HttpExchange exchange) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            User user = session.get(User.class, userId);
+            if(user == null){
+                exchange.sendResponseHeaders(404, -1);
+                throw new NoSuchUser(userId + "User not found");
+            }
+            session.remove(user);
+            transaction.commit();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }
