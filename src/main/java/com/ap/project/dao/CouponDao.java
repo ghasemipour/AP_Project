@@ -140,7 +140,9 @@ public class CouponDao {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()){
             transaction = session.beginTransaction();
-            Coupon coupon = session.get(Coupon.class, couponCode);
+            Coupon coupon = session.createQuery("FROM Coupon c WHERE c.couponCode = :code", Coupon.class)
+                    .setParameter("code", couponCode)
+                    .uniqueResult();
             LocalDate localDate = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String date = localDate.format(formatter);

@@ -78,7 +78,8 @@ public class OrderHttpHandler implements HttpHandler {
                     response += "{\"error\": \"Coupon code invalid or coupon is out of date\"}\n";
                 } else {
                     Coupon coupon = CouponDao.getCouponByCouponCode(couponCode);
-                    if(coupon.getMinPrice() > orderDto.getRaw_price()){
+                    Order order = new Order(orderDto, exchange, (Customer) user, Status.SUBMITTED);
+                    if(coupon.getMinPrice() > order.getRaw_price()){
                         response += "{\"error\": \"Min price to use coupon is more\"}\n";
                     }
                 }

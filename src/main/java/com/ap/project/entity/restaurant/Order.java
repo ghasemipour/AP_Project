@@ -105,6 +105,7 @@ public class Order {
 
     }
 
+
     public OrderDto getOrderDto() {
         return new OrderDto(delivery_address, restaurant.getId(), coupon_code, items, status, id, user.getUserId(), created_at, updated_at, raw_price, tax_fee, additional_fee, courier_fee, pay_price, courier, phone);
     }
