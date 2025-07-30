@@ -276,7 +276,7 @@ public class RestaurantDao {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                     Hibernate.initialize(o.getCreated_at());
                     String date = o.getCreated_at().format(formatter);
-                    if(date.compareTo(startDate) < 0 && date.compareTo(endDate) > 0) {
+                    if(date.compareTo(startDate) < 0 || date.compareTo(endDate) > 0) {
                         continue;
                     }
                     double sale = 0;
